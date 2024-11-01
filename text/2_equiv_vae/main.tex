@@ -1,0 +1,80 @@
+%%%%%%%% ICML 2021 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+% \documentclass{article}
+
+% % Recommended, but optional, packages for figures and better typesetting:
+% \usepackage{microtype}
+% \usepackage{graphicx}
+% \usepackage{subfigure}
+% \usepackage{booktabs} % for professional tables
+% \usepackage{tabularx}
+
+% % hyperref makes hyperlinks in the resulting PDF.
+% % If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% % please comment out the following usepackage line and replace
+% % \usepackage{icml2021} with \usepackage[nohyperref]{icml2021} above.
+% \usepackage{hyperref}
+
+% \newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% % Attempt to make hyperref and algorithmic work together better:
+% \newcommand{\theHalgorithm}{\arabic{algorithm}}
+% \usepackage{algpseudocode}
+% % Use the following line for the initial blind version submitted for review:
+% % \usepackage{icml2021}
+% % If accepted, instead use the following line for the camera-ready submission:
+% \usepackage[accepted]{icml2022}
+
+% % ------------------------------------------------------
+% \input{math_commands.tex}
+% \usepackage{multirow}
+% \usepackage{url}
+% \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+% % For commenting
+% \newcommand{\ak}[1]{{\color{orange}#1}}
+% \newcommand{\kp}[1]{{\color{red}#1}}
+% \newcommand{\STAB}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+
+% \usepackage{amssymb}
+% \usepackage{graphicx}
+% \usepackage{caption}
+% % \usepackage{subcaption}
+% \usepackage{wrapfig}
+% \usepackage{adjustbox}
+% \usepackage{enumitem}
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{url}            % simple URL typesetting
+% \usepackage{amsfonts}       % blackboard math symbols
+% \usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{xcolor}         % colors
+% \usepackage{multirow}
+% % ------------------------------------------------------
+
+\chapter[Equivariant Priors for CS with Unknown Orientation]{Equivariant Priors for Compressed Sensing with Unknown Orientation}\label{chap:eqvae}
+
+%\begin{verse}
+%\textit{
+%\hfill This chapter is based on the ICML 2022 paper \citep{kuzina2022equivariant}.
+%} 
+%\end{verse}
+\begin{flushright}
+	\small{
+		\textit{
+			\hfill This chapter is based on the ICML 2022 paper \citep{kuzina2022equivariant}.
+		} 
+		
+	}
+\end{flushright}
+
+\paragraph{Abstract}
+In compressed sensing, the goal is to reconstruct the signal from an underdetermined system of linear measurements. Thus, prior knowledge about the signal of interest and its structure is required. Additionally, in many scenarios, the signal has an unknown orientation prior to measurements. To address such recovery problems, we propose using equivariant generative models as a prior, which encapsulate orientation information in their latent space. Thereby, we show that signals with unknown orientations can be recovered with iterative gradient descent on the latent space of these models and provide additional theoretical recovery guarantees. We construct an equivariant variational autoencoder and use the decoder as generative prior for compressed sensing. We discuss additional potential gains of the proposed approach in terms of convergence and latency. 
+
+\newpage
+\input{text/2_equiv_vae/sections/1_introduction}
+\input{text/2_equiv_vae/sections/2_related_work}
+\input{text/2_equiv_vae/sections/3_method}
+\input{text/2_equiv_vae/sections/4_experiments}
+% \input{sections/5_conclusion}
+% \newpage
+

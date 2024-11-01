@@ -1,0 +1,86 @@
+
+
+
+
+
+\chapter[Alleviating Adversarial Attacks on VAEs with MCMC]{Alleviating Adversarial Attacks\\ on Variational Autoencoders\\ with MCMC}\label{chap:adv_att}
+%\begin{verse}
+%\textit{
+%\hfill This chapter is based on the NeurIPS 2022 paper \citep{kuzina2022alleviating} and ICLR RobustML workshop paper \citep{kuzina2021adv}.
+%} 
+%\end{verse}
+\begin{flushright}
+	\small{
+		\textit{
+			\hfill This chapter is based on the NeurIPS 2022 paper \citep{kuzina2022alleviating} \\
+			\hfill 	and ICLR RobustML workshop paper \citep{kuzina2021adv}.
+		} 
+		
+	}
+\end{flushright}
+\paragraph{Abstract}
+Variational autoencoders (VAEs) are latent variable models that can generate complex objects and provide meaningful latent representations. Moreover, they could be further used in downstream tasks such as classification. As previous work has shown, one can easily fool VAEs to produce unexpected latent representations and reconstructions for a visually slightly modified input. Here, we examine several objective functions for adversarial attack construction proposed previously and present a solution to alleviate the effect of these attacks. Our method utilizes the Markov Chain Monte Carlo (MCMC) technique in the inference step that we motivate with a theoretical analysis. Thus, we do not incorporate any extra costs during training, and the performance on non-attacked inputs is not decreased. We validate our approach on a variety of datasets (MNIST, Fashion MNIST, Color MNIST, CelebA) and VAE configurations ($\beta$-VAE, NVAE, $\beta$-TCVAE), and show that our approach consistently improves the model robustness to adversarial attacks.
+
+\newpage
+%--------------------------------
+% ==== SECTION: Introduction ====
+% %--------------------------------
+\input{text/3_adv_att/sections/0_intro}
+
+
+% %-------------------------------
+% % ==== SECTION: Methodology ====
+% %-------------------------------
+\input{text/3_adv_att/sections/2_method}
+
+
+% %-------------------------------
+% % ==== SECTION: Experiments ====
+% %-------------------------------
+\input{text/3_adv_att/sections/3_experiments}
+
+
+
+\section{Discussion}
+Following the previous works on attacking VAEs \cite{barrett2021certifiably, camuto2021towards, cemgil2020autoencoding, Cemgil2019-vn, Gondim-Ribeiro2018-cu, Willetts2019-mu}, we only consider the projected gradient descent as a way to construct the attack. However, more sophisticated adaptive methods \cite{ athalye2018obfuscated, tramer2020adaptive} were proposed to attack discriminative model and can be potentially applied to VAEs as well.
+% We are not aware of the works where such attacks were applied to VAEs and 
+We believe that it is an interesting direction for the future work. 
+
+\paragraph{Objective Function}
+For the unsupervised attack on the encoder, we use the symmetric KL-divergence to measure the dissimilarity. However, other options are possible, e.g., the forward or reverse KL-divergence or even $L_2$ distance between the means (see Table \ref{tab:attack_variation}). In our comparative experiments (see Appendix \ref{appendix:objectives}), we observe that no single objective consistently performs better than others.
+
+% \paragraph{What if attacker knows the defence strategy?}
+% In Appendix \ref{appendix:attack_mcmc} we report results of the ablation study, where attacks on the encoder are constructed assuming that the attacker knows the defence strategy and attempts to use it during the attack construction. We observe that using MCMC during the attack construction does not help the attacker. On the contrary, it becomes harder to find a reasonable additive perturbation of the input.
+
+\paragraph{Attack radius}
+During the attack construction we seek to obtain a point that will have the most different latent representation or a different predicted class. However, it is also important that the point itself is as similar to the initial reference point as possible. In Appendix \ref{appendix:attack_radius}, we visualize how the attacks of different radii influence the similarity between the adversarial and reference points. Based on these results, we have chosen the radii which do not allow adversarial points to deviate a lot from the reference (as measured by \textsc{MSSSIM}): $\|\varepsilon\|_{\inf} \leq 0.2$ for the MNIST dataset (which goes in line with the previous works \cite{cemgil2020autoencoding, Cemgil2019-vn}) and $\|\varepsilon\|_{\inf} \leq 0.1$ for the CelebA dataset. 
+
+
+%\begin{wrapfigure}{r}{0.54\textwidth}
+%\vskip -10pt
+%    % \centering
+%    \begin{tabular}{c}
+%        \includegraphics[width=0.8\linewidth]{pics/3_adv_att/hmc_steps_time_ref_rec_sim.pdf} \\
+%        % \includegraphics[width=\linewidth]{img/hmc_steps_time_adv_acc.pdf} \\ 
+%    \end{tabular}
+%    \vskip -5pt
+%    \caption{Trade-off between robustness and inference time.}
+%    \label{fig:time_vs_performance}
+%\end{wrapfigure}
+
+
+\paragraph{Number of MCMC steps and Inference Time}
+In our approach, we have to select the number of MCMC steps that the defender performs. This parameter potentially can be critical as it influences both the inference time (see Appendix \ref{appendix:inference_time}) and the performance (see Appendix \ref{appendix:hmc_steps}). 
+In Figure \ref{fig:time_vs_performance} we show the trade-off between the reconstruction similarity and the inference time. The increase in the inference time is cause by a larger number of HMC steps used (we consider 0, 100, 500 and 1000 steps for this experiment).
+\begin{marginfigure}
+	\vspace*{-8\baselineskip}
+	\includegraphics[width=\linewidth]{pics/3_adv_att/hmc_steps_time_ref_rec_sim.pdf} 
+	\caption{Trade-off between robustness and inference time.}
+	\label{fig:time_vs_performance}
+\end{marginfigure}
+
+% In our approach, we have to select the number of MCMC steps that the defender performs. This parameter potentially can be critical \upd{as it influences the inference time (see Appendix \ref{appendix:inference_time}}. Following the theoretical analysis, the more steps in the MCMC procedure is taken, the tighter the bound (\ref{eq:theorem_1_main}) is. On the other hand, typically we have time and computational constraints to take into account. In Appendix \ref{appendix:hmc_steps}, we show the method's performance for the number of HMC steps ranging between 0 and 2000. There is a considerable jump in robustness between 0 and 100 steps. At the same time, we do not observe much improvement as we continue to increase the number of steps. 
+
+\section{Conclusion}
+In this work, we explore the robustness of VAEs to adversarial attacks.  We propose a theoretically justified method that allows alleviating the effect of attacks on the latent representations by improving the reconstructions of the adversarial inputs and the downstream tasks accuracy. We experimentally validate our approach on a variety of datasets: both grey-scale (MNIST, Fashion MNIST) and colored (ColorMNIST, CelebA) data. We show that the proposed method improves the robustness of the vanilla VAE models and its various modifications, i.e., $\beta$-VAE, $\beta$-TCVAE and NVAE.
+

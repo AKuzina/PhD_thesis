@@ -1,0 +1,32 @@
+\begin{table}[!ht]
+\caption[][\baselineskip]{CS results on MAYO. The reported results corresponding to 200 measurements. By Converged Points, we refer to points that, for a given number of iterations, resulted in MSE (per pixel) lower than $1.e^{-2}$. Concerning the MSE, we reported the mean value $\pm 1 \sigma$. The MSE is computed across converged points only. We emphasize in bold, results from the best model.}
+
+\label{tab:mayo_cs_results}
+\begin{center}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lll|cc|cc|cc|cc}
+% \begin{tabularx}{\linewidth}{@{}lll|YY|YY|YY|YY@{}}
+\toprule
+&&\multirow{2}{*}{Prior} & \multicolumn{2}{c|}{50 iterations} & \multicolumn{2}{c|}{100 iterations} & \multicolumn{2}{c|}{150 iterations} & \multicolumn{2}{c}{200 iterations} \\
+&&& MSE  & Converged  &  MSE  & Converged   &  MSE & Converged  &  MSE  & Converged \\
+&&& ($1.e^{-3}$)$\downarrow$ & Points (\%)$\uparrow$  &  ($1.e^{-3}$)$\downarrow$ & Points (\%)$\uparrow$  &   ($1.e^{-3}$)$\downarrow$ & Points (\%)$\uparrow$  &  ($1.e^{-3}$)$\downarrow$ & Points (\%)$\uparrow$ \\ \midrule
+&\multirow{5}{*}{\STAB{\rotatebox[origin=c]{90}{No rotation}}}
+& Flow & 8.9 $\pm$ 0.9 & 28.2 & 8.1 $\pm$ 1.2 & 65.9 & 7.3 $\pm$ 1.3 & 79.7 & 6.8 $\pm$ 1.4  & 86.8  \\
+&& Aug-Flow & N/A & 0.0 & 8.2 $\pm$ 1.2 & 40.1 & 7.4 $\pm$ 1.4 & 77.1 & 6.7 $\pm$ 1.4 & 83.4 \\
+&& Conv-VAE & 7.9 $\pm$ 1.3 & 39.9 & 6.8 $\pm$ 1.6 & 76.2 & 6.2 $\pm$ 1.8 & \bf{89.6} & 5.9 $\pm$ 1.8  & \bf{95.5}  \\
+&& Aug-VAE & 7.5 $\pm$ 1.3 & 51.7 & \bf{6.1 $\pm$ 1.6} & 75.7 & \bf{5.7 $\pm$ 1.7} & 83.8 & \bf{5.5 $\pm$ 1.6}  & 88.1  \\
+&& Eq-VAE &  \bf{7.4 $\pm$ 1.4} & \bf{73.5} & 6.4 $\pm$ 1.4 & \bf{86.9} & 6.1 $\pm$ 1.5  & 89.2  & 6.0 $\pm$ 1.5  & 90.4  \\ \midrule
+\multirow{5}{*}{\STAB{\rotatebox[origin=c]{90}{Unknown}}}
+& \multirow{5}{*}{\STAB{\rotatebox[origin=c]{90}{rotation}}}
+& Flow & 7.2 $\pm$ 1.4 & \bf{76.4} & \bf{5.8 $\pm$ 1.5} & 83.8 & \bf{5.2 $\pm$ 1.6} & 87.5 & \bf{5.0 $\pm$ 1.7} & \bf{93.3}  \\
+&& Aug-Flow & N/A & 0.0 & 8.2 $\pm$ 1.1 & 49.9 & 6.9 $\pm$ 1.3 & 80.9 & 6.0 $\pm$ 1.3 & 84.3 \\
+&& Conv-VAE & \bf{7.1 $\pm$ 1.7} & 55.3 & 5.9 $\pm$ 2.1 & 80.5 & 5.4 $\pm$ 2.1 & 88.2 & 5.0 $\pm$ 2.0  & 90.2 \\
+&& Aug-VAE & 7.5 $\pm$ 1.5 & 59.3 & 5.9 $\pm$ 1.6 & 85.2 & 5.3 $\pm$ 1.5 & 89.1 & 5.1 $\pm$ 1.6  & 92.4  \\
+&& Eq-VAE &  7.6 $\pm$ 1.4 & 70.3 & 6.6 $\pm$ 1.5 & \bf{87.5} & 6.1 $\pm$ 1.5 & \bf{91.3} & 6.0 $\pm$ 1.6 & 92.7  \\ \midrule
+\bottomrule
+% \end{tabularx}
+\end{tabular}
+}
+\end{center}
+\vspace*{\baselineskip}
+\end{table}

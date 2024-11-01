@@ -1,0 +1,262 @@
+\chapter{Introduction}
+
+\begin{quote}
+\textit{This will be the introduction}
+\end{quote}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+% Gneral Introduction, some talkson how deep generative mdoels are cool goes here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+
+There has be a huge progress in the field of deep learning in the recent years, most of which is happening in the field of generative models. 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+% Main Seciton: Generative models Definition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\section{Deep Generative Modeling}
+We consider generative modeling as a problem of density estimation.  The task is to model a distribution of the random variable $\rvx$ given a finite set of samples from this distribution $\{\rvx_n\}_{n=1}^N$. There are three components of the model that need to be specified:
+\begin{itemize}
+\item Probabilistic Model $p_{\theta}(\rvx)$\footnote{
+	We use $p_{\theta}(\rvx)$ to denote probability density function of random variable $\rvx$, which depends on (potentially unknown) parameters $\theta$. 
+	%	 While we use $p(\rvx|\rvy)$ to denote p.d.f. of the conditional distribution of randomv variable $X$ conditioned on $Y$.
+}.\\ 
+The probabilistic model can be either prescribed or  implicit \citep{diggle1984monte}. In the former case, the density function can be evaluated at least up to a normalization constant, while in the latter only sampling procedure from the distribution is defined.
+
+\item Architecture.\\
+In deep generative models the probabilistic model from the step one is parametrized by the deep neural network. The choice of architecture depends on the type of data and shousl respect any constraints implied by the probabilistic framework (e.g. we expect variance of the distribution to always be positive)
+
+\item Inference method. \\
+Finally, one need to choose unknown parameters $\theta$ of $p_{\theta}(\rvx)$ to approximate a true data distribution $p_e(\rvx)=\frac{1}{N} \sum_{n=1}^N \mathbb{1}\left[\rvx = \rvx_n\right]$. In practice, that means finding unknown model parameters $\theta$ which minimize a divergence between two distributions:
+\begin{equation}
+\begin{aligned}
+\min_{\theta} \text{D}\left(p_{e}(\rvx), p_{\theta}(\rvx)\right) 
+\end{aligned}
+\end{equation}
+
+One of the most common divergences in this case in Kulbak-Leibler \unsure{citation?} divergence \footnote{Examples of other divergences are Jensen-Shanon Divergence and Wasserstein distance used in GANs.}:
+\begin{equation}
+\begin{aligned}
+&\min_{\theta} \KL{p_{e}(\rvx)}{p_{\theta}(\rvx)} \\
+& = \min_{\theta}  \left( - \mathbb{H}\left[p_{e}(\rvx)\right] - \E_{p_{e}(\rvx)}\log p_{\theta}(\rvx)\right)\\
+& = \min_{\theta}  - \sum_{n}\log p_{\theta}(\rvx_n)\\
+\end{aligned}
+\end{equation}
+
+\end{itemize}
+
+
+\subsection{Generative Models Zoo}
+(Deep) Generative models are usually distinguished based on the probabilistic model that used. In Figure \ref{fig:into_model_types} 
+ We will now discuss classed of generative models that arises when different design choices are made at steps one and how they affect the second step.
+ 
+
+\paragraph{Implicit Density}
+Here, the model is defined in a way, where likelihood cannot be directly evaluated for a given point and we can only get samples. 
+\todo{Talk about GANs}
+
+\paragraph{Tractable Likelihood}
+We start from the class of generative models which explicitly define the probability distribution for the model: Autoregressive Models and Normalizing Flows
+\todo{AR and Normalizing Flows}
+
+\paragraph{Unnormalized} 
+\todo{Ebergy-based models}
+
+\begin{figure}[h]
+\begin{tikzpicture}[
+node distance=1.5cm and 2cm,
+box/.style={rectangle, draw, rounded corners, text centered, text width=4cm, minimum height=1cm, fill=blue!10},
+example/.style={rectangle, draw=none, text centered, rounded corners, text width=4cm, minimum height=0.5cm,fill=green!10},
+arrow/.style={->, thick, >=Stealth}
+]
+
+% Main block at the top center
+\node[box, fill=orange!20] (dgms) {Generative Model};
+
+% Subcategories in one horizontal line below the main block
+\node[box, below=of dgms, xshift=-3cm, text width=3.5cm] (full) {Prescribed density};
+\node[box, below=of dgms, xshift=3cm, text width=3.5cm] (implicit) {Implicit dencity\\ $\rvx \sim p_{\theta}(\rvx)$};
+\node[example, below=0.1cm of implicit, text width=3.5cm] (impl-x) {GAN};
+%% Arrows connecting main block to subcategories
+\draw[arrow] (dgms) -- (implicit);
+\draw[arrow] (dgms) -- (full);
+
+
+%\node[example, below=0cm of full, text width=4cm] (full-x) {Normalizing Flows};
+\node[box, below=of full, xshift=-2cm, text width=3.5cm] (tractable) {Fully Tractable \\ $p_{\theta}(\rvx)$};
+\node[box, below=of full, xshift=2cm, text width=3.5cm] (norm) {Unnormalized \\ $ p_{\theta}(\rvx) \propto f_{\theta}(\rvx) $};
+\node[box, below=of full, xshift=6.2cm, text width=3.9cm] (aux) {Auxiliarly Variables \\ $p_{\theta}(\rvx) = \int p_{\theta}(\rvx| \rvz)p_{\theta}(\rvz)d\rvz$};
+\draw[arrow] (full) -- (tractable);
+\draw[arrow] (full) -- (norm);
+\draw[arrow] (full) -- (aux);
+
+\node[example, below=0.1cm of tractable, text width=3.5cm] (tractable-x) {Normalizing Flow};
+\node[example, below=0.1cm of norm, text width=3.5cm] (norm-x) {Energy-based Model};
+\node[example, below=0.1cm of aux, text width=3.9cm] (aux-x) {VAE, Diffuson Models};
+
+%\node[box, below=of aux, xshift=-2cm, text width=3.5cm] (latent) {Latent \\ $ p(\rvz) $};
+%\node[box, below=of aux, xshift=2cm, text width=3.5cm] (observed) {Non-latent \\ $q(\rvz|\rvx){}$};
+%\draw[arrow] (aux) -- (latent);
+%\draw[arrow] (aux) -- (observed);
+
+\end{tikzpicture}
+\caption{Types of Generative Models.}
+\label{fig:into_model_types}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+% Auxiliarly variables: latent and non-latent
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\section{Generative Model with Auxiliary Variables}
+\begin{definition}
+	Auxiliary variable - variables introduced into a model
+\end{definition}
+
+ The idea is to introduce auxiliary variable(s) $\rvz$, which might be unobserved\footnote{We will call unobserved auxiliary variable "\textbf{latent}" },  but such that join likelihood is tractable:
+\begin{equation}
+p_{\theta}(\rvx, \rvz) =  p_{\theta}(\rvx|\rvz)p_{\theta}(\rvz)
+\end{equation}
+
+However, the integral, required to obtain the marginal likelihood might not be tractable in general case:
+\begin{equation}
+p_{\theta}(\rvx) = \int p_{\theta}(\rvx, \rvz)d\rvz 
+\end{equation}
+
+Next we discuss latent variable model: 
+\subsection{Latent Variable Models: from PPCA to Variational Autoencoder}
+
+%- Latent variable generative models: from PPCA to Diffusion models
+%- $$p(x) = p(x|z)p(z)$$
+%- Lower dimentional manifold assumption
+%- Oldies but goldies: PPCA -> Helmholtz machines / Boltzman machines 
+%- Modern heros: Variational Autoencoders, Diffusion Models
+%- Amortization and voila, we have variational posterior $$q(z|x)$$
+\begin{equation}\label{eq:intro_elbo}
+\mathcal{L}(\theta, \phi) = \E_{q(z|x)} \log\frac{p(x, z)}{q(z|x)}
+\end{equation}
+
+
+\subsection{Observed Auxiliary Variables in Generative Models}
+In the previous section, auxillary variables were unobserved and we had to infer posterior disitrobution from the data. Another option could be when auxillary variables are observed or we know their conditional distribution. For example, diffusion based generative models introduce $T$ auxillary variables which constitute noise versions of the input $\rvx$ with different level of noise. We then apply maximum likelihood over the joint model:
+\begin{equation}
+p_{\theta}(\rvx, \rvz_1, \dots, \rvz_T)
+\end{equation}
+
+Interestingly, the MLE objective above is nothing mode than a special case of the ELBO (Eq.~\ref{eq:intro_elbo}), where variational posterior is not learnable.
+
+
+
+\section{Improving Latent Generative Models}
+In this dissertation we consider two aspects in which deep latent models can be improved. The first aspect concerns the choice of the prior distribution and the way it affects model performance in the different scenarios. The second aspect focuses more on the various properties of the resulting latent representations, which can be especially important for the downstream applications of the generative models. We will now discuss both aspects in more details. 
+%- This thesis studies latent space focusing on the two aspects:
+%- **Part 1:** Using better prior to improve the generative performance (aka negative log likelihood)
+%- BooVAE: learnable, expandable prior for continual learning
+%- RQs [1, 3]
+%- DVP-VAE: flexible and scalable prior for deep hierarchical VAE
+%- RQs [1, 5]
+%- **Part 2:** We study properties of the latent representations: new structure / predictable performance under symmetry transformation / robustness to adversarial attacks
+%- Equivariant VAE: symmetry transformation
+%- RQs [2, 3]
+%- Adversarial Attacks: robust to adversarial attacks
+%- RQs [2]
+%- DAED: decouple generative and denoising abilities
+%- RQs [4]
+
+\subsection{Prior in Latent Variable Generative Models}
+%- About the prior $$p(z)$$
+%- We use it to define the structure of our latent space: autoregressive? Hierarchical? Is there a bottleneck? 
+%- It should be expressive enough to represent main properties of the input
+%- And in some cases it is the **only trainable** part of the generative model: aka diffusion
+%- It is nice to make it trainable
+About the priors in VAEs. Here we can tall a lot about using different distributions or normalizing flows or even sometimes unnormalized generative models. 
+
+Then we talk about VampPrior and how is was then used by the field a lot. 
+
+Maybe how it was combined with the Constrained Optimization framework
+
+
+\begin{quote}
+	How \marginnote[-0.75\baselineskip]{Research Question 1} to adjust optimal prior to train VAEs in continual learning?
+\end{quote}
+This research question in addressed in the Chapter~\ref{chap:boovae}.
+
+
+Next, we switch to heirarchical VAEs. Here we say that we can decompose latent variables into groups or stohastic layers and define a prior in the autoregressive way. This allows to get a very expressive latent distribution. However, they \textbf{can be hard to train} and \textbf{tend to have a lot of inactive units}.
+
+
+\begin{quote}
+	How \marginnote[-0.75\baselineskip]{Research Question 2} to approximate optimal prior for hierarchical VAEs in a scalable way and improve latent space utilization?
+\end{quote}
+This research question in addressed in the Chapter~\ref{chap:dvp}.
+
+
+\subsection{Latent Space Properties}
+Generative models are nice on its own and can be used just for generations. However, they are also very usefull in downstream tasks and applications. 
+
+Therefore, we want to be aware of the properties latent spaces possess, or want to be able to impose properties we downstream tasks require. Below, we  discuss some of the properties and how they can be used on downstream applications.
+
+\paragraph{Compressed Sensing}
+\begin{quote}
+	How \marginnote[-0.75\baselineskip]{Research Question 3} to train VAE with the equivariant latent space.
+\end{quote}
+This research question in addressed in the Chapter~\ref{chap:eqvae}.
+
+\paragraph{Adversarial Robustness}
+\begin{quote}
+	How \marginnote[-0.75\baselineskip]{Research Question 4} to make latent representations robust to adversarial attacks
+\end{quote}
+This research question in addressed in the Chapter~\ref{chap:adv_att}.
+
+\paragraph{Denoising}
+\begin{quote}
+	How \marginnote[-0.75\baselineskip]{Research Question 5} to decouple denoising and generative abilities of the diffusion generative models
+\end{quote}
+This research question in addressed in the Chapter~\ref{chap:daed}.
+
+
+\section{Dissertation Structure and Contributions}
+In the process of answering the research questions above, we have contributed to different aspects of generative modeling. In Table \ref{tab:papers_and_contributions} we provide the matrix of conrtibutions, so that the reader interested in a particular aspect can refer to the 
+\begin{table}[!ht]
+	\caption[][\baselineskip]{Contributions to Different Aspects of Generative Modeling .}
+	\label{tab:papers_and_contributions}
+	\begin{center}
+%		\resizebox{\textwidth}{!}{
+			\begin{tabular}{ll|cccc}
+				\toprule
+				& &         & Downstream & Latent                & Architecture \\
+				& & Prior & Application  & Space Properties &                      \\ \midrule
+				\multirow{2}{*}{\STAB{\rotatebox[origin=c]{90}{Part 1}}}
+				& Chapter \ref{chap:boovae} & $\checkmark$ & $\checkmark$ & \\
+				& Chapter \ref{chap:dvp} & $\checkmark$ & & & $\checkmark$\\ \midrule
+				\multirow{3}{*}{\STAB{\rotatebox[origin=c]{90}{Part 2}}}
+				& Chapter \ref{chap:eqvae}&  &$\checkmark$ & $\checkmark$ & $\checkmark$\\
+				& Chapter \ref{chap:adv_att} & &$\checkmark$ & $\checkmark$ &\\
+				& Chapter \ref{chap:daed} &  & & $\checkmark$ &\\
+				 \midrule
+				\bottomrule
+				% \end{tabularx}
+			\end{tabular}
+%		}
+	\end{center}
+	\vspace*{\baselineskip}
+\end{table}
+%\section{Research Questions}
+%
+%\begin{enumerate}
+%\item Approximate optimal prior improves the VAE performance. How to adjust it to be applicable to continual learning setting and be scalable to deep hierarchical VAEs?
+%\item How to make sure that latent representation exhibit predictable performance under certain input transformations, such as specifically constrcuted noise or action of the symmetry group?
+%\item  What are the banifits of using VAEs as generative prior in continual learning and compressed sensing
+%\item  Can we decouple denoising and generative functions of the diffusion latent space?
+%\item  How to improve latent space utilization in deep hierarchical VAEs?
+%\end{enumerate}
+
+\paragraph{How to read this dissertation}
+Each chapter in this dissertation is based on one or more published papers.
+We have chosen to keep paper consistent with the original publication, which allows reading each chapter as independent unit. 
+Each paper is accompanied with Appendix, which is located at the end of the dissertation.
+
+

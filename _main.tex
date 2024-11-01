@@ -1,0 +1,242 @@
+% -*- Mode:TeX -*-
+% \documentclass[nobib,justified,titlepage]{tufte-book}
+
+\documentclass[nobib,justified,titlepage,nofonts,a4paper]{tufte-book}
+
+% nofonts - does not load fonts, define manually here
+\usepackage{amsmath,amssymb,amsfonts} % math symbols
+% \usepackage{bm}
+
+\usepackage{Alegreya}
+\usepackage[sc]{mathpazo} % pretty math font: or option osf
+\usepackage{newpxmath}
+% % \usepackage[scaled=0.95]{helvet}
+\usepackage[scaled=0.85]{beramono}
+\usepackage{textcomp}
+% % rmfamily
+% % \DeclareFontFamilySubstitution{T1}{\rmdefault}{mathpazo} 
+\renewcommand{\ttdefault}{fvm}
+\renewcommand{\sfdefault}{fvm}
+\renewcommand{\rmdefault}{pplx}
+
+
+% allow cyrilics
+\usepackage[T2A,T1]{fontenc} 
+\usepackage[russian, english]{babel}
+
+\usepackage[scaled=0.85]{droidserif}
+\DeclareFontFamilySubstitution{T2A}{\rmdefault}{droidserif} 
+% iwona
+% antt
+% kurier
+
+% Define font substitute to get rid of the warning
+\sbox0{\ttfamily X}
+\DeclareFontShape{T1}{fvm}{m}{sc}{<-> ssub * fvm/m/n}{}
+
+
+\usepackage{lgrind}
+\usepackage{graphicx}
+\usepackage{lipsum}
+%\usepackage[margin=1pt,font=small]{caption}
+\usepackage[caption=false]{subfig}
+\usepackage[margin=1pt,font=small]{caption}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{moreverb}
+\usepackage{alltt}
+%\usepackage{parskip}
+\usepackage{url}
+\usepackage{array}
+\usepackage{pdfpages}
+\usepackage{wrapfig}
+\usepackage{geometry}
+\usepackage{afterpage}
+\usepackage{capt-of}
+\usepackage{pdflscape}
+\usepackage{natbib}
+\usepackage{longtable}
+\usepackage[symbol]{footmisc}
+
+% tikz
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, shapes.geometric, positioning}
+% modification to natbib citations
+\setcitestyle{numbers,square,citesep={;},aysep={,},yysep={;}}
+% \setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+% \let\cite\citep  
+
+% \makeatother
+
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+
+% Back referencing (jump back to the text)
+\usepackage[hyperpageref]{backref}
+\usepackage{hyperref}       % hyperlinks
+%\usepackage[pagebackref=true]{hyperref} 
+\renewcommand*\backref[1]{\ifx#1\relax \else (Cited on #1) \fi}
+
+
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+% \usepackage{microtype}      % microtypography
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{xfrac}
+\usepackage[export]{adjustbox}
+%\usepackage{subcaption}
+\newcommand{\STAB}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+
+
+%%
+% Prints an asterisk that takes up no horizontal space.
+% Useful in tabular environments.
+\newcommand{\hangstar}{\makebox[0pt][l]{*}}
+
+%%
+% Prints a trailing space in a smart way.
+\usepackage{xspace}
+
+% custom page numbering
+\fancypagestyle{plain}{
+	\fancyhead[LE]{\thepage\quad\smallcaps}% 
+	\fancyhead[RO]{\smallcaps\quad\thepage}%
+}
+\usepackage[parfill]{parskip}
+
+
+%% This bit allows you to either specify only the files which you wish to
+%% process, or `all' to process all files which you \include.
+% \setcounter{secnumdepth}{0}
+% \includeonly{chap2}
+
+%%% Notes, comments, todos
+% 
+\usepackage{xargs}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+
+
+
+
+% INFO : used in the titlepage, copyright and stuff.
+\author[Anna Kuzina]{Anna Kuzina}
+\title{Latent Matters: The title that I will change}
+% "Exploring the Hidden Realms: Unveiling Latent Spaces in Generative Models"
+% "Latent Dimensions: Mapping the Invisible in Generative Architectures"
+% "Beyond the Surface: Understanding Latent Spaces in Generative Systems"
+% "The Secret Life of Latent Spaces: Insights into Generative Models"
+% "Hidden Structures: Deciphering Latent Spaces in Generative Networks"
+% "Latent Landscapes: Navigating the Terrain of Generative Models"
+% "Under the Hood: A Deep Dive into Latent Spaces of Generative AI"
+% "Latent Realities: A Journey through the Inner Workings of Generative Models"
+% "Veiled Vistas: Exploring the Depths of Latent Spaces in Generative Algorithms"
+% "Cryptic Constructs: Unraveling the Mysteries of Latent Spaces in Generative Models"
+
+% Some ideas on the cover:
+% Use some nature inspired image
+% Something hidden (aka latent)
+% Maybe as if somthing important hidden in the deep forest e.g. 
+% Or it should be more on a patter side of things rather than specific object is hidden
+% прям как светка прятала хуи в узорах, только что-то приличное и возможно спрятано в листве \ цветочках \ что-нить зеленое ))
+
+
+
+\subtitle{Deep Latent Variable Generative Models}
+\university{Vrije Universiteit Amsterdam}
+
+\rector{prof.dr.~J.J.G.~Geurts}
+\phdfaculty{Faculteit der Bètawetenschappen}
+\defensedate{donderdag 17 september 2023 om 13.45 uur}
+\defenselocation{aula}
+\birthplace{Moscow, Russia}
+\input{math_commands.tex}
+
+
+\shoutouts{
+\foreignlanguage{russian}{Когда б вы знали, из какого сора}\\
+\foreignlanguage{russian}{Растут стихи, не ведая стыда...} \\
+\foreignlanguage{russian}{А. Ахматова} \\ \vskip 10pt
+If you could know what gibberish empowers\\
+The verse that grows, from all abashment freed...\\
+Anna Akhmatova
+% \foreignlanguage{russian}{Когда б вы знали, из какого сора\\
+% Растут стихи, не ведая стыда}
+}
+
+\newcommand\ours{{DAED}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                    BEGIN DOCUMENT                                %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+%%%%% Front Matter
+\frontmatter
+\maketitlepage
+\pagestyle{plain}
+%\include{text/0_intro/summary}
+%\include{text/0_intro/acknowledgments}
+%\tableofcontents
+
+% \newpage
+% \listoffigures
+% \newpage
+% \listoftables
+
+%%%%% Introduction
+\mainmatter
+\include{text/0_intro/papers}
+\include{text/0_intro/introduction}
+% \include{text/fonts_test}
+
+\listoftodos[Notes]
+
+%%%%% Papers
+\part{New properties and structure in the Latent Space}
+
+\include{text/2_equiv_vae/main}
+
+\include{text/3_adv_att/main}
+
+\include{text/4_daed/main}
+
+\part{Improve Generative Performance}
+\include{text/1_boovae/main}
+\chapter{Diffusion-based Vamp  Prior for deep hieararchical VAEs}\label{chap:dvp}
+
+
+%%%%% Bibliography
+\cleardoublepage
+\begin{fullwidth}
+\begin{singlespace}
+	\bibliography{main}
+	\addcontentsline{toc}{chapter}{Bibliography}
+	% \bibliographystyle{apalike}
+	\bibliographystyle{tmlr}
+\end{singlespace}
+\end{fullwidth}
+
+%%%%% Appendix
+\appendix
+\newpage
+\todo{Make sure that appendix order is the same as chapter order}
+\include{text/1_boovae/appendix}
+\include{text/2_equiv_vae/sections/6_appendix}
+\include{text/3_adv_att/appendix}
+\include{text/4_daed/sections/5_appendix}
+
+\clearpage
+
+
+
+
+\end{document}
+

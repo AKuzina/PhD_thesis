@@ -1,0 +1,34 @@
+
+\begin{table}[ht]
+\caption[][\baselineskip]{CS results on MNIST. We report results averaged over 1000 test points. By Converged Points, we refer to points that, for a given number of iterations, resulted in MSE (per pixel) lower than $1.e^{-2}$. We emphasize in bold, results from the best model.}
+\label{tab:mnist_cs_results}
+\begin{center}
+% \begin{sc}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lll|ccc|ccc|ccc}
+% \begin{tabular}{\linewidth}{@{}lll|YYc|YYc|YYc@{}}
+\toprule
+&&\multirow{2}{*}{Prior} & \multicolumn{3}{c|}{50 measurements} & \multicolumn{3}{c|}{100 measurements} & \multicolumn{3}{c}{200 measurements} \\
+&&& MSE & Converged  & \# iter$\downarrow$ &  MSE  & Converged  & \# iter$\downarrow$ &  MSE & Converged  & \# iter $\downarrow$\\ 
+&&&  ($1.e^{-3}$)$\downarrow$ & Points (\%)$\uparrow$ &  &   ($1.e^{-3}$)$\downarrow$ & Converged  &  &  ($1.e^{-3}$)$\downarrow$ &  Points (\%)$\uparrow$ & \\ \midrule
+&\multirow{5}{*}{\STAB{\rotatebox[origin=c]{90}{No rotation}}}
+& Flow        & 45.4 & 100 & 59 & 19.2 & 100 & 39 & 10.2 & 100 & 38 \\
+&& Cond. Flow & 22.6 & 100 & 35 & 10.1 & 100 & \textbf{22} & 5.8 & 100 & \textbf{22} \\
+&& MLP-VAE    & 25.7 & 100 & 50 & 12.1 & 100 & 41 & 8.7 & 100 & 38\\
+&& Conv-VAE   & 18.0 & 100 & 48 & 5.5  & 100 & 39 & 3.2 & 100 & 35\\
+&& Eq-VAE     & \textbf{10.6} & 100 & \textbf{34} & \textbf{2.6}  & 100 & \textbf{22} & \textbf{2.1} & 100 & \textbf{22}\\ \midrule
+\multirow{5}{*}{\STAB{\rotatebox[origin=c]{90}{Unknown}}}
+& \multirow {5}{*}{\STAB{\rotatebox[origin=c]{90}{rotation}}}
+& Flow        & 27.2 & 100 & 73 & 13.2 & 100 & 60 & 7.6  & 100 & 36 \\
+&& Cond. Flow & 17.9 & 100 & 42 & 7.2  & 100 & 32 & 6.0  & 100 & 30 \\
+&& MLP-VAE    & 25.9 & 100 & 48 & 16.4 & 100 & 40 & 11.7 & 100 & 34\\
+&& Conv-VAE   & 17.5 & 100 & 51 & 7.0  & 100 & 39 & 4.2  & 100 & 32\\
+&& Eq-VAE     & \textbf{11.8} & 100 & \textbf{33} & \textbf{4.2}  & 100 & \textbf{24} & \textbf{3.2}  & 100 & \textbf{23}\\
+\bottomrule
+\end{tabular}
+}
+% \end{sc}
+\end{center}
+% \vskip 0.2in
+\vspace*{\baselineskip}
+\end{table}

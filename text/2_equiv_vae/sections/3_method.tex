@@ -1,0 +1,184 @@
+\section{Methodology}
+
+
+\subsection{Background: Variational Autoencoder}\label{sec:vae}
+Variational Autoencoder (VAE) \citep{kingma2014autoencoding, rezende2014stochastic} is a deep generative model which models a joint distribution of observed random variables $\vx \in \mathcal{X}$ (e.g. $\mathcal{X} = \mathbb{R}^n$) and latent variables $\vz \in \mathbb{R}^k$ as $p_{\theta}(\vx, \vz) = p_{\theta}(\vx|\vz)p(\vz)$. The model is trained to maximize the marginal likelihood $p_{\theta}(\vx)$ for a given set of points $\vx_1, \dots \vx_N$. Amortized version of variational inference \citep{jordan1999introduction} is used to obtain a tractable objective: by introducing a variational posterior $q_{\phi}(\vz|\vx)$, also refered to as encoder, one can obtain a lower bound on the intractable marginal likelihood (ELBO):
+\begin{equation} \label{eq_ch2:elbo}
+    \mathcal{L}(\theta, \phi) = \E_{p_e(\vx)}\Big[\E_{q_{\phi}(\vz|\vx)} \ln p_{\theta}(\vx|\vz) -\KL{q_{\phi}(\vz|\vx) }{p(\vz)} \Big]. 
+\end{equation}
+
+\subsection{Equivariant VAE}\label{sec:eq_vae}
+\paragraph{Requirements for the Equivariant Latent Space} We start by discussing the requirements, which encoder and decoder of the VAE should satisfy. Forward pass through the VAE model consists of three steps. First, we apply a neural network parameterized by $\phi$ to get parameters of the variational posterior $q_{\phi}(\vz|\vx)$. Secondly, we sample from this distribution $\tilde{\vz} \sim q_{\phi}(\vz|\vx)$. And, on the third step, we push $\tilde{\vz}$ through the neural network parameterized by $\theta$ which returns parameters of the generative distribution $p_{\theta}(\vx|\tilde{\vz})$. 
+
+Consider a group $\gG$. Our goal is to construct VAE, in which latent space is equivariant under the action of the group element $g \in \gG$. Let $\gT_g^x: \gG \times \mathcal{X} \rightarrow \mathcal{X}$ be a transformation of a data point under the group action $g$ and $\gT_g^z: \gG \times \mathbb{R}^k \rightarrow \mathbb{R}^k$ be a transformation of a latent code under the same action $g$. Then, for the encoder to be equivariant, we aim for the following property to hold:
+
+\begin{align}
+    \gT_g^z \vz &\stackrel{d}{=} \vz_g, \text{where}\label{eq:eq_encoder}\\ 
+     \vz_g &\sim q_{\phi}(\vz| \gT_g^x \vx),\\
+     \vz &\sim q_{\phi}(\vz| \vx).
+\end{align}
+where $\stackrel{d}{=}$ stands for equality in distribution. In other words, sampling latent code for variational posterior conditioned on the transformed input should be the same as transforming a latent code which is sampled from the variational distribution conditioned on the non-transformed input.  
+
+Furthermore, symmetric property should hold for the decoder network. Namely,
+\begin{align}
+    \gT_g^x \vx &\stackrel{d}{=} \vx_g, \text{where} \label{eq:eq_decoder}\\
+    \vx_g &\sim p_{\theta}(\vx| \gT_g^z \vz),\\
+    \vx &\sim p_{\theta}(\vx| \vz).
+\end{align}
+
+We now discuss how to construct the Encoder and Decoder networks to ensure that both requirements (\ref{eq:eq_encoder}) and (\ref{eq:eq_decoder}) hold.
+
+\paragraph{Equivariant Encoder}
+The common choice of the variational posterior distribution $q_{\phi}(\vz|\vx)$ is Gaussian 
+\begin{align}
+    q_{\phi}(\vz|\vx) &= \mathcal{N}(\vz| \mu, \Sigma), \label{eq:var_posterior}\\
+    \mu &= \mu_{\phi}(\vx), \notag \\
+    \Sigma &= \mL\mL^T, \, \mL = L_{\phi}(\vx). \notag
+\end{align}
+
+In general case $\mL$ is a lower triangular matrix, which can be obtained by Cholesky decomposition of $\Sigma$. 
+In practice, the covariance matrix is often chosen to be diagonal. That is $\mL$ is also diagonal: $L_{\phi}(\vx) = \diag \sigma_{\phi}(\vx)$. 
+
+Such parametrization is practical for several reasons. Firstly, Gaussian distribution is reparametrizable:
+\begin{equation}
+    \vz = \mu +  \mL\varepsilon,
+\end{equation}
+This is crucial for backpropogation through the ELBO (\ref{eq_ch2:elbo}). Secondly, the KL-term between variational posterior and prior is to be computed at each iteration. The prior is usually chosen to be standard Gaussian, which gives a closed form for the KL-divergence:
+\begin{align} \label{eq:gaus_kl}
+    \KL{q_{\phi}(\vz|\vx)}{p(\vz)} = \tfrac{1}{2}\big[-\log\det\Sigma - d + 
+    \text{tr}\Sigma + \mu^T\mu \big]. 
+\end{align}
+With the diagonal covariance matrix computing the log-determinant in \eqref{eq:gaus_kl} reduces to a summation of $d$ scalars.
+
+In this work, we also focus on the Gaussian $q_{\phi}$. Then it is enough to match the first and second moments of $\gT_g^z \vz$ and $\vz_g$ to satisfy the desired properties of the equivariant latent space. 
+When it comes to $\vz_g$, it follows a Gaussian distribution, which gives us the following moments: 
+\begin{align}
+    \E \vz_g&= \mu_{\phi}(\gT_g^x \vx), \\
+    \E(\vz_g - \E \vz_g) (\vz_g - \E \vz_g)^T &= L_{\phi}(\gT_g^x \vx)L_{\phi}(\gT_g^x \vx)^T.
+\end{align}
+
+Next, we would like to find the moments of $\gT_g^z \vz$, knowing that $\vz$ is a Gaussian random variable (\ref{eq:var_posterior}). The mean value is given by
+\begin{equation}
+    \E \gT_g^z \vz = \E \gT_g^z[\mu + \mL\varepsilon] =  \gT_g^z[\mu].
+\end{equation}
+And for the second moment, we have:
+\begin{align}
+    \E &(\gT_g^z \vz - \E  \gT_g^z \vz)(\gT_g^z \vz - \E  \gT_g^z \vz )^T \\
+    &=\E (\gT_g^z[\mu + \mL\varepsilon] + \gT_g^z \mu)(\gT_g^z[\mu + \mL\varepsilon] + \gT_g^z\mu)^T \\
+    &=\E \gT_g^z[\mL\varepsilon]\gT_g^z[\mL\varepsilon]^T \\
+    &=\gT_g^z[\mL]\gT_g^z[\mL]^T.
+\end{align}
+
+This gives us the following condition on the mean function:
+\begin{equation}\label{eq:eq_encoder_mean_final}
+     \mu_{\phi}(\gT_g^x \vx) = \gT_g^z[\mu_{\phi}(\vx)].
+\end{equation}
+
+This property can be satisfied when using an equivariant neural network to model the mean function. The covariance, on the other hand, should satisfy:
+\begin{equation}\label{eq:eq_encoder_var_final}
+    L_{\phi}(\gT_g^x \vx)L_{\phi}^T(\gT_g^x \vx) = \mathcal{T}_g^z[L_{\phi}(\vx)] \left(\gT_g^z[L_{\phi}(\vx)]\right)^T.
+\end{equation}
+
+The main restriction that results from the (\ref{eq:eq_encoder_var_final}) is that the diagonal covariance matrix can violate the desired equivariance property. As mentioned earlier, one usually chooses $L_{\phi}(\vx) = \diag \sigma(\vx)$. In this case $L_{\phi}(\gT_g^x \vx)$ will always be diagonal. However, $\mathcal{T}_g^z[L_{\phi}(\vx)]$ is not necessarily staying diagonal. Therefore, we have to use a non-diagonal covariance matrix. We still need to be able to sample $\vz$, compute log-determinant on the forward pass and ensure that the matrix is positive definite. To this end, we propose to use a full-rank covariance matrix in our model:
+\begin{equation}
+    \Sigma = V_{\phi}(\vx)V_{\phi}(\vx)^T + \eta \mI,
+\end{equation}
+
+where $V_{\phi}(\cdot)$ is an equivariant function, which outputs a full-rank matrix.  We ensure that the resulting covariance matrix is positive definite by adding a small positive perm to the diagonal elements.
+
+\paragraph{Equivariant Decoder}
+For the decoder to be equivariant, we should ensure a similar property as we did for the encoder. We consider two distributions to model the conditional likelihood $p_{\theta}(\vx|\vz)$. For RGB images, we can use Gaussian distribution. The same assumptions about the mean function and covariance should be satisfied in this case. 
+
+For grey-scale images, Bernoulli distribution is used: $p_{\theta}(\vx|\vz) = \mathcal{B}e(\vx | f_{\theta}(\vz))$. In this case, it is straightforward to respect the property (\ref{eq:eq_decoder}): 
+\begin{equation}
+f_{\theta}(\gT_g^z \vz)  = \mathcal{T}_g^x[f_{\theta}(\vz)],
+\end{equation}
+
+which means that we should just ensure that $f_{\theta}$ is an equivariant function. We summarize the forward pass through the resulting model in the Algorithm \ref{alg:vae_forward}.
+
+\begin{algorithm}[t]
+	\caption{Forward pass through equivariant VAE}
+	\label{alg:vae_forward}
+	\begin{algorithmic}
+	    \State \hskip-3mm \textbf{Input}: $x$
+	    \State $\mu = \mu_{\phi}(\vx)$  \Comment{Forward pass through the encoder}
+	    \State $\mV = V_{\phi}(\vx)$
+		\State $\Sigma = \mV\mV^T + \eta \mI$
+		\State $L = \text{Chol}(\Sigma)$ \Comment{Cholesky decomposition of $\Sigma$}
+		\State $\widetilde{\vz} = \mu + \mL \varepsilon, \, \varepsilon \sim \mathcal{N}(0, I)$
+		\State $\text{KL} = \tfrac12\sum_i\left(-\log \mL_{ii} - 1 + \mL_{ii}^2 + \mu_i^2 \right)$
+		\State $\mathrm{p}_x = f_{\theta}(\widetilde{\vz})$ \Comment{Forward pass through the decoder}
+		\State $\text{Re} = -\log p_{\theta}(\vx| \mathrm{p}_\vx)$ \Comment{Reconstruction Loss}
+		\State $\mathcal{L}(\phi, \theta) =  - \text{Re} - \text{KL}$ \Comment{Compute ELBO}
+		\State  \hskip-3mm \textbf{Return}: $ - \mathcal{L}(\phi, \theta)$
+	\end{algorithmic}
+\end{algorithm}
+
+\subsection{Generative Compressed Sensing with Unknown Orientation} \label{sec:gen_cs_rotation}
+
+We consider the following forward process:
+\begin{equation}
+    \vy = \mA \gT_g^x \vx + \varepsilon,
+\end{equation}
+
+where the sensing matrix $\mA$ is known and $g$ stands for the unknown rotation angle (element of the group of rotations). 
+% We also assume that the rotation angle $\alpha$ is not observed. 
+Our goal is to reconstruct the rotated signal $\gT_g^x \vx$. The way to address this problem depends on the type of prior generative model that we are using. Below we consider three different scenarios. 
+
+\paragraph{Standard Prior}
+Firstly, we may have a prior generative model, which is uninformed of the rotation. That is, it was trained on the signals in the non-rotated (canonical) orientation and it is only able to generate such. However, it is still possible to reformulate the optimization problem (\ref{eq:cs_mle}), so that we are able to reconstruct the rotated signal:
+
+\begin{align}
+    \vz^*, g^* &= \arg\min_{\vz, g} \|\vy - \mA \gT_{g}^x G(\vz)\|_2^2, \\
+    \vx^* &= \gT_{g^*}^x G(\vz^*).
+    % \vx^{\alpha} &= \gT_{\alpha^*}\vx^*.
+\end{align}
+
+However, we have observed that optimizing for the latent code and the rotation angle simultaneously using the gradient descent does not produce reasonable results. However, coordinate gradient descent can be applied instead. In the latter case, we alternate the gradient steps to update the latent code and the rotation angle. This allows us to use different learning rates and considerably improves the convergence. 
+
+\paragraph{Conditional Prior}
+Secondly, we may have a conditional generative model as a prior. In this case, the model is trained on rotated images. As a result, it can generate a rotated image from a latent code and with the desired angle. The optimization task for an MLE solution will then be the following:
+\begin{align}
+    \vz^*, g^* &= \arg\min_{\vz, g} \|\vy - \mA G(\vz, g)\|_2^2, \\
+    \vx^{*} &= G(\vz^*, g^*).
+\end{align}
+
+
+\paragraph{Prior with rotation-aware latent space}
+Finally, we may train a prior with a latent code for all the rotated images. For example, we can augment the dataset with the rotated sample while training the prior. Another option would be to train an equivariant generative model. The latter approach does not require the rotated samples during training. However, the equivariance property still allows it to produce the rotated samples. 
+
+\begin{align}
+    \vz^* &= \arg\min_{\vz} \|\vy - \mA G(\vz)\|_2^2,\\
+    \vx^{*} &= G(\vz^*).
+\end{align}
+
+The straightforward advantage of this approach is that we have the same objective as a conventional generative compressed sensing and there is no need to optimize with respect to the rotation angle. Furthermore, in case of equivariant prior, we do not need any additional (augmented) data while training the generative model.
+
+\subsection{Recovery guarantees for equivariant priors}
+With some conditions on the sensing matrix, generative  compressed sensing has recovery guarantees in classical setup. The main idea is presented in \cite{Bora2017-as} with follow-up works on more general sensing setups \cite{liu_generalized_2020, liu_sample_2020}. We can provide the same recovery guarantees for equivariant priors. Before stating the result, we introduce some notations. A generative model $G(\cdot)$ is defined as a mapping from $k$-dimensional ball of radius $r$ in $\R^k$ to $\R^n$. We assume that the action of rotation in $\R^n$ is given by a unitary representation ${\gT_g^x}$.
+
+\begin{theorem}
+Consider an equivariant generative model $G: B_k(r)\to\R^n$, which is assumed to be an $L$-Lipschitz function. 
+Let $\mA\in\R^{m\times n}$ be a random Gaussian matrix with i.i.d. entries $\gN(0,m^{-1})$. 
+Assume that a signal $\vx^\star\in\R^n$ is observed in an unknown orientation according to $\vy = \mA \gT_g^x \vx_\star + \vepsilon$. 
+Suppose that $\hat{\vz}$ minimizes $\norm{\vy-\mA G(\vz)}$ to within error of $\delta_{\text{approx}}$.
+For measurement  number $m =\Omega(k \log (Lr/\delta)$, the following holds with probability $1-e^{-\Omega(m)}$
+\begin{align*}
+&\norm{G(\hat{\vz})-\gT_g^x \vx_\star}_2  \leq  6 \min_{\vz\in B_k(r)}\norm{G(\vz)-\vx_\star}_2 + 3\norm{\vepsilon}_2 + 2\delta_{\text{approx}} + 2\delta.
+\end{align*}
+\label{thm:equivmodel}
+\end{theorem}
+Since equivariant models incorporate the rotation in the latent space, the proof remains the same. Nonetheless, we review it in the Appendix.
+
+Note that the upper bound on the reconstruction error does not depend on the rotation operation $\gT_g^x$. The term $\min_{\vz\in B_k(r)}\norm{G(\vz)-\vx_\star}_2$ is evaluated only on the canonical pose. This is a built-in feature of the equivariant models, namely that,:
+\begin{align*}
+\norm{G(\vz)-\gT_g^x \vx_\star}_2 &= \norm{{\gT_g^x}^{H}G(\vz)- \vx_\star}_2\\
+&= \norm{G({\gT_g^z}^{H}\vz)- \vx_\star}_2.
+\end{align*}
+Since ${\gT_g^z}$ is a unitary matrix, it maps $B_k(r)$ to itself, and ${\gT_g^z}^{H}\vz$ remains inside $B_k(r)$. This means that:
+\begin{align*}
+\min_{\vz\in B_k(r)}\norm{G(\vz)-\gT_g^x \vx_\star}_2 
+&=\min_{\vz\in B_k(r)} \norm{G({\gT_g^z}^{H}\vz)- \vx_\star}_2\\
+&=\min_{\vz\in B_k(r)} \norm{G(\vz)- \vx_\star}_2.
+\end{align*}
+This upper bound remains the same for generative compressed sensing with no rotation. Although this is just an upper bound, it suggests that there should not be a difference in the performance of equivariant priors on rotated and non-rotated data. Our experimental results confirm that there is a small difference in performance for rotated and non-rotated signals. 

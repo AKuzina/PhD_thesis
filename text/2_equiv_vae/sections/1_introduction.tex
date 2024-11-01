@@ -1,0 +1,34 @@
+% Overall plan of the paper
+% \begin{itemize}
+%     \item Introduction and problem statements.
+%     \item Theoretical analysis 
+%     \item Equivariant generative priors
+%     \item Experiments on MNIST, Mayo and mmWave dataset
+% \end{itemize}
+
+
+\section{Introduction}
+Compressed sensing (CS) deals with the problem of reconstructing an unknown underlying signal $\vx \in \mathbb{R}^m$ from $m$ linear measurements generated as
+\begin{equation} \label{eq:cs_main}
+    \vy = \mathbf{A}\vx + \vepsilon
+\end{equation}
+where $\mathbf{A} \in \mathbb{R}^{m\times n}$ is a task-specific measurement matrix and $\vepsilon$ is additive noise. A wide range of practical problems can be formulated as a recovery of an unknown signal from the noisy linear measurements.
+Medical applications include computed tomography \citep{chen2008prior}, where one seeks to recover an unknown image from a sinogram (set of linear measurements) and rapid MRI \citep{lustig2007sparse}, where an MR image is reconstructed from an undersampled k-space. It is also used in wireless communication for channel estimation problems \citep{paredes2007ultra}. Single-pixel imaging \citep{duarte2008single} is another example of linear inverse problems.
+
+Since the number of measurements is assumed to be smaller than the signal space dimension, this system of linear equations is under-determined, and extra assumptions are needed to recover the solution. One common approach would be to use the sparsity assumption about the signal of interest in a given basis \citep{tibshirani1996regression,candes_stable_2006,donoho_compressed_2006}. There are other notions of structure beyond sparsity such as low rankness. More complicated structures can be captured using generative modelling. This field is usually referred to as generative compressed sensing. Generative CS  uses a pre-trained generative model to capture the prior over the space of signals. In this case, the signal recovery is done by finding the latent code of the generative model, for example, using gradient descent \cite{Bora2017-as}. There are, however, some challenges in using generative priors for compressed sensing, such as convergence and latency issues. Gradient descent methods sometimes need many iterations and restarts for convergence (see \cite{Whang2021-if} and references and discussions therein).
+
+In this work, we consider a more general setup, where along with the known linear forward operator, the input is also transformed by an unknown group operation. A typical example is a rotation by an angle $\alpha$. Such examples occur in many imaging applications where the signal pose is unknown before the imaging. Another example is cryo-electron microscopy \cite{singer_mathematics_2018}. We are interested in this problem: 
+\begin{equation}
+    \vy = \mathbf{A} \gT_g \vx  + \vepsilon,
+\end{equation}
+where $\gT_g: \gG \times \gX \rightarrow \gX $ is an action of a group element $g$ in the group $\gG$ on the signal space $\gX$. For example, it can be a rotation by some angle which is, in many cases, captured by a linear transformation. The group transformation $\gT_g$ is assumed to be unknown.
+
+To use standard generative priors for this task, the signal pose should be estimated jointly with the latent code. It is therefore natural to include group action information in the latent space. In this paper, we propose equivariant generative priors for this task. A generative model $G(\cdot)$ is equivariant if for group representations $\gT_g^x$ on the signal space and $\gT_g^z$ on the latent space, we have $\gT_g^xG(\vz)=G(\gT_g^z \vz)$ for all $g\in\gG$ and $\vz$. In this way, unknown transformations are coded in the latent space and the task boils down to the estimation of the transformed (e.g. rotated) latent code. 
+
+
+In this work we focus on the group of rotations, however, our approach can be also applied to other groups. 
+We show how the current generative compressed sensing approaches can be adapted to the setup of the unknown signal orientation. We compare different baseline generative priors in this setup and propose a rotation equivariant prior based on equivariant variational autoencoder model, which can equally be used for a conventional compressed sensing problem and, at the same time, is well equipped to deal with the unknown orientation of the concerned signal. 
+
+The contributions of this paper are as follows. We propose using equivariant generative priors for solving compressed sensing problems with unknown rotations. We show how standard recovery guarantees for generative priors are transferred to the equivariant models and compressed sensing with unknown orientation. We build an equivariant variational autoencoder. We experimentally show that the proposed prior is useful for both the conventional and the rotation-aware compressed sensing. In particular, these models provide promising gains in terms of latency and convergence. In addition, integrating the inductive bias about rotation equivariance into the model leads to a more parameter efficient generative priors.
+
+

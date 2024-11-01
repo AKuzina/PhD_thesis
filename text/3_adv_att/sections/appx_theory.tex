@@ -1,0 +1,210 @@
+%-----SECTION-----
+
+\onecolumn
+\section{Theory}\label{appendix:theory}
+We consider an attack, which has an additive structure:
+\begin{align}
+    \rvx^a = \rvx^r + \varepsilon, \\
+    \text{such that }\|\varepsilon\| \leq \delta,
+\end{align}
+where $\delta$ is a radius of the attack. 
+
+In the vanilla VAE setup we will get the latent code by sampling from $q_{\phi}(\rvz|\rvx)$. With our approach, instead, we get a sample from the following distribution:
+\begin{align}
+    q^{(t)}(\rvz|\rvx) = \int Q^{(t)}(\rvz|\rvz_0) q_{\phi}(\rvz_0|\rvx) d\rvz_0,
+\end{align}
+
+where $Q^{(t)}(\rvz|\rvz_0)$ is a transition kernel of MCMC with the target distribution $\pi(\rvz) = p_{\theta}(\rvz|\rvx) \propto p_{\theta}(\rvx|\rvz)p(\rvz)$.
+
+
+\paragraph{Lemma 1}
+Consider true posterior distributions of the latent code $\rvz$ for a data point $\rvx$ and its corrupted version $\rvx^a$.  Assume also that $\ln p_{\theta}(\rvz|\rvx)$ is twice differentiable over $\rvx$ with continuous derivatives at the neighbourhood around $\rvx=\rvx^r$. 
+Then the KL-divergence between these two posteriors could be expressed using the small $o$ notation of the radius of the attack, namely:
+\begin{equation}
+     \KL {p_{\theta}(\rvz|\rvx^r)} {p_{\theta}(\rvz|\rvx^a)} = o(\|\varepsilon\|).
+\end{equation}
+\textit{Proof}\\
+Let us use definition of the KL-divergence:
+\begin{align} \label{eq:kl_def}
+     \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= \E_{p_{\theta}(\rvz|\rvx^r)} \ln \frac{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)}  %\mathrm{d} \rvz 
+\end{align}
+
+Let us introduce $\ln p_{\theta}(\rvz|\rvx) = g(\rvx, \rvz)$. Assume that this function is differentiable at $\rvx = \rvx^r$. Then, we can apply Taylor expansion to $g(\rvx, \rvz)$ in the point $\rvx^r$ which yields:
+\begin{equation}
+    g(\rvx, \rvz) =  g(\rvx^r, \rvz) + (\rvx - \rvx^r)^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} + R_1(\rvx, \rvx^r) .
+\end{equation}
+
+The remainder term in the Lagrange form can be written as
+\begin{equation}\label{eq:remainder}
+    R_1(\rvx, \rvx^r) = \tfrac{1}{2}(\rvx - \rvx^r)^T \nabla^2_{\rvx\rvx} g(\rvx + \theta (\rvx - \rvx^r), \rvz) (\rvx - \rvx^r), \, \theta \in (0, 1)
+\end{equation}
+Under the assumption that $g$ is twice differentiable with the continuous derivatives on the segment around $\rvx = \rvx^r$ the remainder term asymptotically converges to zero with $\rvx \rightarrow \rvx^r$. 
+\begin{equation}
+    R_1(\rvx, \rvx^r) = o(\|\rvx - \rvx^r\|).
+\end{equation}
+
+Then, the log-ratio of two distributions is the following:
+\begin{align}
+    &\ln \frac{p_{\theta}(\rvz| \rvx^r)}{p_{\theta}(\rvz|\rvx^a)}
+    = g(\rvx^r, \rvz) - g(\rvx^a, \rvz) \\
+    &\quad\quad\quad = g(\rvx^r, \rvz) - \left( g(\rvx^r, \rvz) + (\rvx^a - \rvx^r)^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} + o(\|\rvx^a - \rvx^r\|)\right). \\
+    &\quad\quad\quad =  -\varepsilon^T\nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} + o(\|\varepsilon\|) .
+\end{align}
+Notice that $\varepsilon^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} $ is the dot product between $\varepsilon$ and $\nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} $, i.e., $\varepsilon^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r}  = \langle \varepsilon, \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r}  \rangle$.
+
+We can now plug this into the KL-divergence definition (\ref{eq:kl_def}):
+\begin{align}
+     \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= \E_{p_{\theta}(\rvz|\rvx^r)} \left[ -\langle \varepsilon, \nabla_{\rvx} \ln p_{\theta}(\rvz|\rvx) \Big|_{\rvx^r}  \rangle + o(\|\varepsilon\|)\right] \\
+     &=   -\langle \varepsilon, \underbrace{ \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln p_{\theta}(\rvz|\rvx) \Big|_{\rvx^r}}_{\text{A}(\rvx^r)}  \rangle + o(\|\varepsilon\|) \label{eq:kl_in_lemma1}
+\end{align}
+
+Note that for (\ref{eq:kl_in_lemma1}) to hold we need to make sure that $\E_z R_1 = o(\|\varepsilon\|)$. As follows from (\ref{eq:remainder}), this requirement is satisfied if $\E_{z}\nabla^2_{\rvx\rvx} g(\rvx + \theta (\rvx - \rvx^r), \rvz)$ is bounded around $\rvx = \rvx^r$.
+
+Let us take a closer to look at the term $\text{A}(\rvx^r)$ in the equation above:
+
+\begin{align}
+\text{A}(\rvx^r) &=    \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln p_{\theta}(\rvz|\rvx) \Big|_{\rvx^r} \\
+&=  \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln \frac{p_{\theta}(\rvx|\rvz)p(\rvz)}{p_{\theta}(\rvx)} \Big|_{\rvx^r}   \label{eq:bayes_rule}  \\
+&= \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln p_{\theta}(\rvx|\rvz) \Big|_{\rvx^r} - \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln p_{\theta}(\rvx) \Big|_{\rvx^r} \\
+&= \int p_{\theta}(\rvz|\rvx^r)\frac{\nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r}}{p_{\theta}(\rvx^r|\rvz)}d\rvz - \int p_{\theta}(\rvz|\rvx^r)\frac{\nabla_{\rvx} p_{\theta}(\rvx)\Big|_{\rvx^r}}{p_{\theta}(\rvx^r)} d\rvz  
+\label{eq:log_derivative}\\
+&= \int \frac{p_{\theta}(\rvz)}{p_{\theta}(\rvx^r)} \nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} d\rvz - \frac{\nabla_{\rvx} p_{\theta}(\rvx)\Big|_{\rvx^r}}{p_{\theta}(\rvx^r)}  \underbrace{\int p_{\theta}(\rvz|\rvx^r)d\rvz }_{=1}  \label{eq:bayes_rule_2} \\
+&= \frac{1}{p_{\theta}(\rvx^r)} \left[ \int p(\rvz) \nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} d\rvz - \nabla_{\rvx} p_{\theta}(\rvx)\Big|_{\rvx^r} \right]\\
+&= \frac{1}{p_{\theta}(\rvx^r)} \left[ \E_{p(\rvz)} \nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} - \nabla_{\rvx} \E_{p(\rvz)}p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} \right]\\
+&= \frac{1}{p_{\theta}(\rvx^r)}  \underbrace{\left[ \E_{p(\rvz)} \nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} -  \E_{p(\rvz)}\nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} \right]}_{=0} = 0.
+\end{align}
+
+where we use Bayes rule in \ref{eq:bayes_rule}, \ref{eq:bayes_rule_2}, log-derivative trick in \ref{eq:log_derivative}. 
+
+We have shown that $\text{A}(\rvx^r) = 0$, therefore, from \eqref{eq:kl_in_lemma1} we have:
+ 
+\begin{align}
+    \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= -\langle \varepsilon, \text{A}(\rvx^r) \rangle + o(\|\varepsilon\|) \\
+    &= o(\|\varepsilon\|). 
+\end{align}
+% \begin{align}
+%     \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= - \frac{\langle \varepsilon, \E_{p(\rvz)}\nabla_{\rvx^r} p_{\theta}(\rvx^r|\rvz)\rangle }{p_{\theta}(\rvx^r)} + o(\|\varepsilon\|) +
+%     \frac{\langle \varepsilon, \E_{p(\rvz)} \nabla_{\rvx^r} p_{\theta}(\rvx^r|\rvz) \rangle }{p_{\theta}(\rvx^r)} + o(\|\varepsilon\|) \\
+%     &= o(\|\varepsilon\|) .
+% \end{align}
+$\hfill\blacksquare$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Lemma 2}
+The Total Variation distance (TV) between the variational posterior with MCMC for a given corrupted point $\rvx^a$, $q^{(t)}(\rvz|\rvx^a)$, and the variational posterior for a given data point $\rvx^r$, $q_{\phi}(\rvz|\rvx^r)$, can be upper bounded by the sum of the following three components:
+\begin{equation}
+    \begin{aligned}
+\TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)} &\leq 
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)} \\
+     &\quad+ 
+    \sqrt{\tfrac12 \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)}  } \\
+    &\quad+
+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}}.
+    \end{aligned}
+\end{equation}
+\textit{Proof}\\
+Total variation is a proper distance, thus, the triangular inequality holds for it. For the proof, we apply the triangular inequality twice. First, we use the triangle inequality for $\text{TV}\left[ q^{(t)}(\rvz|\rvx^a), q_{\phi}(\rvz|\rvx^r) \right]$, namely: 
+\begin{equation}
+    \begin{aligned}
+    \TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)} &\leq 
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^r)}  \\
+    &\quad+ \TV{p_{\theta}(\rvz|\rvx^r)}{q_{\phi}(\rvz|\rvx^r)}.        
+    \end{aligned}
+\end{equation}
+
+Second, we utilize the triangle inequality for $\TV{q^{(t)}(\rvz|\rvx^a)} {p_{\theta}(\rvz|\rvx^r) }$, that is:
+\begin{equation}
+    \begin{aligned}
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^r)}
+    &\leq 
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)}  \\
+     &\quad+ \TV{p_{\theta}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^r)} .
+    \end{aligned}
+\end{equation}
+
+Combining the two gives us the following upper bound on the initial total variation:
+
+\begin{align}
+\TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+&\leq 
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)} \\
+     &\quad+ 
+    \TV{p_{\theta}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^r)} \label{eq:three_comp_2}\\
+    &\quad+
+    \TV{p_{\theta}(\rvz|\rvx^r)}{q_{\phi}(\rvz|\rvx^r)} \label{eq:three_comp_3}
+\end{align}
+
+Moreover, the Total Variation distance is a lower bound of the KL-divergence (by Pinsker inequality):
+\begin{equation}
+    \TV{p(\rvx)}{q(\rvx)}
+    \leq \sqrt{\tfrac12 \KL{p(\rvx)}{q(\rvx)}} .
+\end{equation}
+
+Applying Pinsker inequality to 
+% the second and the third terms in the right-hand part of \eqref{eq:three_comp} 
+\ref{eq:three_comp_2} and \ref{eq:three_comp_3}
+yields:
+\begin{align}
+\TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+&\leq 
+% \underbrace{
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)} \\
+% }_{\substack{\text{1)}\stackrel{t}{\rightarrow}  0}}
+     &\quad+ 
+% \underbrace{
+    \sqrt{\tfrac12 \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)}  } \\
+% }_{\substack{\text{2) Similarities of posteriors}}}
+    &\quad+
+% \underbrace{
+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}} .
+% }_{\substack{\text{3) Posterior gap}}}
+\end{align}
+$\hfill\blacksquare$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\paragraph{Theorem 1}
+The upper bound on the total variation distance between samples from MCMC for a given corrupted point $\rvx^a$, $q^{(t)}(\rvz|\rvx^a)$, and the variational posterior for the given real point $\rvx$, $q_{\phi}(\rvz|\rvx)$, is the following:
+
+\begin{equation}
+\begin{aligned}
+    \TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+&\leq 
+\TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)}
+      \\ 
+ &\quad+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}} \\
+  &\quad+ o(\sqrt{\|\varepsilon\|}).
+    \end{aligned}
+\end{equation}
+\textit{Proof}\\
+Combining \textbf{Lemma 1} and \textbf{2} we get:
+\begin{align}
+    \TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+\underbrace{\leq }_{\text{Lemma 2}}
+    &\TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)} \\
+     &+ 
+    \sqrt{\tfrac12 \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)}} \\
+    &+
+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}} \\
+   \underbrace{=}_{\substack{\text{Lemma 1}}}
+ &\TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)}\\
+     &+ 
+    \sqrt{\tfrac12 o(\|\varepsilon\|)  }\\
+    &+
+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}}.
+\end{align}
+
+Note that $\sqrt{\tfrac12 o(\|\varepsilon\|)  } =  o(\sqrt{\|\varepsilon\|}) $ that gives us the final expression:
+
+\begin{equation}
+\begin{aligned}
+    \TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+&\leq 
+ \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)}
+     \\
+  &\quad+ \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}} \\
+    &\quad+ o(\sqrt{\|\varepsilon\|}).
+    \end{aligned}
+\end{equation}
+$\hfill\blacksquare$
+
+

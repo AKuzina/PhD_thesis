@@ -1,0 +1,252 @@
+
+
+% \section{Methodology}
+\section{Background}
+
+% ==== SubSECTION ====
+\subsection{Variational Autoencoders}
+Let us consider a vector of observable random variables, $\rvx \in \mathcal{X}^{D}$ (e.g., $\mathcal{X} = \mathbb{R}$) sampled from  the empirical distribution $p_{e}(\mathbf{\rvx})$, and vectors of latent variables $\rvz_{k} \in \mathbb{R}^{M_{k}}$, $k=1, 2, \ldots, K$, where $M_k$ is the dimensionality of each latent vector. First, we focus on a model with $K=1$ and the joint distribution $p_{\theta}(\rvx, \rvz) = \Dec{\rvx}{\rvz} p(\rvz)$. The marginal likelihood is then equal to $p_{\theta}(\rvx) = \int p_{\theta}(\rvx, \rvz) \mathrm{d} \rvz$. VAEs exploit variational inference \cite{jordan1999introduction} with a family of variational posteriors $\{\Enc{\rvz}{\rvx}\}$, also referred to as encoders, that results in a tractable objective function, i.e., the Evidence Lower BOund (ELBO): 
+%$\mathcal{L}(\phi, \theta)
+%    = \E_{p_{e}(\mathbf{\rvx})}\left( \E_{\Enc{\rvz}{\rvx}}\ln \Dec{\rvx}{\rvz} - \KL{\Enc{\rvz}{\rvx}}{p(\rvz)} \right)$. 
+ \begin{align}
+     \mathcal{L}(\phi, \theta)
+     = \E_{p_{e}(\mathbf{\rvx})}\left( \E_{\Enc{\rvz}{\rvx}}\ln \Dec{\rvx}{\rvz} - \KL{\Enc{\rvz}{\rvx}}{p(\rvz)} \right).
+ \end{align}
+
+$\beta$-VAE \cite{higgins2016beta} uses a modified objective by weighting the $D_{\text{KL}}$ term by $\beta > 0$.
+% \begin{equation}\label{eq:beta_elbo}
+%     \mathcal{L}^{\beta}(\phi, \theta)
+%     = \E_{p_{e}(\mathbf{\rvx})}\left( \E_{\Enc{\rvz}{\rvx}}\ln \Dec{\rvx}{\rvz} - \beta \KL{\Enc{\rvz}{\rvx}}{p(\rvz)} \right).
+% \end{equation}
+In the case of $K>1$, we consider a hierarchical latent structure with the generative model of the following form: 
+\begin{equation}
+    p_{\theta}(\rvx, \rvz_1, \ldots, \rvz_K) = \Dec{\rvx}{\rvz_1, \ldots, \rvz_K} \prod_{k=1}^{K}\Dec{\rvz_{k}}{\rvz_{>k}}.
+\end{equation}
+There are various possible formulations of the family of variational posteriors. However, here we follow the proposition of \cite{So_nderby2016-en} with the autoregressive inference model, namely, $$\Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}$$. 
+% where the inference model with skip-connections was proposed \mw{maybe just say autoregressive model?}, namely:
+% \begin{equation}
+%     \Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}.
+% \end{equation}
+This formulation was used, among others, in NVAE \cite{Vahdat2020-xe}. Because of the top-down structure, it allows sharing data-dependent information between the inference model and the generative model.
+
+
+% ==== SubSECTION ====
+\subsection{Adversarial attacks}
+\begin{table}[t]
+	\caption[][\baselineskip]{Different types of attacks on the VAE. We denote $g_{\theta}(z)$ the deterministic mapping induced by decoder $p_{\theta}(x|z)$ and as $p_{\psi}(y|z)$ classification model in the latent space (downstream task).\\
+		\textsuperscript{*} Only used during VAE training}
+	%\vskip -5pt
+	\label{tab:attack_variation}
+	\begin{center}
+		\resizebox{\textwidth}{!}{
+			% \begin{small}
+			% \begin{sc}
+			\begin{tabular}{llcccc}
+				\toprule
+				& \sc{Reference}  &$f(x)$ & $\Delta\left[A, B\right]$  &  $\|\cdot\|_p$ &  \sc{Type}\\ \midrule
+				\multirow{3}{*}{Latent Space Attack}
+				& \multirow{3}{2cm}{\cite{barrett2021certifiably, Gondim-Ribeiro2018-cu, Willetts2019-mu}}
+				& \multirow{3}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{3}{*}{$\KL{A}{B}$}   & \multirow{3}{*}{2} & \multirow{3}{*}{Supervised}\\
+				&&&&&\\
+				&&&&&\\
+				\multirow{2}{3cm}{Unsupervised Encoder Attack}
+				& \multirow{2}{2cm}{\cite{kuzina2021adv}}
+				& \multirow{2}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{2}{*}{$\mathrm{SKL}\left[A\|B\right]$}   & \multirow{2}{*}{2} & \multirow{2}{*}{Unsupervised}\\
+				&&&&&\\
+				\multirow{2}{*}{Targeted Output Attack}
+				& \multirow{2}{*}{\cite{Gondim-Ribeiro2018-cu}}
+				& \multirow{2}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   & 
+				\multirow{2}{*}{$\|A - B\|_2^2$}  & 
+				\multirow{2}{*}{2} & \multirow{2}{*}{Supervised}\\
+				&&&&&\\
+				\multirow{2}{*}{Maximum Damage Attack}
+				& \multirow{2}{2cm}{\cite{barrett2021certifiably, camuto2021towards}}
+				& \multirow{2}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   & \multirow{2}{*}{$\|A - B\|_2^2$}  & \multirow{2}{*}{2} & \multirow{2}{*}{Unsupervised}\\
+				&&&&&\\
+				\multirow{2}{3cm}{Projected Gradient Descent Attack\textsuperscript{*}}
+				& \multirow{2}{*}{\cite{Cemgil2019-vn}}
+				& \multirow{2}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{2}{*}{$\mathcal{WD}\left[A, B\right]$}   & \multirow{2}{*}{$\inf$} & \multirow{2}{*}{Unsupervised}\\
+				&&&&&\\
+				\multirow{2}{*}{Adversarial Accuracy}
+				& \multirow{2}{*}{\cite{cemgil2020autoencoding, Cemgil2019-vn}}
+				& \multirow{2}{*}{$p_{\psi}(y|\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}  & \multirow{2}{*}{\sc{Cross Entropy}} & \multirow{2}{*}{$\inf$} & \multirow{2}{*}{Unsupervised}\\
+				&&&&&\\
+				\bottomrule
+		\end{tabular}}
+		% \end{sc}
+		% \end{small}
+	\end{center}
+	\vskip 0.2in
+\end{table}
+
+
+\label{sect:adversarial_attacks}
+An \textit{adversarial attack} is a slightly deformed data point that results in an undesired or unpredictable performance of a model \cite{goodfellow2014explaining}. In this work, we focus on the attacks that are constructed as an additive perturbation of the real data point $\rvx^r$ (which we will refer to as \textit{reference}), namely:
+\begin{align}
+    &\rvx^a = \rvx^r + \varepsilon, \text{where}\\
+    &\|\varepsilon\|_{p} \leq \delta ,
+\end{align}
+where $\delta$ is the radius of the attack. The additive perturbation $\varepsilon$ is chosen in such a way that the attacked point does not differ from the reference point too much in a sense of a given similarity measure. It is a solution to an optimization problem solved by the attacker. The optimization problem could be formulated in various manners by optimizing different objectives and by having specific constraints and/or assumptions.
+
+\paragraph{Attack construction} 
+Let $f(x)$ be part of the model available to the attacker. In the case of VAEs, this, for example, may be an encoder network or an encoder with the downstream classifier in the latent space. The attacker uses a similarity measure $\Delta$ to learn an additive perturbation to a reference point. We consider two settings: \textit{unsupervised} and \textit{supervised}. In the former case, the perturbation is supposed to incur the largest possible change in $f$:
+\begin{equation}\label{eq:objective_unsup}
+    \varepsilon = \arg\max_{\|\varepsilon\|_p \leq \delta }\Delta\left[f(\rvx^r + \varepsilon) , f(\rvx^r) \right].
+\end{equation}
+The latter setting requires a \textit{target point} $\rvx^t$. The perturbation attempts to match the output for the target and the attacked points, namely:
+\begin{equation}\label{eq:objective_sup}
+    \varepsilon = \arg\min_{\|\varepsilon\|_p \leq \delta }\Delta\left[ f(\rvx^r + \varepsilon), f(\rvx^t) \right].
+\end{equation}
+There are different ways to select $f$ and $\Delta$ in the literature. Furthermore, different $L_p$-norms can be used to restrict the radius of the attack. Table \ref{tab:attack_variation} summarizes recent work on the topic. %adversarial attacks on VAE. 
+
+In this work, we focus on attacking the encoder and the downstream classification task using unsupervised adversarial attacks. 
+%\mw{I am slightly confused how the description below relates to the text above?}This work focuses on two types of unsupervised attacks\mw{isn't the second one a supervised attack?}: attack on the encoder and the downstream classification task. 
+In the former, we maximize the symmetric KL-divergence to get the point with the most unexpected latent code and, therefore, the reconstruction. In the latter, the latent code is passed to a classifier. The attack is trained to change the class of the point by maximizing the cross-entropy loss. However, the method we propose in Section \ref{sec:defence} is not limited to these setups since it is agnostic to how the attack was trained. 
+
+%%%%%%%%%%%%%%%%%%%%
+%-----SubSECTION-----
+%%%%%%%%%%%%%%%%%%%%
+\paragraph{Robustness measures} 
+To measure the robustness of the VAE as well as the success of the proposed defence strategy, we focus on two metrics: $\mathrm{MSSSIM}$ and Adversarial accuracy.
+
+For latent space attacks we follow \cite{kuzina2021adv} in using Multi-Scale Structural Similarity Index Measure ($\mathrm{MSSSIM}$) \cite{wang2003multiscale}. We calculate $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$, i.e., the similarity between reconstructions of $\rvx^{r}$ and the corresponding $\rvx^{a}$. We do not report the similarity between a reference and the corresponding adversarial input, since this value is the same for all the considered models (for a given attack radius). A successful adversarial attack would have a small value of  $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$. 
+
+For the attacks on the downstream classifier, we follow \cite{cemgil2020autoencoding, Cemgil2019-vn} and calculate the adversarial accuracy. For a given trained VAE model, we first train a linear classifier using latent codes as features. Afterwards, the attack is trained to fool the classifier. Adversarial accuracy is the proportion of points for which the attack was unsuccessful. Namely, when the predicted class of the reference and corresponding adversarial point are the same.  
+
+%%%%%%%%%%%%%%%%%%%%
+%-----SubSECTION-----
+%%%%%%%%%%%%%%%%%%%%
+\section{Preventing adversarial attacks with MCMC} \label{sec:defence}
+% \subsection{Preventing adversarial attacks with MCMC}
+
+\paragraph{Assumptions and the hypothesis}
+
+We consider a scenario in which an attacker has access to the VAE encoder and, where relevant, to the downstream classification model. Above, we presented in detail how an attack could be performed. We assume that the defender cannot modify these components, but it is possible to add elements that the attacker has no access to. 
+
+We hypothesize that \textit{the adversarial attacks result in incorrect reconstructions because the latent representation of the adversarial input lands in a region with a lower probability mass assigned by the true posterior. %being proportional to the conditional likelihood and the prior
+}
+This motivates us to use a method which brings the latents "back" to a highly probable region as a potential defence strategy. 
+Since the adversarial attack destroys the input irreversibly, at the first sight it seems impossible to reconstruct the latent representation of the reference point. 
+We aim at showing that this is possible to some degree theoretically and empirically (Appendix \ref{appendix:posterior_ratio}). 
+
+\paragraph{The proposed solution } In order to steer the latents towards high probability regions, we propose to utilize an MCMC method during inference time. 
+Since we are not allowed to modify the VAE or its learning procedure, this is a reasonable procedure from the defender's perspective. 
+Another positive outcome of such an approach is that in a case of no attack, the latents given by the MCMC sampling will be closer to the mean of the posterior, thus, the reconstruction should be sharper or, at least, not worse. 
+Note that the variational posterior approximates the true posterior from which the MCMC procedure samples. 
+We propose to sample from $q^{(t)}(\rvz|\rvx) = \int Q^{(t)}(\rvz|\rvz_0) q_{\phi}(\rvz_0|\rvx) d\rvz_0$, where $Q^{(t)}(\rvz|\rvz_0)$ is a transition kernel of MCMC with $t$ steps and the target distribution $\pi(\rvz) = p_{\theta}(\rvz|\rvx) \propto p_{\theta}(\rvx|\rvz)p(\rvz)$. 
+Alternatively, we can use optimization to find the mode of the posterior, however, MCMC can add extra benefits such as exploration of the typical set and randomness (see Appendix \ref{appendix:hmc_vs_opt} for details).
+
+% Now, the naturally arising question is whether applying the MCMC could indeed help us in the case of an adversarial attack. 
+To further analyze the proposed approach, we start with showing the following lemma:
+
+\begin{lemma}\label{lemma:1}
+Consider true posterior distributions of the latent code $\rvz$ for a data point $\rvx$ and its corrupted version $\rvx^a$.  
+Assume also that $\ln p_{\theta}(\rvz|\rvx)$ is twice differentiable  over $\rvx$ with continuous derivatives at the neighbourhood around $\rvx=\rvx^r$. 
+Then the KL-divergence between these two posteriors could be expressed using the small $o$ notation of the radius of the attack, namely:
+% Consider true posterior distributions of the latent code $\rvz$ for a data point $\rvx^r$ and its corrupted version $\rvx^a$. Assume also that $\ln p_{\theta}(\rvz|\rvx)$ is differentiable at the point $\rvx = \rvx^r$. Then the KL-divergence between these two posteriors could be expressed using the small $o$ notation in terms of the radius of the attack, namely:
+\begin{equation}
+     \KL{ p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} = o(\|\varepsilon\|).
+\end{equation}
+\end{lemma}
+\textit{Proof} See Appendix \ref{appendix:theory}.
+
+According to Lemma \ref{lemma:1}, the difference (in the sense of the Kullback-Leibler divergence) between the true posteriors for a data point $\rvx$ and its corrupted version $\rvx^{a}$ decreases faster than the norm of the attack radius. However, it is important to note that this result is only valid for asymptotically small attack radius.
+
+Next, the crucial step to show is whether we can quantify somehow the difference between the distribution over latents for $\rvx^a$ after running MCMC with $t$ steps, $q^{(t)}(\rvz|\rvx^a)$, and the variational distribution for $\rvx^r$, $q_{\phi}(\rvz|\rvx^r)$. 
+We provide an important upper-bound for the Total Variation distance (TV)\footnote{The Total Variation fulfills the triangle inequality and it is a proper distance measure.} between $q^{(t)}(\rvz|\rvx^a)$ and $q_{\phi}(\rvz|\rvx^r)$ in the following lemma:
+
+\begin{lemma}\label{lemma:2}
+The Total Variation distance ($\mathrm{TV}$) between the variational posterior with MCMC for a given corrupted point $\rvx^a$, $q^{(t)}(\rvz|\rvx^a)$, and the variational posterior for a given data point $\rvx^r$, $q_{\phi}(\rvz|\rvx^r)$, can be upper bounded by the sum of the following three components:
+\begin{align}
+\TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}
+\leq &
+    \TV{q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a)} \notag\\
+    &+ 
+    \sqrt{\tfrac12 \KL{ p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} } \notag\\
+    &+
+   \sqrt{\tfrac12  \KL{q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)} }.
+\end{align}
+\end{lemma}
+\textit{Proof} See Appendix \ref{appendix:theory}.
+
+The difference expressed by $\TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}$ is thus upper-bounded by the following three components:
+\begin{itemize}
+    \item The $\mathrm{TV}$ between  $q^{(t)}(\rvz|\rvx^a)$ and the real posterior for the corrupted image, $p_{\theta}(\rvz|\rvx^a)$. Theoretically, if $t \rightarrow \infty$, $q^{(\infty)}(\rvz|\rvx^a) = p_{\theta}(\rvz|\rvx^a)$ and, hence, $\TV{ q^{(\infty)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a) } = 0$.
+    \item The second component is the square root of the KL-divergence between the real posteriors for the image and its corrupted counterpart. Lemma \ref{lemma:1} gives us information about this quantity.
+    \item The last element, the square root of $\KL{ q_{\phi}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^r)}$, quantifies the \textit{approximation gap} \cite{cremer2018inference}, i.e., the difference between the best variational posterior from a chosen family, and the true posterior. This quantity has no direct connection with adversarial attacks. However, as we can see, using a rich family of variational posteriors can help us to obtain a tighter upper-bound. In other words, taking flexible variational posteriors allows to counteract attacks. This finding is in line with the papers that propose to use hierarchical VAEs as the means for preventing adversarial attacks \cite{Willetts2019-mu}.
+\end{itemize}
+
+Eventually, by applying Lemma \ref{lemma:1} to Lemma \ref{lemma:2}, we obtain the following result:
+
+\begin{theorem}\label{theorem:main}
+The upper bound on the total variation distance between samples from MCMC for a given corrupted point $\rvx^a$, $q^{(t)}(\rvz|\rvx^a)$, and the variational posterior for the given real point $\rvx^r$, $q_{\phi}(\rvz|\rvx^r)$, is the following:
+\begin{align} \label{eq:theorem_1_main}
+    \TV{ q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r) }
+\leq 
+&  \,\TV{ q^{(t)}(\rvz|\rvx^a)}{p_{\theta}(\rvz|\rvx^a) } \notag \\
+    &+ 
+   \sqrt{\tfrac12  \KL{ q_{\phi}(\rvz|\rvx^r) }{ p_{\theta}(\rvz|\rvx^r)} } \notag\\
+   &+ o(\sqrt{\|\varepsilon\|}).
+%   \xrightarrow{t\rightarrow \inf}  
+%   \sqrt{\tfrac12  \text{KL}\left[ q_{\phi}(\rvz|\rvx) \| p_{\theta}(\rvz|\rvx)\right]} + o(\|\varepsilon\|)
+\end{align}
+\end{theorem}
+\textit{Proof} See Appendix \ref{appendix:theory}.
+
+
+As discussed already, the first component gets smaller with more steps of the MCMC. %In other words, we can say that it results in the \mw{not so sure this is only variance, as during burn in we also have bias} \textit{variance} (the more steps of the MCMC we apply, the smaller the difference). 
+The second component could be treated as a \textit{bias} of the family of variational posteriors. Finally, there is the last element that corresponds to a constant error that is unavoidable. However, this term decays faster than the square root of the attack radius for the asymptotically small attack radius.
+% \jt{[Anything else could be added here?]} 
+
+\paragraph{Specific implementation of the proposed approach}
+In this paper, we use a specific MCMC method, namely, the Hamiltonian Monte Carlo (HMC) \cite{betancourt2017conceptual, duane1987hybrid}. Once the VAE is trained, the attacker calculates an adversarial point $\rvx^a$ using the encoder of the VAE. After the attack, the latent representation of $\rvx^a$ is calculated, $\rvz^a$, and used as the initialization of the HMC.
+
+In the HMC, the target (unnormalized) distribution is $p(\mathbf{x}^{a}|\mathbf{z}) p(\mathbf{z})$. The Hamiltonian is then the energy of the joint distribution of $\rvz$ and the auxilary variable $\rvp$, that is:
+\begin{align}
+    H(\rvz, \rvp) &= U(\rvz) + K(\rvp),\\
+    U(\rvz) &= - \ln p_{\theta}(\mathbf{x}^{a}|\mathbf{z}) - \ln p(\mathbf{z}),\\
+    K(\rvp) &= -\tfrac12 \rvp^T\rvp.
+\end{align}
+When applying the proposed defence to hierarchical models, we update all the latent variables simultaneously. That is, we have $\rvz = \{ \rvz_1, \dots, \rvz_K\}$ and
+% \begin{equation}
+$U(\rvz) = -\ln \Dec{\rvx^a}{\rvz} - \sum_{k=1}^K\ln p_{\theta}(\rvz_k|\rvz_{k+1}). $
+% \end{equation}
+
+% \begin{wrapfigure}[17]{R}{0.53\textwidth}
+% \begin{minipage}{0.54\textwidth}
+% \vskip -11pt
+\begin{algorithm}
+	\caption{One Step of HMC.}
+	\label{alg:hmc_step}
+	\begin{algorithmic} %[1]
+ \\\hrulefill
+	   \State \hskip-3mm \textbf{Input}: $\rvz, \eta, L$
+		\State $\rvp \sim \mathcal{N}(0,I)$. \Comment{Sample the auxiliary variable }
+		\State $\rvz^{(0)} := \rvz, \rvp^{(0)}:=\rvp$.
+		\For{$l = 1 \dots, L$} \Comment{Make $L$ steps of \textit{leapfrog}.}
+        \State $ \rvp^{(l)} = \rvp^{(l-1)} - \frac{\eta}{2}\nabla_{\rvz} U(\mathbf{z}^{(l)})$.
+		\State $\rvz^{(l)} = \rvz^{(l)} + \eta  \nabla_{\rvp} K(\rvp^{(l)})$.
+		\State $\rvp^{(l)} = \rvp^{(l)} - \frac{\eta}{2}\nabla_{\rvz} U(\mathbf{z}^{(l)})$.
+		\EndFor
+		\State $\alpha = \min\left(1, \exp\left(- H(\rvz^{(L)}, \rvp^{(L)}) + H(\rvz^{(0)}, \rvp^{(0)})\right) \right)$
+		\State $\rvz =
+\begin{cases}
+\rvz^{(L)}\, \text{with probability}\, \alpha ,\\
+\rvz^{(0)}\, \text{otherwise}.
+\end{cases}$  \Comment{Accept a new point with prob. $\alpha$.}
+        \State  \hskip-3mm \textbf{Return}: $\rvz$
+	\end{algorithmic}
+\end{algorithm}
+
+Eventually, the resulting latents from the HMC are decoded. The steps of the whole process are presented below:
+\begin{enumerate}%[wide, labelwidth=0pt, labelindent=0pt]
+    \item (\textit{Defender}) Train a VAE: $q_{\phi}(\rvz|\rvx)$, $p(\rvz)$, $p_{\theta}(\rvx|\rvz)$.
+    \item (\textit{Attacker}) For given $\rvx^r$, calculate the attack $\rvx^{a}$ using the criterion \eqref{eq:objective_unsup} or \eqref{eq:objective_sup}.
+    \item (\textit{Defender}) Initialize the latent code $\rvz := \rvz_0$, where $\rvz_{0} \sim q_{\phi}(\rvz|\rvx^{a})$. Then, run $T$ steps of HMC (Algorithm \ref{alg:hmc_step}) with the step size $\eta$ and $L$ \textit{leapfrog} steps.
+    % \mw{this symbol is also the attach radius} \ak{switched to eta}
+\end{enumerate}
+
+The resulting latent code $\rvz$ can be passed to the decoder to get a reconstruction or to the downstream classification task.
+% \jt{ANNA, please check whether this procedure is correct. It should be but maybe there is some typo and/or you used a different implementation of the HMC}.
+
+% \jt{The second thing is that it would be good to provide a description how the Hamiltonian is defined for the hierarchical model. Moreover, maybe mention how the HMC is performed, e.g., for some of the latents, or all of them. This is important for the paper!}

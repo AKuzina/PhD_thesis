@@ -1,0 +1,522 @@
+\newpage
+
+\chapter{BooVAE: Boosting Approach for Continual Learning of VAEs} 
+
+
+\paragraph{Appendix Organization}
+\begin{itemize}
+    \item Section (\ref{app:algodetails}) contains technical details of BooVAE algorithm. In \ref{app:MEPVI} we provide skipped details related to the algorithm derivation: ELBO decomposition, approximated optimal prior, properties of the optimization problem and functional gradient of the objective. Next, we provide derivations for trainable flow-based prior (\ref{app:flowvae}). Finally, we discuss step-back for selection of the number of components for each task (\ref{app:stepback}).
+    \item Section (\ref{app:expdetails}) contains broader details and results for experiments in continual framework. 
+    \begin{itemize}
+        \item In Sections (\ref{app:incr}) - (\ref{app:samples}) we provide more detailed overview of models performance. In Section (\ref{app:incr}) we report NLL and diversity metric after each additional task is trained. We discuss how the performance changes on the whole test dataset as we keep training in continual learning setting. Moreover, we report and discuss these metrics for each task separately in Section (\ref{app:pertask}). Finally, we visually study the samples from the model on each step in Section (\ref{app:samples}). 
+        \item In Section (\ref{app:coreset})  we provide additional comparison with random coresets, showing that BooVAE requires much less components to get comparable results in term of NLL and diversity metrics.
+        \item The implementation details for experiments are in Sec. (\ref{app:archicture}), including architecture of neural networks and optimization details.
+        The source code is available at \url{https://github.com/AKuzina/BooVAE}.
+    \end{itemize}
+    
+\end{itemize}
+
+
+\section{Details of the BooVAE algorithm derivations}\label{app:algodetails}
+
+\subsection{Derivations for the optimal prior in continual framework}
+\label{app:MEPVI}
+\paragraph{ELBO decomposition derivation}
+We begin with derivations of the used decomposition in Eq.(\ref{eq:decomp}). We start form the ELBO definition (\ref{eq:elbo}) and conclude with the desirable result with several re-arrangements. 
+\begin{equation}
+\label{eq:app_decomp_begin}
+    \begin{aligned}
+     \mathcal{L}(\theta, \phi, \lambda) &\triangleq  \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log \dfrac{p_{\theta}(\rvx|\rvz)\pi(\rvz)}{q_{\phi}(\rvz|\rvx)} \\
+   & = \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log p_{\theta}(\rvx|\rvz) + \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log\dfrac{\pi(\rvz)}{q_{\phi}(\rvz|\rvx)}\frac{\hat{q}(\rvz)}{\hat{q}(\rvz)} \\
+    & = \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log p_{\theta}(\rvx|\rvz) - \Big(\E_{p_{e}(\rvx)}\KL{q_{\phi}(\rvz|\rvx)}{\hat{q}(\rvz)} \\
+   &\hspace{50mm}  +\underbrace{\E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log\dfrac{\hat{q}(\rvz)}{\pi(\rvz)}}_{\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily 1}}}}}\Big).
+    \end{aligned}
+%\setlength{\belowdisplayskip}{2pt}
+\end{equation}
+This decomposition holds for any choice of the density $\hat{q}(\rvz)$ (under mild conditions). We make the specific choice $\hat{q}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$ and proceed with the term $\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily 1}}}}$, with celebrated Fubini's theorem:
+\begin{equation}
+\label{eq:app_term1}
+    \begin{aligned}
+     \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}} 
+     = &\int d\rvx d\rvz~p_{e}(\rvx)q_{\phi}(\rvz|\rvx) \log\dfrac{\hat{q}(\rvz)}{\pi(\rvz)} \\
+     = &\int d\rvz~ \log\dfrac{\hat{q}(\rvz)}{\pi(\rvz)}\underbrace{\int d\rvx~p_{e}(\rvx)q_{\phi}(\rvz|\rvx)}_{=\E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)} \\
+     = & \int d\rvz~\hat{q}(\rvz)\log\dfrac{\hat{q}(\rvz)}{\pi(\rvz)} \\
+     = & \KL{\hat{q}(\rvz)}{\pi(\rvz)}.
+    \end{aligned}
+\end{equation}
+We substitute (\ref{eq:app_term1}) in (\ref{eq:app_decomp_begin})
+and obtain the decomposition (\ref{eq:decomp}):
+\begin{fullwidth}
+\begin{equation}
+\begin{aligned}
+     \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log \dfrac{p_{\theta}(\rvx|\rvz)\pi(\rvz)}{q_{\phi}(\rvz|\rvx)} 
+    =  \E_{p_{e}(\rvx)}\biggl[\E_{q_{\phi}(\rvz|\rvx)}\log p_{\theta}(\rvx|\rvz) 
+       -  \left(\KL{q_{\phi}(\rvz|\rvx)}{\hat{q}(\rvz)}+ \KL{\hat{q}(\rvz)}{\pi(\rvz)}\right)\biggr].
+    \end{aligned}
+\end{equation}
+\end{fullwidth}
+	
+Next, we proceed to the case of $p_{e}(\rvx) = \alpha~p_{e}^{1}(\rvx) + (1-\alpha)~p_{e}^{2}(\rvx), \alpha\in(0;1)$. We start with a noticing:
+\begin{fullwidth}
+\begin{equation}
+    \begin{aligned}
+    \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log\dfrac{\pi(\rvz)}{q_{\phi}(\rvz|\rvx)}\dfrac{\hat{q}(\rvz)}{\hat{q}(\rvz)}  
+   =  \alpha~\E_{\substack{p^{1}_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log\dfrac{\pi(\rvz)}{q_{\phi}(\rvz|\rvx)}\dfrac{\hat{q}_{1}(\rvz)}{\hat{q}_{1}(\rvz)} + (1-\alpha) ~\E_{\substack{p^{2}_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log\dfrac{\pi(\rvz)}{q_{\phi}(\rvz|\rvx)}\dfrac{\hat{q}_{2}(\rvz)}{\hat{q}_{2}(\rvz)}.
+    \end{aligned}
+\end{equation}
+\end{fullwidth}
+	
+We select $\hat{q}_{i}(\rvz) = \E_{p^{i}_{e}(\rvx)}q_{\phi}(\rvz|\rvx),~i=1,2$ and with direct using derivations above conclude with the desirable decomposition (\ref{eq:big_decimpose}):
+\begin{fullwidth}
+\begin{equation}
+    \begin{aligned}
+     \mathcal{L}(\theta, \phi, \lambda) = & \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\log p_{\theta}(\rvx|\rvz)  - \sum\limits_{i=1,2}\alpha_i~\left( \E_{p^i_{e}(\rvx)}\KL{q_{\phi}(\rvz|\rvx)}{\hat{q}_{i}(\rvz)}+ \KL{\hat{q}_{i}(\rvz)}{\pi(\rvz)}\right).
+    \end{aligned}
+\end{equation}
+\end{fullwidth}
+\paragraph{Proof of the approximated optimal prior in (\ref{eq:second_kl_opt})}
+We consider the modified optimization problem over the probability density space $\mathcal{P}$ ($\ref{eq:first_kl_opt}$) with the approximation of the aggregated variational posterior of the first task
+$\hat{q}_{1}^{a}(\rvz)\approx\hat{q}_{1}(\rvz)$:
+\begin{equation}
+\label{eq:app_optprior}
+    \begin{aligned}
+    \min\limits_{\pi(\rvz)\in\mathcal{P}}\alpha~\KL{\hat{q}^{a}(\rvz)}{\pi(\rvz)}  + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}.
+    \end{aligned}
+\end{equation}
+The optimization problem (\ref{eq:app_optprior}) is convex over $\pi(\rvz)$ as the sum of convex functions, hence we proceed with FOC of the corresponded Lagrangian with normalization conditions:
+\begin{fullwidth}
+\begin{equation}
+    \begin{aligned}
+     \frac{\delta}{\delta\pi} ~\Bigl[&\alpha~\KL{\hat{q}^{a}(\rvz)}{\pi(\rvz)} + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}  + \lambda \left(\int d\rvz~\pi(\rvz) - 1 \right)\Bigr]  \\
+     &= - \left(\alpha \frac{\hat{q}^{a}(\rvz)}{\pi(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi(\rvz)}\right) + \lambda \\
+     &= 0.
+    \end{aligned}
+\end{equation}
+\end{fullwidth}
+By rearranging terms and normalize the solution, we conclude with the stated result:
+\begin{equation}
+    \begin{aligned}
+    \pi^{1,2}(\rvz) = \alpha \hat{q}_{1}^{a}(\rvz) + (1-\alpha) \hat{q}_{2}(\rvz).
+    \end{aligned}
+\end{equation}
+\paragraph{Proof of the bi-convexity of the optimization problem (\ref{eq:third_kl_opt}) over $h$ and $\beta$}
+We consider the functional:
+\begin{equation}
+    \begin{aligned}
+     \alpha~&\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} + \\
+    + (1-\alpha)~&\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}).
+    \end{aligned}
+\end{equation}
+We show bi-convexity over $h$ and $\beta$ for the term $\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}$ as other is of the same form and sum of convex functions is a convex function. The convexity over $h$ follows from convexity of KL-divergence:
+\begin{equation}
+    \begin{aligned}
+     &\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta(\alpha h_1(\rvz) + (1-\alpha)h_2(\rvz))} \leq \\
+   &\quad\quad  \leq  (1-\beta)~\KL{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + \\
+   &\quad\quad +  \beta~\Big(\alpha ~\KL{\hat{q}_{1}^{a}(\rvz)}{h_1(\rvz)} + (1-\alpha)~\KL{\hat{q}_{1}^{a}(\rvz)}{h_2(\rvz)}\Big).
+    \end{aligned}
+\end{equation}
+We check convexity over $\beta$ by expecting of the second derivative:
+\begin{equation*}
+    \begin{aligned}
+    & \nabla_{\beta} \KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} = - \int d\rvz~\hat{q}_{1}^{a}(\rvz)\frac{h(\rvz)-\pi^{1}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}, \\
+    & \nabla^{2}_{\beta}\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} = \int d\rvz~\hat{q}_{1}^{a}(\rvz) \left(\frac{h(\rvz)-\pi^{1}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}\right)^2 > 0.
+    \end{aligned}
+\end{equation*}
+\paragraph{Derivation of the functional gradient for the optimization problem (\ref{eq:third_kl_opt}) over $h$}
+The functional of our interest is $\alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} +  (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)})$.
+We consider the perturbation of the argument $\pi^{1}(\rvz)$ with $h(\rvz)$ as following $(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)$. We start from the linearization of the first term:
+\begin{equation}
+    \begin{aligned}
+     & \KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} = \\
+     & = -\int d\rvz~\hat{q}_{1}^{a}(\rvz)\Big\{\log\frac{\pi^{1}(\rvz)}{{q}_{1}^{a}(\rvz)}+\log \left[1+\beta \left(\tfrac{h(\rvz)}{\pi^{1}(\rvz)}- 1\right)\right]\Big\} = \\ 
+     & = \{\substack{\log(1+x) = x + o(x),\\ x\to 0}\} =  \\
+     & = \KL{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} - \beta\left(\int d\rvz~h(\rvz) \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} - 1\right) + o(\beta).
+    \end{aligned}
+\end{equation}
+With application of this result to the second term, we obtain:
+\begin{equation}
+    \begin{aligned}
+     &\alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} +  \\
+     & \quad\quad + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}) = \\
+    = &\alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)} - \\
+    & \quad\quad- \beta\underbrace{\left(\int d\rvz~h(\rvz)\left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]- 1\right)}_{ \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}}} + o(\beta).
+    \end{aligned}
+\end{equation}
+The term $\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}}$ is the functional gradient. We project direction $h$ to match it at the optimization problem (\ref{eq:final_opt}).
+
+%%%%%%%
+\newpage
+\subsection{BooVAE for VAE with flow-based prior}
+\label{app:flowvae}
+Consider the ELBO objective:
+\begin{equation}
+    \begin{aligned}
+    \mathcal{L}(\theta, \phi) \triangleq  \E_{p_{e}(\rvx)q_{\phi}(\rvz|\rvx)}\left(\log p_{\theta}(\rvx|\rvz)\pi(\rvz) - \log q_{\phi}(\rvz|\rvx)\right).
+    \end{aligned}
+\end{equation}
+The simplest choice of the prior $p(\rvz)$ is the standard normal distribution. Instead, in order to improve ELBO, one could obtain multi-modal prior distribution $p(\rvz)$ by using learnable bijective transformation $f$:
+\begin{equation}
+    \begin{aligned}
+    & \rvv \sim p_{0}(\rvv), \rvz = f(\rvv).
+    \end{aligned}
+\end{equation}
+This induce the following density over the prior in $\rvz$-space:
+\begin{equation}
+    \begin{aligned}
+    & \pi(\rvz) = \int p(\rvv)\delta_{\rvz}(f(\rvv))~d\rvv =  p_{0}(f^{-1}(\rvz))\big|J^{f^{-1}}_{\rvz}\big|.
+    \end{aligned}
+\end{equation}
+We could obtain optimal prior in z-space by using the following decomposition of the ELBO:
+\begin{equation}
+    \begin{aligned}
+ \E_{p_{e}(\rvx)}\left[\E_{q_{\phi}(\rvz|\rvx)}\log p_{\theta}(\rvx\|\rvz)  -\KL{q_{\phi}(\rvz}{\rvx)\|\hat{q}(\rvz)} -\KL{\hat{q}(\rvz)}{\pi(\rvz)}\right],
+    \end{aligned}
+\end{equation}
+where $\hat{q}(\rvz)=\E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$ is the aggregated variational posterior. As KL-divergence is non-negative, the global maximum over $\pi$ is reached when: $\pi(\rvz)=\E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. In oder to reach it, we should match:
+\begin{equation}
+    \begin{aligned}
+    \label{eq:match}
+    & \pi(\rvz)=\hat{q}(\rvz) \Longrightarrow p_{0}(f^{-1}(\rvz))\big|J^{f^{-1}}_{\rvz}\big| =  \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx).
+    \end{aligned}
+\end{equation}
+It could be done with tuning base distribution $p_0$ and parameters of the transformation $f$. In order to use BooVAE algorithm, we decouple this updates. The parameters of the transformation $f$ are updated in the Maximization step, together with encoder $q_{\phi}(\rvz|\rvx)$ and decoder $p_{\theta}(\rvx|\rvz)$ and base prior distribution $p_0(\cdot)$ is fixed. So this step is the same as optimization step in VAE training. In the Minorization step, we need to update $p_0(\cdot)$. In order to do this, we came back to the $\rvv$-space.
+\begin{equation}
+    \begin{aligned}
+    & \KL{\pi(\rvz)}{\hat{q}(\rvz)} = \int \pi(\rvz)\log\frac{\pi(\rvz)}{\hat{q}(\rvz)}~d\rvz = \Big\{\substack{\rvz = f(\rvv), \\ d\rvz=\big|J^{f}_{\rvv}\big|d\rvv}\Big\} = \\
+    & = \int p_{0}(\rvv)\big|J^{f^{-1}}_{f(\rvv)}\big|\log \frac{p_{0}(f^{-1}(f(\rvv)))\big|J^{f^{-1}}_{f(\rvv)}\big|}{\hat{q}(f(\rvv))}~\big|J^{f}_{\rvv}\big|d\rvv = \\
+    & = \int p_0(\rvv)\log\frac{p_0(\rvv)}{\hat{q}(f(\rvv)\big|J^{f}_{\rvv}\big|}~d\rvv =  \KL{p_0(\rvv)}{\hat{q}(f(\rvv)\big|J^{f}_{\rvv}\big|}.
+    \end{aligned}
+\end{equation}
+We conclude with the same problem of matching aggregation posterior, but in the $\rvv$-space.
+
+\newpage
+\subsection{Step-back for components}
+\label{app:stepback}
+In practice, it is not obvious what is the optimal number of components in the prior. We have experimentally observed that an excessive amount of the prior component can be as harmful as an insufficient number of components. This happens because we learn each component as a pseudoinput to the encoder. Throughout VAE training we update parameters of the encoder by maximizing the ELBO, meaning that components are also unintentionally updated and some of them become irrelevant.
+
+To circumvent this disadvantage without the need to retrain VAE with different number components,  we suggest to prune the prior after the maximal number of components is reached. This approach allows us in theory to select this maximal number to be as large as possible and then remove all the relevant ones during pruning. 
+
+Pruning is performed as minimization of the KL-divergence between optimal prior and current approximation with the respect to the weights if the mixture. This optimization procedure is performed in the latent space and only ones during training. Therefore, it almost does not influence the training time. 
+In the experiment setting we report the \textbf{maximal} number of components. That is total number of prior components before pruning.
+
+\newpage
+\section{Details of the Experiments and Ablation Study}\label{app:expdetails}
+All the experiments we performed on a single NVIDIA Tesla V100 GPU.
+
+\subsection{Results in continual learning setting}\label{app:incr}
+In Tables (\ref{tab:onlineNLL}), (\ref{tab:onlineDiv}) we provide full results for continual learning experiments, which are illustrated by Fig.(\ref{fig:online:diversity}),(\ref{fig:online:NLL}). We provide negative log-likelihood in Table (\ref{tab:onlineNLL}) and KL-divergence used as diversity measure in Table (\ref{tab:onlineDiv}). The first column in both tables states how many tasks did the VAE see in total and the value in the table indicates value of negative log-likelihood or diversity metrics on the test set containing current and all the previous tasks.
+
+We add comparison with multi-head architectures. We observe that BooVAE is capable to achieve results comparable to multi-head architecture. We find this to be a good result, because fixed architecture that we use has approximately 6 times less parameters. Moreover, when computing NLL on the test set multi-head architecture requires task tables in order to use proper head, while in case of BooVAE the test evaluation is performed in unsupervised manner.
+% We compare our method (BooVAE) with VAE with standard normal prior, Elastic Weight Consolidation (EWC), Random coresets, VAE with MoG prior and multihead VAE (with and without EWC). In multi-head the separate Encoder was trained for each tasks, as well as the separate head for the Decoder. Thus, number of parameters in this case is much larger. In all other models we use a single Encoder-Decoder pair for all the tasks.
+% Results in the tables above demonstrate that BooVAE manages to overcome catastrophic forgetting better than pure EWC regularization with standard normal prior. At the same time, a combination of EWC regularization and Boosting approach leads to the improvement of the latter and produces the best result among one-headed architectures in most cases.
+% There are also works, where multi-head architectures are used to improve performance in the incremental setting. It means that task-specific layers are being added to the network. In our experiments, the architecture was fixed, and we only increase the number of components in the prior; therefore, it is not fair to compare the two. Nevertheless, we provide results for multi-head approach as used in  \citep{nguyen2017variational} with multi-head decoder and task-specific encoder networks both with and without regularizations for the comparison.
+\begin{table}[!h]
+\caption{NLL on a test set, averaged over 5 runs with standard deviation in the brackets. Each model was trained on 10 tasks in a continual setting, in multi-head models new encoder and extra decoder layer was added for every new task. We use \textbf{\textit{bold italics}} to denote the best result among all the models and \textbf{bold} to denote best among the models with one encoder-decoder pair for all the tasks.}\label{tab:onlineNLL}
+\begin{adjustbox}{max width=1\textwidth}{}
+\begin{tabular}{@{}c|lllllll|ll@{}}\toprule
+\multirow{4}{*}{\rotatebox{70}{\# Tasks }} & Standard & EWC  & VCL & Coreset &MoG & Boo & Boo + VCL & Multihead & Multihead +  \\
+  &  &  & &  & & & & & EWC \\
+&\multicolumn{9}{c}{\multirow{2}{*}{MNIST}}  \\
+& \multicolumn{9}{c}{} \\\midrule
+2  & 343.5 (26)   & 258.3 (12)   & 84.8 (0.4)  & 108.6 (2.2) & 98.1 (3.2)  & 96.1 (0.9)  & \textbf{\textit{74.9 (0.3)}}  & 399.2 (6.8) & 119.6 (18.5) \\
+3  & 122.0 (2.3)  & 118.9 (1.5)  & 107.6 (0.6) & 106.9 (0.2) & 106.9 (2.7) & 101.3 (0.4) & \textbf{\textit{95.2 (0.7)}}  & 203.9 (1.5) & 114.2 (6.9)  \\
+4  & 146.1 (0.3)  & 138.5 (1.5)  & 118.3 (0.5) & 121.8 (1.3) & 123.7 (0.8) & 111.9 (0.1) & \textbf{\textit{104.1 (0.9)}} & 217.6 (3.5) & 115.3 (7.0)  \\
+5  & 197.0 (5.7)  & 187.4 (2.2)  & 129.9 (1.2) & 138.1 (1.9) & 141.2 (3.5) & 121.0 (2.3) & \textbf{\textit{109.1 (0.8)}} & 281.5 (2.6) & 115.9 (8.0)  \\
+6  & 164.3 (3.8)  & 158.8 (2.8)  & 126.1 (0.8) & 135.8 (1.1) & 144.5 (3.4) & 120.8 (0.2) & \textbf{\textit{113.5 (0.9)}} & 215.0 (2.3) & \textit{\textbf{113.5 (5.8)}}  \\
+7  & 205.2 (5.6)  & 184.2 (3.8)  & 128.0 (0.8) & 144.2 (1.7) & 161.9 (5.8) & 122.9 (0.3) & \textbf{\textit{113.7 (0.8)}} & 247.6 (4.2) & \textit{\textbf{113.7 (6.1)}}  \\
+8  & 213.2 (9.2)  & 187.0 (2.5)  & 125.6 (0.6) & 141.4 (2.5) & 168.7 (7.8) & 122.4 (0.8) & \textbf{\textit{111.2 (0.4)}} & 301.0 (5.8) & \textit{\textbf{112.2 (6.6)}}  \\
+9  & 171.0 (3.6)  & 157.7 (3.7)  & 127.4 (0.5) & 137.5 (2.8) & 163.3 (2.4) & 124.5 (2.7) & \textbf{\textit{114.5 (0.9)}} & 210.6 (5.0) & \textit{\textbf{112.3 (5.9)}}  \\
+10 & 186.8 (2.3)  & 169.3 (3.2)  & 125.7 (0.6) & 137.0 (3.5) & 180.1 (1.3) & 124.5 (1.9) & \textbf{\textit{112.7 (1.1)}} & 256.5 (6.3) & \textit{\textbf{111.3 (5.6)}}   \\ \midrule
+& \multicolumn{9}{c}{\multirow{2}{*}{notMNIST}}  \\
+& \multicolumn{9}{c}{} \\\midrule
+2  & 329.5 (24)   & 298.9 (9.0) & 221.6 (3.1) & 241.8 (2.4) & 251.1 (4.7) & 238.6 (0.7) & \textbf{210.4 (0.9)} & 497.9 (21) & \textit{\textbf{188.1 (1.7)}} \\
+3  & 412.3 (23)   & 346.5 (7.1) & 234.1 (5.5) & 243.5 (4.6) & 288.5 (11)  & 245.6 (3.1) & \textbf{206.3 (1.7)} & 702.6 (58) & \textit{\textbf{179.8 (1.8)}} \\
+4  & 299.2 (6.2)  & 290.3 (8.2) & 253.4 (5.4) & 227.5 (1.4) & 271.2 (6.3) & 238.8 (3.6) & \textbf{215.7 (2.3)} & 662.5 (38) & \textit{\textbf{175.2 (3.5)}} \\
+5  & 321.4 (9.6)  & 290.1 (4.7) & 238.5 (3.8) & 235.0 (4.9) & 274.2 (4.6) & 251.1 (7.1) & \textbf{212.7 (1.1)} & 644.0 (33) & \textit{\textbf{174.2 (2.3)}} \\
+6  & 329.1 (15)   & 316.8 (11)  & 248.3 (4.3) & 228.1 (3.5) & 301.7 (18)  & 247.5 (11)  & \textbf{214.6 (0.9)} & 803.7 (72) & \textit{\textbf{170.2 (2.0)}} \\
+7  & 310.9 (20)   & 294.3 (3.6) & 241.3 (3.3) & 231.2 (3.1) & 288.8 (7.1) & 255.8 (5.9) & \textbf{216.4 (0.9)} & 724.6 (39) & \textit{\textbf{170.8 (2.1)}} \\
+8  & 338.6 (35)   & 316.4 (14)  & 254.5 (7.1) & 230.6 (2.0) & 320.4 (15)  & 263.1 (4.2) & \textbf{224.2 (1.6)} & 757.9 (47) & \textit{\textbf{169.1 (2.0)}} \\
+9  & 339.1 (12)   & 314.1 (3.8) & 234.2 (3.1) & 229.0 (2.6) & 317.8 (13)  & 252.7 (5.3) & \textbf{214.8 (1.3)} & 905.3 (56) & \textit{\textbf{161.5 (1.6)}} \\
+10 & 402.4 (13)   & 374.4 (12)  & 242.2 (3.3) & 233.7 (2.3) & 358.6 (14)  & 261.4 (8.7) & \textbf{214.3 (1.0)} & 951.2 (47) & \textit{\textbf{158.7 (2.2)}}  \\ \midrule
+& \multicolumn{9}{c}{\multirow{2}{*}{fashionMNIST}}  \\
+& \multicolumn{9}{c}{} \\\midrule
+2  & 259.1 (4.9)& 270.9 (9.7) & 223.5 (0.6) & 230.3 (1.3) & 256.4 (13)  & 224.5 (0.6) & \textbf{218.8 (0.6)}          & 383.3 (15)  & \textit{\textbf{231.0 (11.4)}} \\
+3  & 290.9 (3.8)& 284.1 (6.8) & 253.8 (0.4) & 257.8 (0.6) & 266.1 (2.7) & 252.9 (0.6) & \textbf{\textit{249.7 (0.4)}} & 327.1 (9.6) & \textit{\textbf{250.8 (4.2)}}  \\
+4  & 273.5 (2.4)& 269.5 (1.8) & 250.9 (0.6) & 254.1 (1.5) & 273.4 (3.8) & 244.7 (0.4) & \textbf{\textit{242.1 (0.6)}} & 336.1 (9.5) & \textit{\textbf{240.8 (4.0)}}  \\
+5  & 272.0 (1.8)& 268.1 (1.0) & 255.9 (0.4) & 255.2 (0.9) & 266.3 (3.2) & 250.8 (0.8) & \textbf{\textit{248.6 (0.2)}} & 333.6 (3.7) & \textit{\textbf{247.7 (3.5)}}  \\
+6  & 507.8 (46) & 447.4 (20)  & 262.7 (2.4) & 258.1 (0.5) & 329.3 (14)  & 245.2 (3.2) & \textbf{\textit{243.5 (1.7)}} & 675.8 (14.1)& \textit{\textbf{242.8 (5.6)}}  \\
+7  & 276.5 (3.2)& 271.0 (2.8) & 257.2 (0.5) & 255.7 (0.7) & 266.3 (4.7) & 250.0 (1.1) & \textbf{\textit{248.5 (0.3)}} & 382.7 (9.4) & \textit{\textbf{247.7 (3.2)}}  \\
+8  & 1468 (585) & 540.8 (25)  & 254.7 (1.6) & 258.0 (0.3) & 314.8 (18)  & 243.5 (1.4) & \textbf{\textit{240.5 (0.8)}} & 606.2 (35.7)& \textit{\textbf{239.7 (3.0)}}  \\
+9  & 310.1 (19) & 284.1 (1.4) & 261.9 (0.9) & 260.8 (0.8) & 285.1 (3.0) & 249.3 (1.1) & \textbf{\textit{249.1 (1.1)}} & 502.7 (30.3)& \textit{\textbf{248.9 (4.5)}}  \\
+10 & 799.9 (273)& 399.2 (27)  & 268.6 (1.5) & 263.0 (1.6) & 330.9 (8.4) & 250.6 (4.6) & \textbf{\textit{248.7 (0.5)}} & 569.1 (28.4)& \textit{\textbf{247.3 (4.7)}}   \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace*{\baselineskip}
+\end{table}
+
+\begin{fullwidth}
+\begin{table}[!ht]
+\captionof{table}{Diversity results, averaged over 5 runs with standard deviation in the brackets. The lower is better, we use \textbf{bold} to denote the best model with one encoder-decoder pair.}\label{tab:onlineDiv}
+\begin{adjustbox}{max width=1.\textwidth}{}
+\begin{tabular}{@{}c|lllllll@{}}\toprule
+\multirow{4}{*}{\rotatebox{70}{\# Tasks }} & Standard & EWC & VCL & Coreset& MoG & Boo & Boo + VCL  \\
+%   &  &EWC  & (15 comp.)& (30 comp.) &(15 comp.) &(15 comp.) &(15 comp.)\\
+&\multicolumn{7}{c}{\multirow{2}{*}{MNIST}}  \\
+& \multicolumn{7}{c}{} \\\midrule
+2 & 0.69 (0.00) & 0.69 (0.00) & 0.10 (0.02) &0.69 (0.00) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} & 0.21 (0.03) \\
+3 & 1.04 (0.00) & 1.01 (0.01) & 0.23 (0.02) &1.00 (0.01) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} & 0.29 (0.02) \\
+4 & 1.33 (0.01) & 1.32 (0.02) & 0.24 (0.02) &1.29 (0.02) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} & 0.34 (0.02) \\
+5 & 1.57 (0.01) & 1.58 (0.01) & 0.12 (0.02) &1.54 (0.01) & 0.24 (0.00)          & \textbf{0.00 (0.00)} & 0.30 (0.02) \\
+6 & 1.68 (0.03) & 1.67 (0.02) & 0.57 (0.04) &1.58 (0.03) & 0.51 (0.01)          & \textbf{0.00 (0.00)} & 0.64 (0.01) \\
+7 & 1.92 (0.01) & 1.88 (0.02) & 0.65 (0.04) &1.82 (0.01) & 0.67 (0.14)          & \textbf{0.00 (0.00)} & 0.58 (0.02) \\
+8 & 2.02 (0.02) & 2.01 (0.01) & 0.63 (0.04) &1.91 (0.04) & 0.88 (0.15)          & \textbf{0.03 (0.05)} & 0.59 (0.02) \\
+9 & 2.09 (0.02) & 2.07 (0.02) & 0.67 (0.02) &1.90 (0.04) & 1.07 (0.14)          & \textbf{0.08 (0.11)} & 0.63 (0.02) \\
+10& 2.26 (0.01) & 2.22 (0.01) & 0.78 (0.02) &2.09 (0.01) & 1.23 (0.14)          & \textbf{0.11 (0.15)} & 0.74 (0.01)
+\\ \midrule
+& \multicolumn{7}{c}{\multirow{2}{*}{notMNIST}}  \\
+& \multicolumn{7}{c}{} \\\midrule
+2    & 0.62 (0.02) & 0.62 (0.02) & \textbf{0.00 (0.00)} & 0.57 (0.05) & 0.22 (0.08) & 0.01 (0.01)          & 0.10 (0.03) \\
+3    & 1.04 (0.01) & 1.02 (0.01) & \textbf{0.02 (0.01)} & 0.93 (0.03) & 0.53 (0.16) & \textbf{0.01 (0.00)} & 0.31 (0.05) \\
+4    & 1.11 (0.09) & 1.12 (0.03) & 0.06 (0.01)          & 0.92 (0.05) & 0.72 (0.18) & \textbf{0.02 (0.02)} & 0.51 (0.07) \\
+5    & 1.35 (0.04) & 1.32 (0.03) & 0.04 (0.01)          & 0.94 (0.04) & 0.91 (0.19) & \textbf{0.01 (0.01)} & 0.44 (0.06) \\
+6    & 1.49 (0.08) & 1.52 (0.03) & 0.10 (0.02)          & 1.07 (0.06) & 1.01 (0.19) & \textbf{0.05 (0.03)} & 0.40 (0.06) \\
+7    & 1.52 (0.12) & 1.51 (0.04) & 0.14 (0.03)          & 1.00 (0.05) & 1.22 (0.24) & \textbf{0.05 (0.04)} & 0.40 (0.06) \\
+8    & 1.46 (0.14) & 1.53 (0.06) & 0.35 (0.07)          & 0.76 (0.03) & 1.40 (0.21) & \textbf{0.07 (0.03)} & 0.44 (0.07) \\
+9    & 1.10 (0.39) & 1.09 (0.09) & 0.23 (0.03)          & 0.37 (0.08) & 1.49 (0.22) & \textbf{0.14 (0.10)} & 0.62 (0.06) \\
+10   & 1.95 (0.06) & 1.94 (0.05) & 0.35 (0.06)          & 1.22 (0.03) & 1.59 (0.21) & \textbf{0.20 (0.15)} & 0.60 (0.05)
+\\ \midrule
+& \multicolumn{7}{c}{\multirow{2}{*}{fashionMNIST}}  \\
+& \multicolumn{7}{c}{} \\\midrule
+2 & 0.68 (0.00) & 0.67 (0.01) & 0.01 (0.00) & 0.65 (0.01) & 0.03 (0.03) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} \\
+3 & 1.02 (0.00) & 1.00 (0.02) & 0.21 (0.02) & 0.89 (0.03) & 0.19 (0.07) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} \\
+4 & 1.28 (0.01) & 1.26 (0.02) & 0.55 (0.01) & 1.15 (0.03) & 0.34 (0.11) & \textbf{0.00 (0.00)} & \textbf{0.00 (0.00)} \\
+5 & 1.34 (0.01) & 1.30 (0.02) & 0.30 (0.01) & 1.10 (0.04) & 0.37 (0.09) & \textbf{0.00 (0.00)} & 0.01 (0.00) \\
+6 & 1.78 (0.00) & 1.77 (0.01) & 0.31 (0.02) & 1.68 (0.02) & 0.53 (0.14) & \textbf{0.00 (0.00)} & 0.01 (0.00) \\
+7 & 1.31 (0.03) & 1.31 (0.05) & 0.61 (0.03) & 1.11 (0.04) & 0.63 (0.12) & \textbf{0.01 (0.01)} & \textbf{0.02 (0.01)} \\
+8 & 2.08 (0.00) & 2.08 (0.00) & 0.36 (0.02) & 1.96 (0.02) & 0.67 (0.12) & \textbf{0.00 (0.00)} & 0.03 (0.01) \\
+9 & 2.07 (0.01) & 2.10 (0.00) & 0.86 (0.04) & 1.96 (0.02) & 0.77 (0.11) & \textbf{0.01 (0.01)} & \textbf{0.02 (0.01)} \\
+10& 2.24 (0.01) & 2.24 (0.01) & 0.63 (0.03) & 2.03 (0.03) & 0.85 (0.10) & \textbf{0.02 (0.02)} & 0.04 (0.01)
+ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace*{\baselineskip}
+\end{table}
+\end{fullwidth}
+
+Even though NLL on a test set is a default way of assessing VAEs, during our experiments, we've observed that good NLL scores do not always correspond to diverse samples from the prior in the continual setting. See samples in Fig.(\ref{fig:MNIST_gen}),(\ref{fig:notMNIST_gen}),(\ref{fig:fMNIST_gen}) for the confirmation of this observation. For example, random coresets are performing well in terms of NLL, but we can see that they are still prone to catastrophic forgetting when it comes to generating samples. 
+Therefore, we were interested in quantitative evaluation of the samples, produced by the VAE on each step. As the diversity score we calculate KL-divergence between desired $P(x)$ and observed $Q(x)$ distribution of generated images over the classes. Desired distribution is multinomial with equal probabilities for each class. To evaluate observed distribution of classes we generate $N = 10^3$ samples from VAE and classify them using neural network, trained on the same dataset as the VAE. Then we calculate the proportion of images from the class $i$ in the generated sample and evalutate KL-divergence:
+\begin{equation}
+\begin{aligned}
+\setlength{\abovedisplayskip}{1pt}
+\setlength{\belowdisplayskip}{1pt}
+P(x=i) &= p_i = \frac{1}{T}, \,\, i \in \{1, \dots, T\}, \\
+Q(x=i) &= \hat{p}_i = \frac{N_i}{N}, \,\, i \in \{1, \dots, T\},\\
+\KL{P(x)}{Q(x)} &= \sum_{i=1}^T \frac{1}{T} \log\frac{\frac{1}{T}}{\hat{p}_i}.
+\end{aligned}
+\end{equation}
+If the model generates images from all the classes in equal proportions, the value of the metrics is zero. The large is KL-divergence, the less diversity is there in the samples. We would like to note, that this metric is reflecting the situation that we observe in Figures \ref{fig:MNIST_gen}, \ref{fig:notMNIST_gen}, \ref{fig:fMNIST_gen} and confirms that BooVAE is dealing with catastrophic forgetting much better that other methods. Moreover, we observe that even though the combination of BooVAE with VCL is the best in terms of reconstruction error (NLL), it produce more blurred samples and therefore the classification network make more error with is reflected on the KL-divergence.
+
+\newpage
+\subsection{Metrics for each task separately} \label{app:pertask}
+In Fig.(\ref{fig:online:NLL_pertask}),(\ref{fig:online:Div_pertask}) we report test NLL and diversity metrics from the previous section for each task separately. Each subgraph shows performance of the VAE on one specific task (e.g. on '0's, '1's, etc. for MNIST), depending on the total number of tasks seen by the model in continual setting. Each line begins when the class appears in the train set for the first time. We observe, how the performance on this task changes as wee keep updating the model on the new tasks. We expect the line to be as flat as possible. This means, that quality of reconstructions and proportion of samples does not get worse when new tasks arrive. 
+%\begin{figure}[!h]
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/MNIST_pertask.pdf}
+%	\caption{MNIST}
+%	\end{subfigure}
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/notMNIST_pertask.pdf}
+%		\caption{notMNIST}
+%	\end{subfigure}
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/FashionMNIST_pertask.pdf}
+%		\caption{Fashion MNIST}
+%	\end{subfigure}
+%	\caption{NLL on the test dataset for each task separately averaged over 5 runs. The lower is better.}\label{fig:online:NLL_pertask}
+%\end{figure}
+\begin{figure}[h]
+	\centering
+		\subfloat[MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/MNIST_pertask.pdf}} \hfill
+		\subfloat[notMNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/notMNIST_pertask.pdf}}\hfill
+		\subfloat[Fashion MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/FashionMNIST_pertask.pdf}}
+	\setfloatalignment{t} 
+		\caption{NLL on the test dataset for each task separately averaged over 5 runs. The lower is better.}\label{fig:online:NLL_pertask}
+	\vspace*{\baselineskip}
+\end{figure}
+In Fig.(\ref{fig:online:Div_pertask}) we show each term in the KL-divergence as a characteristic of the per task diversity, which is equal to the $\tfrac1K \left(\log\tfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$. Ideally, this value should be 0 everywhere. If it is positive, then there is not enough images from a given class in the sample. And vice versa, in case of negative value, there are too many samples from a given class. As we can see from the plots, BooVAE is extremely close to the desired behaviour. If the method suffer from catastrophic forgetting, it produces too many samples when the task is seen for the first time (green zone on the graph) and not enough samples later on (red area), since it forgets how to produce this samples.
+%\begin{figure}[!h]
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/MNIST_pertask_kl.pdf}
+%	\caption{MNIST}
+%	\end{subfigure}
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/notMNIST_pertask_kl.pdf}
+%		\caption{notMNIST}
+%	\end{subfigure}
+%	\begin{subfigure}[b]{\textwidth}
+%	\centering
+%		\includegraphics[width=0.99\textwidth]{pics/1_boovae/FashionMNIST_pertask_kl.pdf}
+%		\caption{Fashion MNIST}
+%	\end{subfigure}
+%	\caption{Diversity score for each computed for each class separately. Each subgraph shows values $\sfrac1K \left(\log\sfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$ for the task $k$. That is one term from the sum (KL-divergence), which shows difference between ideal and generated proportion of images for a specific class. On the $x$ axis there is total number of tasks seen by the model. Negative value means that model generates too many images of the class, positive --- not enough images from the given class. }\label{fig:online:Div_pertask}
+%\end{figure}
+\begin{figure}[t!]
+	\centering
+	\subfloat[MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/MNIST_pertask_kl.pdf}} \hfill
+	\subfloat[notMNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/notMNIST_pertask_kl.pdf}}\hfill
+	\subfloat[Fashion MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/FashionMNIST_pertask_kl.pdf}}
+	\setfloatalignment{t} 
+	\caption{Diversity score for each computed for each class separately. Each subgraph shows values $\sfrac1K \left(\log\sfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$ for the task $k$. That is one term from the sum (KL-divergence), which shows difference between ideal and generated proportion of images for a specific class. On the $x$ axis there is total number of tasks seen by the model. Negative value means that model generates too many images of the class, positive --- not enough images from the given class. }\label{fig:online:Div_pertask}
+	\vspace*{\baselineskip}
+\end{figure}
+
+\clearpage
+\subsection{Examples of generated samples} \label{app:samples}
+Figures (\ref{fig:celeba_gen}),(\ref{fig:MNIST_gen}),(\ref{fig:notMNIST_gen}),(\ref{fig:fMNIST_gen}) contain samples from different VAE. Each row-block corresponds to the total number of tasks seen by the model, while each columns corresponds to a different model. We can clearly see, that BooVAE generates diverse samples after training on all the tasks (last row). We also observe that addition of the regularization-based approaches makes samples from the models more blurred. We assume that this is exactly reflected in the worse diversity metrics for BooVAE with VCL. Even though the samples are still diverse, they are are sometimes of lower quality and classification network makes more mistakes.  
+
+These samples provide qualitative proof of the generation diversity metrics, shown in Figure (\ref{fig:online:diversity}) and in Tables (\ref{tab:onlineDiv}),(\ref{tab:celeba_fid}). 
+
+\begin{figure}[ht]
+		\centering
+		\includegraphics[width=\textwidth]{pics/1_boovae/celeba_full.pdf}
+		\caption{Samples from prior after training on different number of tasks in the continual setting: CelebA dataset. Each row-wise block from the top to the bottom corresponds to the cumulative increasing number of tasks. Each column-wise block corresponds to the particular model.}
+		\label{fig:celeba_gen}
+\end{figure}
+
+\begin{figure}[ht]
+		\centering
+		\includegraphics[width=\textwidth]{pics/1_boovae/MNIST_full.pdf}
+		\caption{Samples from prior after training on different number of tasks  in the continual setting: MNIST dataset. Each row-wise block from the top to the bottom corresponds to the cumulative increasing number of tasks. Each column corresponds to the particular model.}
+		\label{fig:MNIST_gen}
+\end{figure}
+
+\begin{figure}[ht]
+		\centering
+		\includegraphics[width=\textwidth]{pics/1_boovae/notMNIST_full.pdf}
+		\caption{Samples from prior after training on different number of tasks  in the continual setting: notMNIST dataset. Each row-wise block from the top to the bottom corresponds to the cumulative increasing number of tasks. Each column-wise block corresponds to the particular model.}
+		\label{fig:notMNIST_gen}
+\end{figure}
+
+\begin{figure}[ht]
+		\centering
+		\includegraphics[width=\textwidth]{pics/1_boovae/FashionMNIST_full.pdf}
+		\caption{Samples from prior after training on different number of tasks  in the continual setting: Fashion MNIST dataset. Each row-wise block from the top to the bottom corresponds to the cumulative increasing number of tasks. Each column-wise block corresponds to the particular model.}
+		\label{fig:fMNIST_gen}
+\end{figure}
+
+\clearpage
+\subsection{Random Coreset Size}\label{app:coreset}
+
+In all the experiments we use the size of the random coreset equal to the maximal number of components in BooVAE, which is 15 for all the MNIST dataset and 40 for CelebA. Since random coreset basically means that we store a subset of the training data from the previous tasks, it is always possible to find such size of the random coreset, that there is no catastrophic forgetting at all. In this section we show, how large the random coreset should be to achieve results comparable to BooVAE with 15 components. 
+
+We observe that on MNIST dataset only random coreset of size 500 per task results in better results in terms of both NLL and KL divergence. Lower size of the random coreset does not produce samples that are as diverse as samples from BooVAE.  For Fashion MNIST we observe that situation with NLL is similar, but even 500 samples is not enough to get diverse enough samples from the model.
+
+\begin{figure}[ht]
+		\centering
+		\includegraphics[width=0.8\textwidth]{pics/1_boovae/coresets_mnist.pdf}
+		\caption{Negative Loglikelohood (top row) and KL, which assesses diversity of generated samples (bottom row) for MNIST and Fashion MNIST dataset for different sizes of Random Corsets after training on 10 tasks.}
+		\label{fig:coresets}
+\end{figure}
+
+\newpage
+\subsection{Architecture and Optimization details}\label{app:archicture}
+\paragraph{Optimization} 
+We use validation dataset to select hyperparameters for a simple VAE (with a standard Normal prior, trained on the whole training dataset) for each dataset. After that we fix these hyperparemeters for all the methods used in the experiments in the continual learning setting. 
+
+For MNIST and FashionMNIST we randomly remove 10'000 images from the train dataset for validation. For notMNIST we use small version of the dataset (19k images in total) and remove 10\% as a test data and 10\% more as validation. For CelebA dataset we use split provided by the dataset authors. 
+
+We use Adam to perform the optimization for all the datasets with LR scheduler, that reduce learning rate by the \texttt{factor} when the loss is not decreasing for \texttt{patience} number of epochs. In the Table \ref{tab:optim_params} we provide all the parameters of the optimization procedure. For CelebA dataset we use $\beta$-VAE with $\beta$ annealing. The value of $\beta$ is gradually increasing from 0 to 2 during the first 10 epochs. 
+\begin{table}[ht]
+\begin{center}
+\caption[][\baselineskip]{Optimization parameters used in the experiments.}
+\label{tab:optim_params}
+\resizebox{1.0\textwidth}{!}{
+\begin{tabular}{l|llll}
+% \begin{tabular}{@{}l|llll@{}}
+\toprule
+% Parameter   & Value            \\ \midrule
+Parameter                   & MNIST & notMNIST & FashionMNIST & CelebA \\ \midrule
+Batch-size                  & 250   & 250      & 500          & 512\\
+Initial Learning rate       & 5e--4 & 5e--4    & 5e--4        & 1e--3\\
+LR scheduler patience       & 30    & 30       & 30           & 9\\
+LR scheduler factor         & 0.5   & 0.5      & 0.5          & 0.5\\ 
+Max epochs                  & 500   & 500      & 1000         & 300\\
+Early stopping              & 50    & 50       & 50           & 15\\
+(\# ep. without improvement)&       &          &              &    \\
+Latent dimension            & 40    & 40       & 40           & 128\\
+Beta annealing              & No    & No       & No           & From 0 to 2\\
+              &     &        &            & during first 10 epochs\\
+\# components per task (BooVAE)      & 15    &15        & 15           & 40 \\
+Regularization weight (BooVAE, Eq.~\eqref{eq:obj_with_reg}) & 1& 1& 1&1\\
+\bottomrule
+\end{tabular}}
+\vspace{20pt}
+\end{center}
+\end{table}
+
+\paragraph{MNIST architecture} We've used MLP with 3 linear layers and LeakyReLU activations both for the encoder and decoder in all the cases. Detailed architectures are presented in Table \ref{tab:mnist_arc}.
+
+\begin{table}[ht]
+\begin{center}
+\caption[][\baselineskip]{MLP architectures for MNIST, notMNIST and FashionMNIST datasets.}
+\label{tab:mnist_arc}
+\resizebox{1.0\textwidth}{!}{
+\begin{tabular}{@{}llll@{}}
+\toprule
+                   & MNIST & notMNIST & FashionMNIST  \\  \midrule
+& \multicolumn{3}{c}{Encoder}                     \\ \midrule
+& \texttt{Linear}(784 -> 300)   & \texttt{Linear}(784 -> 1024)      & \texttt{Linear}(784 -> 1024)          \\
+& \texttt{LeakyReLU()} & \texttt{LeakyReLU}& \texttt{LeakyReLU}\\
+&  \texttt{Linear(300 -> 300)} &  \texttt{Linear(1024 -> 1024)} &  \texttt{Linear(1024 -> 1024)} \\
+& \texttt{LeakyReLU()} & \texttt{LeakyReLU}& \texttt{LeakyReLU}\\
+& $\mu_z \leftarrow$  \texttt{Linear(300 -> 40)} & $\mu_z \leftarrow$  \texttt{Linear(1024 -> 40)} & $\mu_z \leftarrow$  \texttt{Linear(1024 -> 40)}\\
+& $\log \sigma^2_z \leftarrow$ \texttt{Linear(300 -> 40)}& $\log \sigma^2_z \leftarrow$ \texttt{Linear(1024 -> 40)}& $\log \sigma^2_z \leftarrow$ \texttt{Linear(1024 -> 40)}\\ \midrule
+& \multicolumn{3}{c}{Decoder}                     \\ \midrule
+& \texttt{Linear(40 -> 300)}   & \texttt{Linear(40 -> 1024)}      & \texttt{Linear(40 -> 1024)}          \\
+& \texttt{LeakyReLU()} & \texttt{LeakyReLU}& \texttt{LeakyReLU}\\
+&  \texttt{Linear(300 -> 300)} &  \texttt{Linear(1024 -> 1024)} &  \texttt{Linear(1024 -> 1024)} \\
+& \texttt{LeakyReLU()} & \texttt{LeakyReLU}& \texttt{LeakyReLU}\\
+& \texttt{Linear(300 -> 784)} & \texttt{Linear(1024 -> 784)} & \texttt{Linear(1024 -> 784)}\\
+& $\mu_x \leftarrow$ \texttt{Sigmoid()}& $\mu_x \leftarrow$ \texttt{Sigmoid()}& $\mu_x \leftarrow$ \texttt{Sigmoid()}\\
+\bottomrule
+\end{tabular}
+}
+\vspace{20pt}
+\end{center}
+\end{table}
+
+\paragraph{CelebA architecture} For CelebA dataset we've used convolutional NN. We use 2D convolutions with kernel size $5\times 5$, Batch normalization and ReLU activations for encoder and symmetric architecture but with transposed convolutions for the decoder. See all the details in Table \ref{tab:celeba_arc}.
+
+\begin{table}[ht]
+\begin{center}
+\caption{Convolutional architecture for CelebA dataset.}
+\label{tab:celeba_arc}
+\begin{tabular}{@{}lll@{}}
+\toprule
+                   & Encoder & Decoder  \\  \midrule
+& \texttt{Conv(5x5, 3 -> 32)} & \texttt{Linear(128 -> 4096)} \\
+& \texttt{BatchNorm()} &\texttt{ReLU()} \\
+& \texttt{ReLU()} &\texttt{ConvTranspose(5x5, 256 -> 128)} \\
+& \texttt{Conv(5x5, 32 -> 64)} & \texttt{BatchNorm()}\\
+& \texttt{BatchNorm()} & \texttt{ReLU()}\\
+& \texttt{ReLU()} & \texttt{ConvTranspose(5x5, 128 -> 64)}\\
+& \texttt{Conv(5x5, 64 -> 128)} &\texttt{BatchNorm()} \\
+& \texttt{BatchNorm()} & \texttt{ReLU()}\\
+& \texttt{ReLU()} & \texttt{ConvTranspose(5x5, 64 -> 32)}\\
+& \texttt{Conv(5x5, 128 -> 256)} & \texttt{BatchNorm()}\\
+& \texttt{BatchNorm()} & \texttt{ReLU()}\\
+& \texttt{ReLU()} & \texttt{Conv(1x1, 32 -> 3)}\\
+& $\mu_z \leftarrow$  \texttt{Linear(256 -> 128)} & $\mu_x \leftarrow$  \texttt{Softsign()}  \\
+& $\log \sigma^2_z \leftarrow$ \texttt{Linear(256 -> 128)}&\\ 
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+

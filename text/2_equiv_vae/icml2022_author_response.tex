@@ -1,0 +1,82 @@
+\documentclass{article}
+
+% Please use the following line and do not change the style file.
+\usepackage{icml2022_author_response}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{booktabs} % for professional tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+
+\usepackage{lipsum}
+
+\begin{document}
+% Uncomment the following line if you prefer a single-column format
+% \onecolumn
+
+% Equivariance serves as an inductive bias for learning tasks and is claimed to lead to more parameter efficient networks. We have shown that this insight extends to inverse problems too. Our simple equivariant VAE can provide better or  comparable results with more complicated generative models. 
+
+% Dear Reviewers, thank you very much for your thorough reviews and for your time. 
+We would like to express our gratitude to the reviewers for thoroughly reading the paper and many fruitful suggestions. 
+All three reviewers found the proposed method of using equivariant generative models as a prior for compressed sensing novel (\textbf{R1}) and relevant (\textbf{R2}, \textbf{R4}). 
+% We would like to further highlight, that we focus on the problem of reconstructing a signal with the unknown orientation from a set of linear measurements. 
+% AB: what about this?
+% This is Lekker
+The main contribution of the paper is showing that equivariant priors provide a parameter efficient and fast method for solving inverse problems with unknown orientation. We have proposed an equivariant VAE architecture and pay the most attention to the parameter efficiency and convergence speed of the method. Equivariance serves as an inductive bias for learning tasks and is claimed to lead to more parameter efficient networks. We have shown that this insight extends to inverse problems too. Our equivariant VAE can provide better or comparable results to more powerful and complicated generative models like flows.
+% In our experiments, we use VAE model as a prior and show that it can perform better or comparable to a much larger (in terms of number of parameters) Flow model.
+Although a more powerful equivariant generative model could provide better performance, it would not carry the same message. Regarding the writing of the manuscript, we will definitely take all comments into account in the updated version.  Regarding {theoretical novelty} mentioned by \textbf{R1} and \textbf{R4}, the goal of the theoretical part was to emphasize that equivariant generative priors carry over theoretical guarantees of Bora et al., 2017. In the following, we address reviewers' comments.
+
+\textbf{Experimental Results in MAYO}: \textbf{R2} raised concerns about the experiments on MAYO dataset not showing real boost in performance over baselines.
+%We agree that the performance of the CS with equivariant VAE in terms of MSE is not superior to the flow model. However, we observe comparable performance with the lower complexity prior and boost in terms of the number of iterations. 
+% Alternative: PRATIK + FV ()
+% We do not aim to propose a better generative model, in terms of absolute MSE, for compressed sensing. 
+Note that we focus on the formulation of an efficient and practical (low latency and parameters) generative model for signal recovery with unknown rotation. Most of the previously published works rely on big powerful generative networks, while our proposed equivariant signal recovery method achieves comparable performance with significantly lower latency.  We do not aim to propose a better generative model, in terms of absolute MSE, for compressed sensing, although we envision that a significant performance boost can potentially be achieved by deploying a bigger equivariant prior model.
+
+\textbf{R4} Experimental results clarifications: Eqns 33-35 represent the recovery scheme for non-equivariant models for unknown rotational angle scenario, i.e., optimization needs to be done over both the latent and the angle. VAE and VAE-coord in the second plot of Figure 1 and also Flows, Conv. and MLP VAEs in Tables 1 and 2 come under this category. Eqns 36-37 represent conditional generative models for rotated signal recovery scenario. Cond-flow in Table 1 comes under this scheme. Eqns 38-39 represent equivariant models, Eq-VAE is an instance of it.
+
+\textbf{Expressiveness of the chosen generative prior: }\textbf{R4} mentions that the VAE prior we use in our experiments has limited representation power and "more recent algorithms that use Flow models (such as Asim'21, which is cited in the paper) and score-based models are much more powerful". Note that this is the merit of our approach that eq-VAE achieves comparable performance to flow while requiring fewer parameter count and less gradient-descent iterations until convergence. In our experiments, a vanilla conv. VAE indeed achieves better results than the Flow model on the MNIST dataset. It is, however, possible to employ more powerful equivariant generative models, but note that current equivariant flow models, \href{https://arxiv.org/abs/2006.02425}{[Köhler2020]} and \href{https://arxiv.org/abs/2105.09016}{[Sat2021]}, are all based on using continuous flows, which are difficult to scale and hard to train. We are not aware of equivariant score-based models. Finally, recent works have shown that VAEs are able to achieve SOTA performance in image generation (\href{https://arxiv.org/abs/2007.03898}{[Vahd2020]}, \href{https://arxiv.org/abs/2011.10650}{[Child2021]}) while being significantly less complex.
+
+
+% We aim to show that equivariant priors are better suited for signal recovery with unknown rotation in practical deployment. Recent works have shown that VAEs are able to achieve state-of-the-art performance in image generation[1, 2] while being significantly less complex, e.g. having less trainable parameters, than Flows and score-based models. In our experiments, a vanilla conv. VAE indeed achieves better results than the Flow model on the MNIST dataset. Given the aforementioned results, and keeping the feasibility factor in mind, we chose VAEs for further experiments. However, concerning the MAYO dataset, we agree that a more powerful equivariant generative model will be better equipped to achieve higher performance. Nonetheless, even in the current setup, equivariant VAE achieves comparable performance to Flow while requiring fewer parameter count and less gradient-descent iterations until convergence.
+
+\textbf{Novelty and Relevant Literature:} We thank \textbf{R2} and \textbf{R4} for pointing out relevant works. We will definitely add them to the related work section.  However, we would like to point out the distinctions of our work compared to the mentioned papers. MimicGAN \textbf{R2}-[1] provides an alternative method to projected gradient descent that we use in all of our experiments. We can of course use the proposed approach for all of the experiments, however, using projected gradient descent has been common in most of the works on generative priors. 
+% an interesting approach to restore the unknown rotation, which proposes the alternative to the projected gradient descent that we use in our experiments. It can be as well used with the equivariant generative prior, but we believe that such experiment would be out of scope of this work. 
+% In [4] authors focus on training VAE with $SO(3)$-valued latent variable (a group of 3d rotations), while we consider a discrete group of 2D rotations ($C_n$) . Furthermore, our final goal is application of the model to Generative compressed sensing with the unknown orientation, which is totally out of scope of \textbf{R2}-[2].
+Homeomorphic VAE \textbf{R2}-[2] focuses on generative models with latent space that has $SO(3)$, in general a Lie group, values. Our latent is a conventional Euclidean space with real valued entries. On this space, we define the action of a discrete group of 2D rotations ($C_n$), which is different from \textbf{R2}-[2]. Besides, compressed sensing application is not discussed in \textbf{R2}-[2].
+% The paper \textbf{R2}-[2] has a different motivation and focus and does not fit our setup, namely generative compressed sensing with the unknown orientation, which is totally out of scope of \textbf{R2}-[2].
+\textbf{R4} raises concern that we ignore relevant prior work on the unknown rotations \textbf{R4}-[4-7]. We would like to highlight that \textbf{R4}-[5, 7] cover general topic of learning equivariant neural networks. As  mentioned by \textbf{R1}, we extensively cited the relevant literature on this topic. It would be impossible to cite all these works in such a rich field.  \textbf{R4}-[4] considers reconstructing the rotation angle of the input and focuses primarily on compressive classification and not signal reconstruction. We aim at restoring the signal regardless of the fact that it was rotated or not. Nonetheless, \textbf{R4}-[4] is a great addition to our related works section. Regarding \textbf{R4}-[6], multi-reference alignment aims at solving inverse problems from multiple observations of a single source in different unknown orientations. The main challenge, and focus of research, in these works is alignment of these observations.
+% , which are then used to solve the inverse problem using standard techniques. 
+For us, there is only a single observation, and the alignment step does not apply.
+% On the other hand, our method can potentially be used for final recovery from multiple aligned observations.
+
+% \textbf{Theoretical Novelty} \textbf{R1} and \textbf{R4} mention that the theorem from the paper is a minor variation of Bora et al., 2017. As we highlight in the contributions, the goal of the theoretical part was to emphasize that equivariant generative priors carry over theoretical guarantees of Bora et al., 2017.
+
+\textbf{Clarifications:} We are not assuming any prior on group transformations, meaning that they are equally likely. Choosing $T_g$ for the latent space is a hyperparameter choice. We followed the paper of Weiler2019, where $T_g$ is a unitary matrix composed of irreps with their multiplicity as hyperparameters. We will add more explanation to the paper. Aug-VAE refers to augmented-VAE, described in section-4 of the manuscript.
+
+\begin{small}
+% [Köhler2020] Köhler et al. Equivariant Flows: Exact Likelihood Generative Learning for Symmetric Densities
+
+% [Sat2021] Satorras et al, E(n) Equivariant Normalizing Flows
+
+% [Vah2020] Vahdat et al. Nvae: A deep hierarchical variational autoencoder. NeurIPS 2020
+
+% [Child2021] Child R. Very deep vaes generalize autoregressive models and can outperform them on images. ICLR 2021.
+
+%[3] Anirudh et al. MimicGAN: Robust Projection onto Image Manifolds with Corruption Mimicking, IJCV 2021
+
+% Falorsi et al. Explorations in Homeomorphic Variational Auto-Encoding, ICML workshop.
+
+%[5] Davenport et al. The smashed filter for compressive classification and target recognition. Computational Imaging, 2007.
+
+%[6] Weiler et al. Coordinate Independent Convolutional Networks--Isometry and Gauge Equivariant Convolutions on Riemannian Manifolds. arXiv preprint 2021.
+
+%[7] Bendory et al. Bispectrum inversion with application to multireference alignment." IEEE Transactions on signal processing, 2017
+
+%[8] Buchanan et al. Resource-Efficient Invariant Networks: Exponential Gains by Unrolled Optimization. arXiv preprint, 2022. 
+
+\end{small}
+\end{document}

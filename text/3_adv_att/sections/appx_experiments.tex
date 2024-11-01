@@ -1,0 +1,523 @@
+%%%%%%%%%%%%%%%%%%
+%-----SECTION-----
+%%%%%%%%%%%%%%%%%%
+\newpage
+
+%%%%%%%%%%%%%%%%%%
+%-----RESULTS-----
+%%%%%%%%%%%%%%%%%%
+\section{Additional results}
+\subsection{Posterior ratio} \label{appendix:posterior_ratio}
+
+We motivate our method by the hypothesis that the adversarial attack "shifts" a latent code to the region of a lower posterior density, while our approach moves it back to a high posterior probability region. In Section \ref{sec:defence} we theoretically justify our hypothesis, while here we provide an additional empirical evidence.
+
+In order to verify our claim that applying an MCMC method allows us to counteract attacks by moving a latent code from a region of a lower posterior probability mass to a region of a higher density, we propose to quantify this effect by measuring the ratio of posteriors for $\rvz_1$ and $\rvz_2$. The true posterior $p(\rvz | \rvx^{r})$ is not available due to the cumbersome marginal distribution $p(\rvx^{r})$, however, we can calculate the ratio of posteriors because the marginal will cancel out, namely:
+
+\begin{align}
+\text{PR}(\rvz_1, \rvz_2) &= \tfrac{p_{\theta}(\rvz_1|\rvx^r)}{p_{\theta}(\rvz_2|\rvx^r)} \\
+&= \tfrac{p_{\theta}(\rvx^r|\rvz_1)p(\rvz_1)}{p_{\theta}(\rvx^r| \rvz_2)p(\rvz_2)} .
+\end{align}
+
+In our case, we are interested in calculating the posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) as the baseline, and the posterior ratio between the reference and adversarial code after applying the HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$). The lower the posterior ratio, the better. For practical reasons, we use the logarithm of the posterior ratio (the logarithm does not change the monotonicity and turns products to sums):
+\begin{equation}
+    \log \text{PR}(\rvz_1, \rvz_2) = \log p_{\theta}(\rvx^r|\rvz_1) + \log p(\rvz_1) - \log p_{\theta}(\rvx^r| \rvz_2) - \log p(\rvz_2) .
+\end{equation}
+
+We present results on the log-posterior-ratio calculated on the MNIST dataset. In Figure \ref{fig:mnist_post_ratio} we show a plot with two histograms: one with the posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) in blue, and the second histogram of the posterior ratio between the reference and adversarial code after applying the HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$) in orange. 
+
+% In this section we experimentally validate this hypothesis. Since the true posterior is not available to us, we use posterior ratio, which can be estimated as the unknown normalization constant cancels out:
+% % \ak{repeat the hypothesis. In section A we prove theoretically. Here we verify it empirically. }
+% \begin{equation}
+% \text{PR}(\rvz_1, \rvz_2) = \tfrac{p_{\theta}(\rvz_1|\rvx^r)}{p_{\theta}(\rvz_2|\rvx^r)}     = \tfrac{p_{\theta}(\rvx^r|\rvz_1)p(\rvz_1)}{p_{\theta}(\rvx^r| \rvz_2)p(\rvz_2)}    
+% \end{equation}
+
+% We calculate posterior ratio for adversarial attacks on the MNIST dataset. On Figure \ref{fig:mnist_post_ratio} we plot two histograms: posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) in blue and posterior ratio between the reference and adversarial code after HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$) in orange. 
+
+We observe that the histogram has moved to the left after applying the HMC. This indicates that posterior of the adversarial (in the denominator) is increasing when the HMC is used. This is precisely the effect we hoped for and this result provides an empirical evidence in favor of our hypothesis.
+
+\begin{figure}[ht]
+    \centering
+        \includegraphics[width=0.55\textwidth]{pics/3_adv_att/mnist_posterior_ratio.pdf}
+    \caption{Histograms of the log posterior ratios without HMC (blue) and with HMC (orange) evaluated on MNIST dataset.}
+    \label{fig:mnist_post_ratio}
+\end{figure}
+
+
+
+\paragraph{Experimental Details}
+For this experiment we construct 500 adversarial attacks with the radius 0.1 on the encoder of the VAE trained on MNIST dataset. We run 500 HMC steps with the same hyperparameters as mentioned in Table \ref{tab:setup} to obtain $\rvz^a_{HMC}$.
+
+\paragraph{Statistical Analisys}
+We performed a two-sample Kolmagorov-Smirnov test with the null hypothesis that two histograms are drawn from the same distribution. As an alternative hypothesis is that the underlying distributions are different. Choosing the confidence level of 95\% results in the rejection of the null hypothesis (p-value is equal to 0.029) in favour of the alternative: two histograms were not drawn from the same distribution.
+
+
+
+
+\newpage
+\subsection{Detailed results for $\beta$-VAE and $\beta$-TCVAE} \label{appendix:beta_vae}
+% In this section, we report the values that were used to produce Figures \ref{fig:mnist_rec_similarity} and \ref{fig:mnist_adv_acc}. We report mean values of the metric along with the corresponding standard deviations. 
+In this section we report extended results for MNIST, FashionMNIST and ColorMNIST datasets. We train VAE,  $\beta$-VAE and $\beta$-TCVAE on three datasets: MNIST, FashionMNIST and ColorMNIST. Then, we compare the robustness to adversarial attack with and without HMC. We present all the result with the standard error in Table $\ref{tab:mnist_results}$. On Figures \ref{fig:mnist_rec_similarity}, \ref{fig:mnist_adv_acc} we show visually how HMC improve the robustness for each dataset and model. 
+
+\begin{table}[ht]
+\caption{Robustness results on MNIST, Fashion MNIST and Color MNIST datasets. We perform unsupervised attack with radius $0.1$ (top) and $0.2$ (bottom). We attack the encoder (left) and the downstream classification task (right). Higher values correspond to more robust models.\\
+}
+\label{tab:mnist_results}
+\begin{center}
+% \begin{small}
+\begin{sc}
+\resizebox{.99\textwidth}{!}{
+\begin{tabular}{llccc|cccc}
+\toprule
+% & \multicolumn{6}{c}{\sc{Attack Radius}} \\
+% & \multicolumn{3}{c}{\sc{0.1}} & \multicolumn{3}{c}{\sc{0.2}} \\
+& & \multicolumn{3}{c|}{$\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$ $\uparrow$} & \multicolumn{3}{c}{Adversarial Accuracy $\uparrow$} \\
+ & & \multirow{2}{*}{\sc{MNIST}} &  \multirow{2}{*}{\sc{Fashion MNIST}} &  \multirow{2}{*}{\sc{Color MNIST}}  &  \multirow{2}{*}{\sc{MNIST}} &  \multirow{2}{*}{\sc{Fashion MNIST}} & \multicolumn{2}{c}{\sc{Color MNIST}} \\
+ & &  &  &   & &  & Digit & Color \\
+\midrule
+\multirow{7}{*}{\STAB{\rotatebox[origin=c]{90}{$\|\varepsilon \|_{\inf} = 0.1$}}} 
+& VAE              & 0.70 \tiny{(0.02)}          & 0.59 \tiny{(0.03)}          & 0.36 \tiny{(0.03)}           & 0.08 \tiny{(0.04)}          & 0.00 \tiny{(0.01)}          & 0.04 \tiny{(0.03)}          & 0.06 \tiny{(0.03)}  \\
+& \quad\quad + HMC & \textbf{0.88 \tiny{(0.01)}} & \textbf{0.66 \tiny{(0.03)}} & \textbf{0.96 \tiny{(0.01)}}  & 0.25 \tiny{(0.03)}          & \textbf{0.14 \tiny{(0.02)}} & 0.16 \tiny{(0.02)}          & 0.68 \tiny{(0.03)} \\
+& $\beta$-VAE      & 0.75 \tiny{(0.01)}          & 0.52 \tiny{(0.03)}          & 0.50 \tiny{(0.04)}           & 0.11 \tiny{(0.04)}          & 0.00 \tiny{(0.02)}          & 0.08 \tiny{(0.04)}          & 0.21 \tiny{(0.06)} \\
+& \quad\quad + HMC & 0.84 \tiny{(0.01)}          & 0.64 \tiny{(0.03)}          & 0.92 \tiny{(0.03)}           & \textbf{0.30 \tiny{(0.03)}} & 0.13 \tiny{(0.02)}          & 0.14 \tiny{(0.02)}          & 0.66 \tiny{(0.04)} \\
+& $\beta$-TCVAE    & 0.70 \tiny{(0.02)}          & 0.52 \tiny{(0.03)}          & 0.35 \tiny{(0.02)}           & 0.05 \tiny{(0.03)}          & 0.01 \tiny{(0.01)}          & 0.08 \tiny{(0.04)}          & 0.06 \tiny{(0.03)} \\
+& \quad\quad + HMC & 0.79 \tiny{(0.02)}          & \textbf{0.66 \tiny{(0.03)}} & \textbf{0.96 \tiny{(0.01)}}  & 0.25 \tiny{(0.04)}          & 0.13 \tiny{(0.02)}          & \textbf{0.22 \tiny{(0.03)}} & \textbf{0.81 \tiny{(0.02)}} \\ 
+% & AVAE-SS\textsuperscript{*}            & ---          & ---          & ---           & ---          & ---          & 0.73 \tiny{(N/A)}           & 0.99 \tiny{(N/A)}  \\
+\midrule
+\multirow{6}{*}{\STAB{\rotatebox[origin=c]{90}{$\|\varepsilon \|_{\inf} = 0.2$}}} 
+& VAE              & 0.36 \tiny{(0.03)}          & 0.47 \tiny{(0.03)}          & 0.19 \tiny{(0.02)}          & 0.05 \tiny{(0.03)}          & 0.01 \tiny{(0.01)}          & 0.02 \tiny{(0.02)}          & 0.06 \tiny{(0.03)}\\
+& \quad\quad + HMC & \textbf{0.76 \tiny{(0.02)}} & \textbf{0.54 \tiny{(0.03)}} & \textbf{0.90 \tiny{(0.01)}} & \textbf{0.19 \tiny{(0.03)}} & \textbf{0.13 \tiny{(0.02)}} & 0.11 \tiny{(0.02)}          & 0.62 \tiny{(0.03)}\\
+& $\beta$-VAE      & 0.50 \tiny{(0.03)}          & 0.41 \tiny{(0.03)}          & 0.38 \tiny{(0.04)}          & 0.01 \tiny{(0.01)}          & 0.00 \tiny{(0.01)}          & 0.05 \tiny{(0.03)}          & 0.18 \tiny{(0.05)}\\
+& \quad\quad + HMC & 0.69 \tiny{(0.03)}          & 0.50 \tiny{(0.03)}          & 0.87 \tiny{(0.01)}          & 0.16 \tiny{(0.03)}          & 0.12 \tiny{(0.02)}          & \textbf{0.15 \tiny{(0.02)}} & 0.56 \tiny{(0.04)}\\
+& $\beta$-TCVAE    & 0.45 \tiny{(0.03)}          & 0.42 \tiny{(0.03)}          & 0.20 \tiny{(0.02)}          & 0.03 \tiny{(0.02)}          & 0.02 \tiny{(0.02)}          & 0.05 \tiny{(0.03)}          & 0.05 \tiny{(0.03)}\\
+& \quad\quad + HMC & 0.65 \tiny{(0.03)}          & 0.52 \tiny{(0.03)}          & 0.87 \tiny{(0.01)}          & 0.16 \tiny{(0.04)}          & 0.11 \tiny{(0.02)}          & 0.14 \tiny{(0.02)}          & \textbf{0.72 \tiny{(0.03)}} \\
+% & AVAE-SS\textsuperscript{*}            & ---          & ---          & ---           & ---          & ---          & 0.21 \tiny{(N/A)}          & 0.57 \tiny{(N/A)}  \\
+\bottomrule
+\end{tabular}}
+\end{sc}
+% \end{small}
+\end{center}
+\vspace*{2\baselineskip}
+\end{table}
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{ll}
+        \includegraphics[width=0.5\textwidth]{pics/3_adv_att/msssim_eps_1.pdf} & 
+        \includegraphics[width=0.5\textwidth]{pics/3_adv_att/msssim_eps_2.pdf} \\
+        \multicolumn{1}{c}{(a) $||\varepsilon ||_{\inf} = 0.1$} &
+        \multicolumn{1}{c}{(b) $||\varepsilon ||_{\inf} = 0.2$} \\
+        % (a) & (b) \\
+        % (c) & (d)
+    \end{tabular}
+    \caption{Improvement of the Reconstruction Similarity after the proposed defence. We fix the attack radius to be equal to (a) 0.1 and (b) 0.2. Higher values correspond to a more robust representations.}
+    \label{fig:mnist_rec_similarity}
+    \vspace*{2\baselineskip}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{ll}
+        \includegraphics[width=0.5\textwidth]{pics/3_adv_att/adv_acc_eps_1.pdf} &
+        \includegraphics[width=0.5\textwidth]{pics/3_adv_att/adv_acc_eps_2.pdf} \\
+        \multicolumn{1}{c}{(a) $||\varepsilon ||_{\inf} = 0.1$} &
+        \multicolumn{1}{c}{(b) $||\varepsilon ||_{\inf} = 0.2$} \\
+        % (a) & (b) \\
+        % (c) & (d)
+    \end{tabular}
+    % \vskip -10pt
+    \caption{Improvement of the Adversarial Accuracy after proposed defence. We fix the attack radius to be equal to (a) 0.1 and (b) 0.2.}
+    \label{fig:mnist_adv_acc}
+    \vspace*{\baselineskip}
+\end{figure}
+
+
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%
+%-----ATTACK MCMC-----
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection{What if the attacker knows the defence strategy?} \label{appendix:attack_mcmc}
+In our experiments we relied on the assumption that attack does not take into account the defence strategy that we use. We believe that it is reasonable, since defence requires access to the decoder part of the model ($p_{\theta}(x|z)$), which is not necessarily available to the attacker. 
+
+However, one may assume that the defence strategy is known to the attacker. In this case, it is reasonable to verify whether the robustness results change. In the conducted experiment we show that it is vastly more complicated to attack the encoder with taking the MCMC defence into account. We train the unsupervised attack (\ref{eq:objective_unsup}). The attack has access to the encoder and MCMC defence:
+\begin{equation}
+f(x) = q^{(t)}(\rvz|\rvx) = \int Q^{(t)}(\rvz|\rvz_0) q_{\phi}(\rvz_0|\rvx) d\rvz_0,
+\end{equation}
+where $Q^{(t)}(\rvz|\rvz_0)$ is MCMC kernel. 
+
+Then, given the attack radius $\delta$, we train the attack using the following objective:
+\begin{align}
+    \varepsilon^* &= \arg\max_{\|\varepsilon\|_{\inf} < \delta}\|\widetilde{z}^a - \widetilde{z}^r\|^2, \\
+    \widetilde{z}^a &\sim q^{(t)}(\rvz|\rvx^r + \varepsilon), \label{eq:z_a_mcmc}\\
+    \widetilde{z}^r &\sim q^{(t)}(\rvz|\rvx^r). \label{eq:z_r_mcmc}
+\end{align}
+
+The similarity results of these attacks are plotted in Figure \ref{fig:mcmc_attack}. We observe that the reconstructed reference and adversarial points have approximately the same similarity (measured by MSSSIM) as the initial points $\rvx^r$ and $\rvx^a$, which indicates that the attacks were unsuccessful. 
+
+
+\begin{figure}[h]
+	\centering
+	\begin{tabular}{cc}
+		\includegraphics[width=0.4\columnwidth]{pics/3_adv_att/attack_mcmc_0_0.pdf} & 
+		\includegraphics[width=0.43\columnwidth]{pics/3_adv_att/attack_mcmc_0_100.pdf} \\
+		\small{(a) No defence} & \small{(b) MCMC defence} \\
+	\end{tabular}
+	\caption[][\baselineskip]{Adversarial attack, if attacker \textbf{does not use MCMC}. We report similarity of the reference and adversarial point before forward pass (blue) and after forward pass (orange). }
+	\label{fig:no_mcmc_attack}
+	\vspace*{2\baselineskip}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\begin{tabular}{cc}
+		\includegraphics[width=0.4\columnwidth]{pics/3_adv_att/attack_mcmc_1_0.pdf} & 
+		\includegraphics[width=0.44\columnwidth]{pics/3_adv_att/attack_mcmc_1_100.pdf} \\
+		\small{(a) No defence} & \small{(b) MCMC defence} \\
+	\end{tabular}
+	\caption[][\baselineskip]{Adversarial attack, if attacker \textbf{uses MCMC}. We report similarity of the reference and adversarial point before forward pass (blue) and after forward pass (orange). }
+	\label{fig:mcmc_attack}
+	\vspace*{2\baselineskip}
+\end{figure}
+
+However, if we use the same objective, but omit the MCMC step (e.g $t=0$ in eq. \ref{eq:z_a_mcmc} and \ref{eq:z_r_mcmc}), then, as observed in Figure \ref{fig:no_mcmc_attack}, the attack becomes much more successful (Figure \ref{fig:no_mcmc_attack} (a)), but we can fix it with the proposed defence (Figure \ref{fig:no_mcmc_attack} (b)).
+
+It is interesting to compare how the attacked points look in both cases, especially as we increase the radius of the attack. In Figure \ref{fig:mcmc_attack_example}, we plot attack on two reference points for radius values in $\{0.1, 0.6, 0.8, 1.0\}$. When the attacker does not use MCMC (left), it just learns to add more and more noise to the image, which eventually makes it meaningless. 
+ 
+ When we use MCMC during an attack, the situation is different. The adversarial input is almost indistinguishable from the reference point for a small radius. After each gradient update, the attacker runs a new MCMC, which moves point closer to the region of high posterior probability, but may follow a different trajectory every time. Eventually, it makes it harder to learn an additive perturbation $\varepsilon$. However, as we increase the attack radius, we observe a very interesting effect. Instead of meaningless noise, the attacker learns to change the digit. For instance, we see how $4$ is transformed into $0$ in the first example and into $9$ in the second. This way, the attacker ensures that the MCMC will move the latent far away from the reference latent code, which now has a different posterior distribution.
+
+
+\begin{figure}[h]%[H]
+    \centering
+    \begin{tabular}{cccc|ccc}
+    \multirow{2}{*}{Radius} & \multicolumn{3}{c|}{Attacker doe not use MCMC} & \multicolumn{3}{c}{Attacker uses MCMC} \\
+        & $\rvx^a$ & $\widetilde{\rvx}^a$ & $\widetilde{\rvx}^a_{\text{HMC}}$ & $\rvx^a$ & $\widetilde{\rvx}^a$ & $\widetilde{\rvx}^a_{\text{HMC}}$ \\
+        0.1 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_0_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_0_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_0_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_0_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_0_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_0_rad_0.1.pdf}\\ 
+        0.6 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_0_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_0_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_0_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_0_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_0_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_0_rad_0.6.pdf} \\ 
+        0.8 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_0_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_0_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_0_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_0_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_0_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_0_rad_0.8.pdf} \\ 
+        1.0 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_0_rad_1.0.pdf} & 
+         \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_0_rad_1.0.pdf} & 
+          \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_0_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_0_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_0_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_0_rad_1.0.pdf} \\\midrule
+         0.1 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_3_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_3_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_3_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_3_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_3_rad_0.1.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_3_rad_0.1.pdf}\\ 
+        0.6 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_3_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_3_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_3_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_3_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_3_rad_0.6.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_3_rad_0.6.pdf} \\ 
+        0.8 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_3_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_3_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_3_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_3_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_3_rad_0.8.pdf} &
+        \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_3_rad_0.8.pdf} \\ 
+        1.0 & \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_3_rad_1.0.pdf} & 
+         \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_3_rad_1.0.pdf} & 
+          \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_noMCMC_adv_rec_t_3_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_3_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_3_rad_1.0.pdf} &
+           \includegraphics[width=0.1\linewidth]{pics/3_adv_att/mnist_MCMC/mnist_MCMC_adv_rec_t_3_rad_1.0.pdf} \\
+    \end{tabular}
+    \caption{Examples of adversarial point and their reconstructions, when attacker does not use MCMC (left) and when attacker uses MCMC(right).}
+    \label{fig:mcmc_attack_example}
+        \vspace*{2\baselineskip}
+\end{figure}
+
+
+\newpage
+
+%%%%%%%%%%%%%%%%
+%-----STEPS-----
+%%%%%%%%%%%%%%%%
+
+% %%%%%%%%%%%%%%%%%%
+% %-----RADIUS-----
+% %%%%%%%%%%%%%%%%%%
+
+\subsection{Which attack radius should be considered?}\label{appendix:attack_radius}
+
+In out experiments, we use attacks with the radius $0.1$ and $0.2$ for all the models except for CelebA dataset, where radii $0.05$ and $0.1$ were considered. Here, we provide additional experiment to justify this choice. In Figure \ref{fig:radius_metrics} (a) we show the similarity between the reference point and the adversarial point. We observe that for CelebA the similarity drops faster than for the MNIST. Further, if we look at the example plotted in Figure \ref{fig:radius_adversarial_examples}, we can clearly notice that with the radius $0.2$ CelebA image is already containing a lot of noise. At the same time, we observe (Figure \ref{fig:radius_metrics} (b)) that reconstruction similarity, which indicates the success of the attack, drops relatively fast when the radius of the attack increases. 
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{cc}
+        \includegraphics[width=0.4\columnwidth]{pics/3_adv_att/radius_ref_sim.pdf} &
+        \includegraphics[width=0.4\columnwidth]{pics/3_adv_att/radius_ref_rec_sim.pdf} \\
+        \multirow{2}{0.4\columnwidth}{\centering \small (a) Reference and adversarial point similarity} &
+        \multirow{2}{0.4\columnwidth}{\centering \small (b) Reconstruction similarity } 
+        \\
+        \\
+    \end{tabular}
+    \caption[][\baselineskip]{Average images similarity (a) before it is passed to VAE and (b) after image is encoded and decoded back. We consider unsupervised attack on the encoder with the radiuses ranging from 0.01 to 0.5 for MNIST and CelebA datasets.}
+    \label{fig:radius_metrics}
+        \vspace*{2\baselineskip}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \resizebox{.99\textwidth}{!}{
+    \begin{tabular}{c|ccccccc}
+        $\rvx^r$ & \multicolumn{7}{|c}{$\rvx^a$} \\
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_ref.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_0.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_1.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_2.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_3.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_4.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_5.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_mnist_adv_6.pdf} \\
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_ref.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_0.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_1.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_2.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_3.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_4.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_5.pdf} &
+        \includegraphics[width=0.11\linewidth]{pics/3_adv_att/radius_celeba_adv_6.pdf} \\
+        $\|\varepsilon\|_{\inf} = 0.0$ & $\|\varepsilon\|_{\inf} = 0.01$ & $\|\varepsilon\|_{\inf} = 0.05$  &  $\|\varepsilon\|_{\inf} = 0.1$ &  $\|\varepsilon\|_{\inf} = 0.2$& $\|\varepsilon\|_{\inf} = 0.3$ & $\|\varepsilon\|_{\inf} = 0.4$ &  $\|\varepsilon\|_{\inf} = 0.5$\\
+    \end{tabular}}
+    \caption[][\baselineskip]{Examples of images corrupted with different noise levels.}
+    \label{fig:radius_adversarial_examples}
+           \vspace*{\baselineskip}
+\end{figure}
+
+
+\newpage
+
+\subsection{How many HMC steps are required for a defence?}\label{appendix:hmc_steps}
+One of the main hyperparameters of the proposed approach is number of steps of MCMC that the defender does. We have conducted experiments with MNIST and Color MNSIT dataset to see how the robustness metrics change when we increase number of HMC steps from 0 to 200. As we can see from the Figure \ref{fig:hmc_step_metrics}, there is always a considerable jump between 0 steps (no defence) and 100 steps (lowest number of steps considered). However, as we continue making steps, we do not observe further improvement of the metrics. 
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{cc}
+        \includegraphics[width=0.4\columnwidth]{pics/3_adv_att/hmc_steps_ref_rec_sim.pdf} &
+        \includegraphics[width=0.4\columnwidth]{pics/3_adv_att/hmc_steps_adv_acc.pdf} \\
+        \multirow{2}{0.4\columnwidth}{\centering \small (a) Reconstruction similarity.} &
+        \multirow{2}{0.4\columnwidth}{\centering \small (b) Adversarial Accuracy (digit classification task). } 
+        \\
+        \\
+    \end{tabular}
+    \caption[][\baselineskip]{Example of the reference point (leftmost column) and adversarial points for different raduises of the attack.}
+    \label{fig:hmc_step_metrics}
+\end{figure}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%
+%-----OBJECTIVES-----
+%%%%%%%%%%%%%%%%%%%%
+\subsection{Comparison of objective functions} \label{appendix:objectives}
+This section compares different objective functions that can be used to construct adversarial attacks on VAE. In general, in both supervised and unsupervised setting, we need to measure the difference between variational posterior in the adversarial point $q(\rvz|\rvx^a)$ and a point from the dataset (either a target or reference point). We consider a Gaussian encoder, and the simplest way to compare two Gaussian distributions is to measure the distance between their means. To take into account the variances, we can use the KL-divergence. It is a non-symmetric metric. Thus, we have two options: to use the forward or reverse KL. Finally, it is also possible to consider the symmetrical KL divergence that is an average between the two.
+
+
+\begin{figure}[ht]
+    \centering
+    \begin{tabular}{cc}
+        \includegraphics[width=0.33\textwidth]{pics/3_adv_att/Objectives_0} &
+        \includegraphics[width=0.54\textwidth]{pics/3_adv_att/Objectives_1.pdf} \\
+        \multirow{2}{0.45\columnwidth}{\centering {\small (a) Reconstructions similarity: adversarial point and the reference.}} &
+        \multirow{2}{0.45\columnwidth}{\centering {\small (b) Adversarial Accuracy.} } 
+        \\
+        \\
+    \end{tabular}
+    \caption[][\baselineskip]{Comparison of different objectives function used to train an attack. Arrows represent the direction of the successful attack.}
+\label{fig:objectives}
+          \vspace*{\baselineskip}
+\end{figure}
+
+% \begin{figure}[ht]
+%      \begin{subfigure}{0.47\columnwidth}
+%          \centering
+%          \includegraphics[width=0.68\columnwidth]{pics/3_adv_att/Objectives_0}
+%          \caption{Reconstructions similarity: adversarial point and the reference.}
+%          \label{fig:objectives_0}
+%      \end{subfigure}%
+%      \begin{subfigure}{0.51\columnwidth}
+%          \centering
+%          \includegraphics[width=1.\columnwidth]{pics/3_adv_att/Objectives_1}
+%          \caption{Adversarial Accuracy.}
+%          \label{fig:objectives_1}
+%      \end{subfigure}
+%      \vskip -5pt
+% \caption{Comparison of different objectives function used to train an attack. Arrows represent the direction of the successful attack.}
+% \label{fig:objectives}
+% % \vskip -10pt
+% \end{figure}
+
+In Figure \ref{fig:objectives}, we measure how successful the attacks are in terms of the proposed metrics. We use arrows in the plot titles to indicate desirable values of the metric for a successful attack. We compare supervised and unsupervised attacks on VAE trained on MNIST and fashion MNIST datasets. We observe that there is no single objective function that consistently outperforms others. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----Inference Time-----
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Inference Time} \label{appendix:inference_time}
+
+
+Even though our approach does not require changing the training procedure, it has influence on the inference time. In practice, this can be a limiting factor. Therefore, in Table \ref{tab:inferece_time} we report the computational overhead during the inference time. We measure the inference time in seconds per test point without HMC ($T=0$) and for different budgets ($T=\{100, 500, 1000\}$). 
+
+
+% Sampling from the discrete latent spaces
+% \begin{wrapfigure}{r}{0.39\textwidth}
+\begin{table}[ht]
+\begin{center}
+\begin{small}
+\begin{sc}
+% \vskip -20pt
+\caption{Inference wall-clock time of the VAE for various number of MCMC steps ($T$).}
+\label{tab:inferece_time}
+\begin{tabular}{l|cccc}
+\toprule
+\multicolumn{1}{c|}{$T$} &  0 & 100 & 500 &  1000 \\
+\midrule
+ & \multicolumn{4}{c}{VAE} \\
+MNIST & 0.0001 & 0.0099 & 0.0505 & 0.1011\\
+Color MNIST & 0.0001& 0.0110 & 0.0553 & 0.1111\\
+\midrule
+& \multicolumn{4}{c}{NVAE}  \\
+% MNIST & 0.011 & 0.181 & 0.898 & 1.802\\
+CelebA & 0.429 & 6.512 & 31.551 & 63.031\\
+\bottomrule
+\end{tabular}  
+\end{sc}
+\end{small}
+\end{center}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%
+%-----SECTION-----
+%%%%%%%%%%%%%%%%%%
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-----Experimental details------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Details of the experiments} \label{appendix:experimental_details}
+\subsection{Training VAE models} \label{appendix:beta_vae_param}
+
+\paragraph{Architecture} We use the same fully convolutional architecture with latent dimension 64 for MNIST, FashionMNISt and ColorMNIST datasets. In Table \ref{tab:mnist_arch}, we provide detailed scheme of the architecture. We use $\texttt{Conv(3x3, 1->32)}$ to denote convolution with kernel size $\texttt{3x3}$, $\texttt{1}$ input channel and  $\texttt{32}$ output channels. We denote stride of the convolution with $\texttt{s}$, padding with $\texttt{p}$ and dilation with $\texttt{d}$. The same notation applied for the transposed convolutions ($\texttt{ConvTranspose}$). ColorMNIST has 3 input channels, so the first convolutional layer in the encoder and the last of the decoder are slightly different. In this cases  values for ColorMNIST are report in parenthesis with the red color. 
+
+\begin{table}[ht]
+\caption[][\baselineskip]{Convolutional architecture for VAE trained on MNIST, Fashion MNIST and ColorMNIST datasets.}
+\label{tab:mnist_arch}
+\begin{center}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{@{}lll@{}}
+\toprule
+                  & Encoder & Decoder  \\  \midrule
+& \texttt{Conv(3x3, 1\textcolor{red}{(3)}->32, s=2, p=1)} & \texttt{ConvTranspose(3x3,64->128,s=1,p=0, d=2)} \\
+& \texttt{ReLU()}& \texttt{ReLU()} \\
+& \texttt{Conv(3x3, 32->64, s=2, p=1)} & \texttt{ConvTranspose(3x3,128->96,s=1,p=0)}\\
+& \texttt{ReLU()} & \texttt{ReLU()}\\
+& \texttt{Conv(3x3, 64->96, s=2, p=1)} &\texttt{ConvTranspose(3x3,96->64,s=1,p=1)} \\
+& \texttt{ReLU()} &  \texttt{ReLU()} \\
+& \texttt{Conv(3x3,96->128,s=2,p=1)} & \texttt{ConvTranspose(4x4,64->32,s=2,p=1)} \\
+& \texttt{ReLU()} & \texttt{ReLU()} \\
+& $\mu_z \leftarrow$  \texttt{Conv(3x3,128->64,s=2,p=1)} &  \texttt{ConvTranspose(4x4,31->1\textcolor{red}{(3)},s=2,p=1)} \\
+& $\log \sigma^2_z \leftarrow$  \texttt{Conv(3x3,128->64,s=2,p=1)}&  $\mu_x \leftarrow$  \texttt{Sigmoid()} \textcolor{red}{(\texttt{Identity()})}\\ 
+\bottomrule
+\end{tabular}
+}
+\end{center}
+          \vspace*{\baselineskip}
+\end{table}
+
+\paragraph{Optimization} We use Adam to perform the optimization. We start from the learning rate $5e-4$ and reduce it by the factor of 2 if the validation loss does not decrease for 10 epochs. We train a model for 300 epochs with the batch size 128. In Table \ref{tab:mnist_vae_res}, we report the values of the test metrics for VAEs trained on MNIST, Fashion MNIST and Color MNIST. 
+
+For calculating the FID score, we use \texttt{torchmetrics} library: \url{torchmetrics.readthedocs.io/en/latest/references/modules.html#frechetinceptiondistance}.
+
+% \begin{wraptable}{r}{0.36\linewidth}
+\begin{table}[ht]
+\caption[][\baselineskip]{Test performance of the $\beta$-VAE and $\beta$-TCVAE with different values of $\beta$.
+Negative loglikelihood is estimated with importance sampling ($k = 1000$) as suggested in \cite{burda2015importance}.} 
+\label{tab:mnist_vae_res}
+\begin{center}
+% \begin{normalsize}
+\begin{sc}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{ll|ccccccc}
+\toprule
+& & \multicolumn{2}{c}{MNIST} & \multicolumn{2}{c}{Fashion MNIST} & \multicolumn{3}{c}{Color MNIST} \\
+& $\beta$ & $-\log p(\rvx)$    &  MSE &  $-\log p(\rvx)$    &  MSE &  $-\log p(\rvx)$    &  MSE & FID \\\midrule
+&1    & \textbf{88.3} & 578.6 & \textbf{232.8} & 814.3 & \textbf{54.87}  & 261.3 & 2.09\\ \midrule
+\small{\multirow{3}{*}{\STAB{\rotatebox[origin=c]{90}{$\beta$-VAE}}}}
+&2    & 89.3  &  824.2   & 234.1 & 1021.1 &  55.6 & 365.6 & 2.4  \\
+&5    & 100.6 &  1485.1  & 241.8 & 1457.8 &  63.6 & 586.1 & 2.5\\
+&10   & 126.8 &  2498.9  & 248.7 & 1842.3 &  88.7 & 936.2 & 2.4\\ \midrule
+\small{\multirow{3}{*}{\STAB{\rotatebox[origin=c]{90}{$\beta$-TCVAE}}} }
+&2    & 89.3  &   828.4 & 233.6 & 980.4 & 55.8 & 366.4 & 3.0\\
+&5    & 96.7  &  1325.4 & 238.2 & 1024.6 & 63.0 & 574.8 & 2.0\\
+&10   & 107.2 &  1686.1 & 247.5 & 1570.0 & 76.5 & 806.2 & 2.2\\ \midrule
+\end{tabular}
+}
+\end{sc}
+% \end{normalsize}
+\end{center}
+\end{table} 
+
+
+\newpage
+\subsection{Adversarial Attacks and Defence Hyperparameters} \label{appendix:vae_attack}
+In Table \ref{tab:setup}, we report all the hyperparameter values that were used to attack and defend VAE models. 
+
+In all the experiments we randomly select reference points from the test dataset. We also ensure that the resulting samples are properly stratified --- include an even number of points from each of the classes. For each reference point, we train 10 adversarial inputs with the same objective function but different initialization. 
+
+We use projected gradient descent to learn the adversarial attacks. Optimization parameters were the same for all the datasets and models. They are presented in Table \ref{tab:setup}.
+
+We choose HMC to defend the model against the trained attack. We perform $T$ steps of HMC with the step size $\eta$ and $L$ leapfrog steps. Where indicated, we adapt the step size after each step of HMC using the following formula:
+\begin{equation}
+    \eta_t = \eta_{t-1} + 0.01\cdot\frac{\alpha_{t-1} - 0.9}{0.9}\cdot\eta_{t-1},
+\end{equation}
+where $\alpha_t$ is the acceptance rate at step $t$. This way we increase the step size if the acceptance rate is higher than 90\% and decrease it otherwise. When adaptive steps size is used, a value in the table indicates the $\eta_0$.
+
+\begin{table}[ht]
+\caption{Full list of hyperparameters for attack construction and the defence.}
+\label{tab:setup}
+\begin{center}
+\resizebox{.99\textwidth}{!}{
+\begin{tabular}{llccc|cc}
+\toprule
+& & \multicolumn{3}{c}{VAE} & \multicolumn{2}{|c}{NVAE} \\
+& &  MNIST   & Fashion MNIST & Color MNIST   & MNIST & CelebA\\\midrule
+&\# of reference points & 50 & 50 & 50  & 50 & 20\\
+&\# of adversarial points & 500 & 500 & 500 & 500 & 200 \\
+&Radius norm ($\|\cdot\|_{p}$) & $\inf$ & $\inf$ &$\inf$&$\inf$&$\inf$ \\
+&Radius & $\{0.1, 0.2\}$& $\{0.1, 0.2\}$& $\{0.1, 0.2\}$& $\{0.1, 0.2\}$& $\{0.05, 0.1\}$\\\midrule
+\small{\multirow{4}{*}{\STAB{\rotatebox[origin=c]{0}{Optimization (PGD)}}}} &Optimizer &  \multicolumn{5}{c}{SGD}\\
+ & Num. steps & \multicolumn{5}{c}{50}\\
+ & $\varepsilon$ initialization & \multicolumn{5}{c}{$\mathcal{N}(0, 0.2\cdot I)$}\\
+ & Learning rate (lr) & \multicolumn{5}{c}{$1$}\\\midrule
+\small{\multirow{4}{*}{\STAB{\rotatebox[origin=c]{0}{Defence (HMC)}}}} 
+& Num. steps ($T$) & 500 & 1000& 1000 & 2000 & 1000\\
+& Step size $\eta $ & 0.1 & 0.05 & 0.05 & 1e-4 & 1e-4\\
+& Num. Leapfrog steps ($L$) & 20 & 20 & 20 & 20 & 1\\
+& Adaptive step size & True & True & True & True & False \\
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}
+
+
+
+
+

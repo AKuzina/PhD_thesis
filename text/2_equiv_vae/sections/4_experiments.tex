@@ -1,0 +1,60 @@
+\section{Experiments}\label{sec_equiv:experiments}
+
+We consider two different setups. The conventional compressed sensing discussed in section \ref{sec:related_gen_cs} (no rotation) and compressed sensing with unknown orientation discussed in section \ref{sec:gen_cs_rotation} (unknown rotation).  
+
+\paragraph{Datasets}
+We conduct experiments on two different datasets. We start with benchmarking experiments on MNIST. 
+Subsequently, concerning a real-world application of the proposed approach, we conduct experiments on the Low Dose CT Image and Projection Data\footnote{\url{https://www.aapm.org/grandchallenge/lowdosect/}} (MAYO) dataset \citep{moen2021low}, which consist of three types of data: DICOM-CT-PD projection data, DICOM image data, and Excel clinical data reports. To our aim, we use the DICOM subset only. Images are divided into three sets labelled N for neuro, C for chest, and L for liver each of which comprises 512x512 images from 50 different patients. To train the generative priors, we consider the L subset which is made of $\sim$7K samples that we divide into train, validation and test sets comprising $\sim$80\%, $\sim$10\%, and $\sim$10\% of the images, respectively.
+Before feeding a model, we randomly crop the image and then rescale it to 128x128, and finally, we normalize the pixels value in $[0,1]$.
+
+\begin{figure}[t]
+    \centering
+    \begin{tabular}{ll}
+        \multicolumn{1}{c}{No rotation}& \multicolumn{1}{c}{Unknown rotation}\\
+        \includegraphics[width=0.39\textwidth]{pics/2_equiv_vae/vae_mse_no_rotation.png} &
+        \includegraphics[width=0.39\textwidth]{pics/2_equiv_vae/vae_mse_unknown_rotation_copy.png} \\
+        \multicolumn{1}{c}{Number of measurements} &
+        \multicolumn{1}{c}{Number of measurements}\\
+    \end{tabular}
+    \caption[][\baselineskip]{Comparison of MLP-VAE and Convolutional VAE with the latent dimentions 20 and 128 on MNIST dataset. Average MSE for 10000 test points.}
+    \label{fig:vae_prior_types}
+    \vskip 0.1in
+\end{figure}
+
+\paragraph{Prior Generative Models}
+We compare various generative models as prior on the signals that we aim to reconstruct. Broadly speaking, we consider two types of generative models in our experiments: VAE and Normalizing Flow. In the former case, we have MLP-VAE, fully convolutional VAE (Conv-VAE) and Equivariant VAE (Eq-VAE: proposed model). And in the latter, as a flow prior, we consider a multi-scale RealNVP model. To bring the non-equivariant models, i.e., flow and VAE, at par with the Eq-VAE in terms of their ability to generate rotated images so that they can be effectively used as a prior for CS with unknown rotation, we consider two routes, 1. Conditional model: we include a conditional flow (Cond. Flow) model, which has rotation angle as an additional input and is trained on the augmented (rotated) dataset, 2. Augmented models: another way to augment the capabilities of conventional generative models is to train them on augmented (rotated) datasets. On this line, we include augmented VAE (Aug-VAE), and augmented flow (Aug-Flow) as conventional VAE and Flow but explicitly trained on augmented (addition of random rotation as a pre-processing step) dataset. In our MNIST experiments, we noticed impractically high latency of Cond. Flow during both the generative prior training and the following CS experiment. The problem gets highly exacerbated for the MAYO dataset as it is more complex than MNIST, and hence, we decided to drop the Cond. Flow for MAYO due to its impractical latency.
+
+% For the compressed sensing with the rotation we also add a conditional flow model, which has an additional input (rotation angle), which allows it to generate rotated images. Being the MAYO dataset more challenging than MNIST, we decide to train an augmented version for VAE and Flow (Aug-VAE and Aug-Flow) by explicitly adding random rotations as a data preprocessing step. 
+
+\paragraph{Metrics}
+When it comes to measuring the success of the compressed sensing, we are interested in two criteria: reconstruction quality and convergence speed. We measure MSE to evaluate the quality of the reconstruction. For convergence, we assume that if the MSE (per pixel) is lower than 0.01, then the reconstruction is successful. We then report the proportion of converged points and the average number of iterations (or gradient descent steps) required for a method to converge. 
+\input{text/2_equiv_vae/tables/mnist_results}
+
+
+\subsection{Benchmark experiments on MNIST}
+Concerning compressed sensing experiments, we consider a different number of linear measurements to reconstruct the input signal. Specifically, in \autoref{tab:mnist_cs_results} we report CS results for the MNIST dataset considering 50, 100, and 200 measurements. For each of the mentioned values, and each prior model, we report the average value for the MSE and the number of iterations required to achieve a 100\% success rate for reconstructing the input signals.
+As mentioned previously, we consider two different scenarios: no rotations and unknown rotations. In both cases, Eq-VAE prior report the best performance concerning MSE and the number of iterations required to reconstruct the input images.
+Indeed, although with all the priors we observe a 100\% convergence rate for the CS experiments, Eq-VAE requires fewer iterations and reports a lower average MSE than all the other models.
+
+Following \cite{Bora2017-as} we train MLP-VAE with 20 dimensional latent space. However, as can be seen from the Figure \ref{fig:vae_prior_types}, fully convolutional VAE with the same latent space dimensionality tends to perform better both with and without rotation. Presumably, the introduction of the fully convolutional architecture makes the model equivariant to the translation, which is beneficial for the compressed sensing. As results in Table \ref{tab:mnist_cs_results} show, equivariance to rotation improves the performance even further. 
+
+Figure \ref{fig:vae_prior_types} also shows that larger latent space of the convolutional VAE gives a slight performance improvement. Thus we chose to train equivariant prior with the same latent dimension. When rotation is unknown, we also compare coordinate gradient descent (\textit{dashed line}) with the joint optimization of the latent code and the rotation angle (\textit{solid line}). In all the experiments, coordinate gradient descent shows better results.
+% (e.g. \cs{vae\_mlp\_coord} vs  \cs{vae\_mlp}).  #Arash
+
+\input{text/2_equiv_vae/tables/mayo_cs}
+
+
+\subsection{CT scans reconstruction: MAYO dataset}
+We report in~\autoref{tab:mayo_cs_results} results for the MAYO dataset. Differently from the MNIST result, in this case, we fix the number of measurements to 200 and evaluate the performance of the different generative priors on the CS task considering a different number of iterations. Specifically, we consider 50, 100, 150, and 200 iterations, and for each of them, we report the average MSE and the percentage of points successfully reconstructed (i.e., with MSE per pixel below 0.01). 
+Being the MAYO dataset more complex than the MNIST, in this case, we do not observe a clear dominance of one type of prior compared to the others. However, as a general remark, we can notice that using Eq-VAE the average percentage of converged points is higher than for other models for both no rotations, 85.0\%, and unknown rotations, 85.5\%. As a comparison, the second-best performing priors are the VAE with 75.3\%, and the Flow with 85.2\%, concerning no and unknown rotations, respectively. 
+Instead, regarding the MSE, all the results agree within 1 standard deviation.
+
+\input{text/2_equiv_vae/figure_files/mayo_eqvae_vae_recon_unk}
+
+\subsection{Discussion}
+As we discussed before, the upper bound on the reconstruction error in Theorem \ref{thm:equivmodel} suggests that there is no difference in the performance of equivariant models in rotated and non-rotated cases. The results for the MAYO dataset show a small performance drop from no rotation to unknown rotation cases. The discrepancy is a bit larger for MNIST experiments. 
+The difference can be attributed to the fact that equivariant models are built for finite rotation groups while we test on continuous rotation groups. 
+In Figure~\ref{fig:mayo_eqvae_vae_rec_unk} we report a comparison between reconstructed rotated samples from Eq-VAE(left) and VAE (right). As expected, Eq-VAE successfully recovers the correct orientation for the reconstructed images while VAE struggles to achieve such a goal. 
+
+\paragraph{Group Choice} 
+We train the equivariant prior under the action of the cyclic group. This is a discrete group, size of which, is a hyperparameter to choose. However, in our compressed sensing experiments with unknown orientation, the rotation angle is sampled uniformly. Thus, a larger group size will potentially lead to a better-compressed sensing performance. We compared three different group sizes (see Appendix \ref{appx:eq_vae_group}) and conclude that group $C_{16}$ results in the best reconstruction results in both the CS setups.
