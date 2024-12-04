@@ -90,6 +90,12 @@
 %\usepackage{subcaption}
 \newcommand{\STAB}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
 
+% DVP Packages
+\usepackage{tikz}
+\usetikzlibrary{bayesnet}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usepackage{pifont}
 
 %%
 % Prints an asterisk that takes up no horizontal space.
@@ -182,9 +188,9 @@ Anna Akhmatova
 \frontmatter
 \maketitlepage
 \pagestyle{plain}
-%\include{text/0_intro/summary}
-%\include{text/0_intro/acknowledgments}
-%\tableofcontents
+\include{text/0_intro/summary}
+\include{text/0_intro/acknowledgments}
+\tableofcontents
 
 % \newpage
 % \listoffigures
@@ -200,17 +206,18 @@ Anna Akhmatova
 \listoftodos[Notes]
 
 %%%%% Papers
-\part{New properties and structure in the Latent Space}
+\part{Improve Generative Performance}
+\include{text/1_boovae/main}
+\include{text/5_dvp/main}
 
+\part{New properties and structure in the Latent Space}
 \include{text/2_equiv_vae/main}
 
 \include{text/3_adv_att/main}
 
 \include{text/4_daed/main}
 
-\part{Improve Generative Performance}
-\include{text/1_boovae/main}
-\chapter{Diffusion-based Vamp  Prior for deep hieararchical VAEs}\label{chap:dvp}
+
 
 
 %%%%% Bibliography
@@ -229,6 +236,8 @@ Anna Akhmatova
 \newpage
 \todo{Make sure that appendix order is the same as chapter order}
 \include{text/1_boovae/appendix}
+\include{text/5_dvp/appendix}
+
 \include{text/2_equiv_vae/sections/6_appendix}
 \include{text/3_adv_att/appendix}
 \include{text/4_daed/sections/5_appendix}

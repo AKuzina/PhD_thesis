@@ -1,0 +1,60 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%% difusion %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Diffusion probabilistic models}\label{appendix:ddgm_theory}
+
+Diffusion Probabilistic Models  or Diffusion-based Deep Generative Models \citep{ho2020denoising, sohl2015deep} constitute a class of generative models that can be viewed as a special case of the Hierarchical VAEs \citep{huang2021variational, kingma2021variational, tomczak2022deep, tzen2019neural}. Here, we follow the definition of the variational diffusion model \citep{kingma2021variational}. We use the diffusion model as a prior over the pseudoinputs $\rvu$.
+
+\subsection*{Forward diffusion process}
+
+ The \textit{forward} diffusion \textit{process} runs forward in time and gradually adds noise to the input $\rvu$ as follows:
+\begin{align}\label{eq:5_dvp_forward_diffusion_latent_from_data}
+    q(\rvy_t|\rvu) = &\mathcal{N}(\rvy_t; \alpha_t \rvu, (1 - \alpha_t^2) \mathbf{I}).
+\end{align}
+where  $\rvy_{t}$ are auxiliary latent variables indexed by time $t \in [0, 1]$, $\alpha_t$ is chosen in such a way that the signal-to-noise ratio decreases monotonically over time.
+
+Since the conditionals in the forward diffusion can be seen as Gaussian linear models, we can analytically calculate the following distributions for $t > s$: 
+
+\begin{align}\label{eq:5_dvp_forward_diffusion_previous_latent}
+q(\rvy_{t}|\rvy_{s}, \rvu) &= \mathcal{N}(\rvy_{t-1}; \Tilde{\mu}(\rvy_t, \rvu), \Tilde{\sigma}(t, s) \mathbf{I}) ,\\
+\text{where  } \Tilde{\mu}(\rvy_t, \rvu) &= 
+\frac{\alpha_{t}\left(1-\alpha_{s}^2\right)}{\alpha_{s}\left(1-\alpha_{t}^2\right)} \rvy_{t}+
+    \frac{\alpha_s^2 - \alpha_t^2}{(1-\alpha_{t}^2)\alpha_s} \rvu, \\
+\Tilde{\sigma}(t, s) &=  \frac{(\alpha_s^2 - \alpha_t^2)}{\alpha_s^2}\frac{(1 - \alpha_s^2)}{(1 - \alpha_t^2)} .
+\end{align}
+
+\subsection*{Backward diffusion process}
+Similarly, we define a generative model, also referred to as the \textit{backward} (or \textit{reverse}) \textit{process}, as a Markov chain with Gaussian transitions starting with $r(\rvy_1) = \mathcal{N}(\rvy_{1}| \boldsymbol{0}, \mathbf{I})$. We discretize time uniformly into $T$ timestamps of length $1/T$:
+\begin{equation} \label{eq:5_dvp_backward_diffusion}
+    r(\rvy_0, \ldots, \rvy_{1}) = r(\rvy_1)\ \prod_{i=1}^{T} r_{\gamma}(\rvy_{(i-1)/T} | \rvy_{i/T}),
+\end{equation}
+where $r_{\gamma}(\rvy_{t-1} | \rvy_{t}) = \mathcal{N}(\rvy_{t-1}; \mu_{\gamma}(\rvy_{t}, t), \Sigma_{\gamma}(\rvy_{t}, t))$.
+
+\subsection*{The Likelihood term}
+
+Common practice is to define the likelihood term as being proportional to the first step of the forward process: $r\left(\rvu| \rvy_{0} \right) \propto q\left( \rvy_{0} |\rvu\right)$. Since we assume that the pseudoinput random variable $\rvu$ is continuous, we get the Gaussian likelihood distribution:
+
+\begin{equation}
+    r\left(\rvu| \rvy_{0} \right) = \mathcal{N}(\rvu | \rvy_0 / \alpha_0, \sigma_0^2 / \alpha_0^2 I)
+\end{equation}
+
+Note that the same likelihood term was used for continuous atom positions in the equivariant diffusion model \citep{hoogeboom2022equivariant}.
+
+
+\subsection*{Training objective}
+
+We can use (\ref{eq:5_dvp_forward_diffusion_latent_from_data}) and (\ref{eq:5_dvp_forward_diffusion_previous_latent}) to define the variational lower bound as follows:
+\begin{align} \label{eq:diff_elbo_appx}
+    \hat{r}_{\gamma}(\rvu) \geq L_{vlb}(\rvu, \gamma) = & \underbrace{\E_{q(\rvy_0|\rvu)}[\ln r(\rvu|\rvy_0)]}_{-L_0} % \notag \\
+    % &
+    - \underbrace{\KL{q(\rvy_1 |\rvu)}{r(\rvy_1)}}_{L_1}  \\
+    & - \underbrace{\sum_{i=1}^T \E_{q(\rvy_{i/T}|\rvu)} \KL{q(\rvy_{(i-1)/T}|\rvy_{i/T}, \rvu)}{r_{\gamma}(\rvy_{(i-1)/T}|\rvy_{i/T})}}_{L_{T}}. \notag
+\end{align}
+
+Here we refer to $L_0$ as the reconstruction loss, $L_1$ as the prior loss, and $L_T$ as the diffusion loss with $T$ steps.  
+% \ak{
+% Parameters $\gamma$ of the diffusion model and parameters $\theta, \phi$ of the hierarchical VAE are optimized simultaneously with the joint objective Eq. \ref{eq:our_elbo}, where we use the lower bound (Eq. \ref{eq:diff_elbo}) instead of the $\ln p_{\gamma}(f(\rvx))$ term.%}
+% This lower bound is optimized  with respect to the parameters $\gamma$ together with the hierarchical VAE parameters $\theta$ and $\phi$ in the Eq. \ref{eq:our_elbo}.
+% that we further optimize with respect to the parameters $\gamma$ of the backward diffusion.
+

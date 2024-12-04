@@ -1,0 +1,75 @@
+
+
+% \usepackage{booktabs, tabularx}       % professional-quality tables
+% \usepackage{graphicx}
+% \usepackage{multicol, multirow}
+% \usepackage{amssymb}
+% \usepackage{algorithm}
+% \usepackage{algpseudocode}
+% \usepackage{adjustbox}
+% \usepackage{array}
+% \usepackage{wrapfig}
+% \usepackage{subfig}
+% \usepackage{pifont}
+
+% \usepackage{enumitem}
+% \usepackage{capt-of}
+% \usepackage{varwidth}
+% \newsavebox\tmpbox
+
+% \newcommand{\STAB}[1]{\begin{tabular}{@{}c@{}}#1\end{tabular}}
+
+% \usepackage{hyperref}
+% \usepackage{url}
+
+\chapter{Hierarchical VAE with a Diffusion-based VampPrior}\label{chap:dvp}
+
+
+\begin{verse}
+\textit{
+\hfill This chapter is based on the TMLR 2024 paper \citep{kuzina2024hierarchical}.
+} 
+\end{verse}
+
+\paragraph{Abstract}
+Deep hierarchical variational autoencoders (VAEs) are powerful latent variable generative models. 
+In this paper, we introduce Hierarchical VAE with Diffusion-based Variational Mixture of the Posterior Prior (VampPrior).
+We apply amortization to scale the VampPrior to models with many stochastic layers. 
+The proposed approach allows us to  achieve better performance compared to the original VampPrior work and other deep hierarchical VAEs, while using fewer parameters.
+We empirically validate our method on standard benchmark datasets (MNIST, OMNIGLOT, CIFAR10) and demonstrate improved training stability and latent space utilization.
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------------------
+% ==== SECTION: Introduction ====
+%--------------------------------
+\input{text/5_dvp/sections/0_intro}
+
+
+%--------------------------------
+% ==== SECTION: Background ====
+%--------------------------------
+\input{text/5_dvp/sections/1_background}
+% \input{text/1_2_latent_space_properties_background}
+
+%-------------------------------
+% ====== SECTION: Method ======
+%-------------------------------
+\input{text/5_dvp/sections/2_method}
+
+%-------------------------------
+% ==== SECTION: Related ====
+%-------------------------------
+\input{text/5_dvp/sections/4_related}
+
+%-------------------------------
+% ==== SECTION: Experiments ====
+%-------------------------------
+\input{text/5_dvp/sections/3_experiments}
+
+%------------------------------
+% ====  SECTION: Conclusion ====
+%------------------------------
+\input{text/5_dvp/sections/5_conclusion}
+
+

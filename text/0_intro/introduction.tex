@@ -16,16 +16,16 @@ There has be a huge progress in the field of deep learning in the recent years, 
 % Main Seciton: Generative models Definition
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 \section{Deep Generative Modeling}
-We consider generative modeling as a problem of density estimation.  The task is to model a distribution of the random variable $\rvx$ given a finite set of samples from this distribution $\{\rvx_n\}_{n=1}^N$. There are three components of the model that need to be specified:
+We consider generative modeling as a problem of density estimation.  The task is to model a distribution of the random variable $\rvx$ given a finite set of samples $\{\rvx_n\}_{n=1}^N$. There are three components of the model that need to be specified:
 \begin{itemize}
 \item Probabilistic Model $p_{\theta}(\rvx)$\footnote{
 	We use $p_{\theta}(\rvx)$ to denote probability density function of random variable $\rvx$, which depends on (potentially unknown) parameters $\theta$. 
 	%	 While we use $p(\rvx|\rvy)$ to denote p.d.f. of the conditional distribution of randomv variable $X$ conditioned on $Y$.
 }.\\ 
-The probabilistic model can be either prescribed or  implicit \citep{diggle1984monte}. In the former case, the density function can be evaluated at least up to a normalization constant, while in the latter only sampling procedure from the distribution is defined.
+The probabilistic model can be either prescribed or  implicit \citep{diggle1984monte}. In the former case, the density function can be evaluated at least up to a normalization constant, while in the latter only sampling procedure from the distribution is defined. We discuss different types of generative models in Section~\ref{sec:gen_zoo}.
 
 \item Architecture.\\
-In deep generative models the probabilistic model from the step one is parametrized by the deep neural network. The choice of architecture depends on the type of data and shousl respect any constraints implied by the probabilistic framework (e.g. we expect variance of the distribution to always be positive)
+In deep generative models, the probabilistic model from step one is parametrized by the deep neural network. The choice of architecture depends on the type of data and should respect any constraints implied by the probabilistic framework (e.g. we expect variance of the distribution to always be positive).
 
 \item Inference method. \\
 Finally, one need to choose unknown parameters $\theta$ of $p_{\theta}(\rvx)$ to approximate a true data distribution $p_e(\rvx)=\frac{1}{N} \sum_{n=1}^N \mathbb{1}\left[\rvx = \rvx_n\right]$. In practice, that means finding unknown model parameters $\theta$ which minimize a divergence between two distributions:
@@ -47,7 +47,7 @@ One of the most common divergences in this case in Kulbak-Leibler \unsure{citati
 \end{itemize}
 
 
-\subsection{Generative Models Zoo}
+\subsection{Generative Models Zoo}\label{sec:gen_zoo}
 (Deep) Generative models are usually distinguished based on the probabilistic model that used. In Figure \ref{fig:into_model_types} 
  We will now discuss classed of generative models that arises when different design choices are made at steps one and how they affect the second step.
  

@@ -1,0 +1,17 @@
+\section{Introduction}
+
+Latent variable models (LVMs) parameterized with neural networks constitute a large group in deep generative modeling \citep{tomczak2022deep}. One class of LVMs, Variational Autoencoders (VAEs) \citep{kingma2014autoencoding, rezende2014stochastic}, utilize amortized variational inference to efficiently learn distributions over various data modalities, e.g., images \citep{kingma2014autoencoding}, audio \citep{van2017neural}, or molecules \citep{gomez2018automatic}. 
+% One of the problems that hinders the performance of VAEs is the \textit{posterior collapse}  \citep{wang2021posterior} when the variational posterior (partially) matches the prior distribution (e.g., the standard Gaussian distribution). 
+The expressive power of VAEs can be improved by introducing a hierarchy of latent variables. 
+The resulting hierarchical VAEs, such as ResNET VAEs \citep{kingma2016improved}, BIVA \citep{maaloe2019biva}, very deep VAE (VDVAE) \citep{Child2020-ze}, or NVAE \citep{vahdat2020nvae} achieve state-of-the-art performance on images in terms of the negative log-likelihood (NLL). However, hierarchical VAEs are known to have training instabilities \citep{vahdat2020nvae}. To mitigate these issues, various \textit{tricks} were proposed, such as gradient skipping \citep{Child2020-ze}, spectral normalization \citep{vahdat2020nvae}, or softmax parameterization of variances \citep{hazami2022efficientvdvae}. In this work, we propose a different approach that focuses on two aspects of hierarchical VAEs: (i) the structure of latent variables, and (ii) the form of the prior for the given structure. We introduce several changes to the architecture of parameterizations (i.e. neural networks) and the model itself. As a result, we can train a powerful hierarchical VAE with gradient-based methods and ELBO as the objective without any \textit{hacks}.
+
+In the VAE literature, it is a well known fact that the choice of the prior plays an important role in the resulting VAE performance \citep{chen2016variational, tomczak2022deep}. For example, VampPrior \citep{tomczak2018vae}, a form of the prior approximating the aggregated posterior, has been shown to consistently outperform VAEs with a standard prior and a mixture prior. 
+In this work, we extend the VampPrior to deep hierarchical VAEs in an efficient manner. 
+We propose utilizing a non-trainable linear transformation like Discrete Cosine Transform (DCT) to obtain pseudoinputs. Together with our architecture improvements, we can achieve state-of-the-art performance, high utilization of the latent space, and stable training of deep hierarchical VAEs.
+
+The contributions of the paper are the following:
+\begin{itemize} %[itemindent=0pt,leftmargin=15pt]
+    \item We propose a new VampPrior-like approximation of the optimal prior (i.e., the aggregated posterior) which can efficiently scale to deep hierarchical VAEs.
+    \item We propose a latent aggregation component that consistently improves the utilization of the latent space of the VAE.
+    \item Our proposed hierarchical VAE with the new class of priors outperforms other hierarchical VAE models (without additional data augmentations).
+\end{itemize}

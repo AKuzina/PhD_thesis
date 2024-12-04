@@ -1,0 +1,44 @@
+\section{Related Work}
+% \paragraph{Deep Hierarchical VAEs}
+% \paragraph{VAE with VampPrior}
+% \paragraph{Diffusion Prior in VAEs}
+\paragraph{Latent prior in VAEs}
+The original VAE formulation uses the standard Gaussian distribution as a prior over the latent variables.
+This can be an overly simplistic choice, as the prior minimizing the Evidence Lower bound is given by the aggregated posterior \citep{hoffman2016elbo, tomczak2018vae}. 
+Furthermore, using a unimodal prior with multimodal real-world data can lead to non-smooth encoder or meaningless distances in the latent space \citet{bozkurt2019rate}.
+% \citet{bozkurt2019rate} study how rate-regularization affects VAE generalization and 
+% Several prior works prosed to use more flexible prior distributions. 
+More flexible prior distributions proposed in the literature include the Gaussian Mixture Model \citep{jiang2016variational, nalisnick2016approximate, tran2022cauchy}, the autoregressive normalizing flow \citep{chen2016variational}, the autoregressive model \citep{gulrajani2016pixelvae, sadeghi2019pixelvae++}, the rejection sampling distribution with the learned acceptance function \citep{bauer2019resampled}, the diffusion-based prior \citep{vahdat2021score, wehenkel2021diffusion}. The VampPrior \citep{tomczak2018vae} proposes using an approximation of the aggregated posterior as a prior distribution. The approximation is constructed using learnable pseudoinputs to the encoder.
+This work can be seen as an efficient extension of the VampPrior to deep hierarchical VAE, which also utilizes a diffusion-based prior over the pseudoinputs. 
+
+\paragraph{Auxiliary Variables in VAEs}
+
+Several works consider auxiliary variables $\rvu$ as a way to improve the flexibility of the variational posterior.
+\citet{maaloe2016auxiliary} use auxiliary variables with one-level VAE to improve the variational approximation while keeping the generative model unchanged. 
+\citet{salimans2015markov} use Markov transition kernel for the same expressivity purpose. The authors treat intermediate MCMC samples as an auxiliary random variable and derive evidence lower bound of the extended model. 
+\citet{ranganath2016hierarchical} introduce hierarchical variational models. They increase the flexibility of the variational approximation by imposing prior on its parameters. 
+In this setting, it assumes that the latent variable $\rvz$ and the auxiliary variable $\rvu$ are not conditionally independent and the variational posterior factorizes, for example, as follows:
+\begin{equation}
+    q_{\phi}(\rvu, \rvz|\rvx) = q_{\phi}(\rvu|\rvx)q_{\phi}(\rvz|\rvu, \rvx).
+\end{equation}
+In this work, in contrast, we use auxiliary variable to increase the prior flexibility and use conditional independence assumption in the variational posterior:
+\begin{equation}
+    q_{\phi}(\rvu, \rvz|\rvx) = q_{\phi}(\rvu|\rvx)q_{\phi}(\rvz|\rvx).
+\end{equation}
+
+\citet{khemakhem2020variational} consider the non-identifiability problem of VAEs. They propose to use auxiliary observation $\rvu$ and use it to condition the prior distribution. This additional observation is similar to the pseudoinputs that we consider in our work. However, we define a way to construct $\rvu$ from the input and learn a prior distribution to sample it during inference, while \citet{khemakhem2020variational} require $\rvu$ to be observed both during training and at the inference time.
+
+Similarly to our work, \citep{klushyn2019learning} consider the hierarchical prior $p_{\theta}(\rvz|\rvu)p(\rvu)$. However, they treat $\rvu$ rather as a second layer of latent variables and learn a variational posterior in the form $q_{\phi}(\rvu, \rvz|\rvx) = q_{\phi}(\rvu|\rvz)q_{\phi}(\rvz|\rvx)$. 
+
+\paragraph{Latent Variables Aggregation}
+There are different ways in which the conditional likelihood $p_{\theta}(\rvx|\rvz_{1:L})$ can be parameterized. In LadderVAE \citep{sonderby2016ladder}, where TopDown hierarchical VAE was originally proposed, the following formulation is used:
+\begin{equation}
+    p_{\theta}(\rvx|\rvz_{1:L}) = p_{\theta}(\rvx|\text{NN}(\rvz_{1})).
+\end{equation}
+That is, the conditional likelihood depends directly on the bottom latent variable $\rvz_{1}$ only. 
+
+Later, NVAE \citep{vahdat2020nvae} and VDVAE \citep{Child2020-ze} use a deterministic path in the TopDown architecture in the conditional likelihood, namely:
+\begin{equation}\label{eq:cond_like_vdvae}
+    p_{\theta}(\rvx|\rvz_{1:L}) = p_{\theta}(\rvx|\text{NN}(\rvh_1)).
+\end{equation}
+Note that deterministic features depend on all the latent variables. However, we propose to use a more explicit dependency on latent variables in Eq.~\ref{eq:cond_like_ours}. Our idea bears some similarities with Skip-VAE \citep{dieng2019avoiding}. Skip-VAE proposes to add a latent variable to each layer of the neural network parameterizing decoder of the VAE with a single stochastic layer. In this work, instead, we add all the latent variables together to parameterize conditional likelihood. 

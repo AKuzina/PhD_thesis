@@ -1,0 +1,55 @@
+\section{Background}
+
+% ==== SubSECTION ====
+\subsection{Hierarchical Variational Autoencoders} \label{sec:5_dvp_vae}
+
+Let us consider random variables $\rvx \in \mathcal{X}^{D}$ (e.g. $\mathcal{X} = \mathbb{R}$). We observe $N$ $\rvx$'s sampled from the empirical distribution $r(\rvx)$. We assume that each $\rvx$ has $L$ corresponding latent variables $\rvz_{1:L} = (\rvz_1, \dots, \rvz_L)$, where $\rvz_l \in \mathbb{R}^{M_{l}}$ and $M_l$ is the dimensionality of each variable. We aim to find a latent variable generative model with unknown parameters $\theta$, $p_{\theta}(\rvx, \rvz_{1:L}) = \Dec{\rvx}{\rvz_{1:L}} p_{\theta}(\rvz_{1:L})$. 
+
+In general, optimizing latent-variable models with nonlinear stochastic dependencies is non-trivial. A possible solution is approximate inference, e.g., in the form of variational inference \citep{jordan1999introduction} with a family of variational posteriors over latent variables $\{\Enc{\rvz_{1:L}}{\rvx}\}_{\phi}$. This idea is exploited in Variational Auto-Encoders (VAEs) \citep{kingma2014autoencoding, rezende2014stochastic}, in which variational posteriors are referred to as encoders. As a result, we optimize a tractable objective function called the \textit{Evidence Lower BOund} (ELBO) over the parameters of the variational posterior, $\phi$, and the generative part, $\theta$, that is:
+\begin{equation}\label{eq:vae_elbo}
+\begin{aligned}
+\E_{r(\rvx)} &\left[\ln p_{\theta}(\rvx)\right]  \\
+&\geq \E_{r(\rvx)} \biggl[ \E_{\Enc{\rvz_{1:L}}{\rvx}}\ln \Dec{\rvx}{\rvz_{1:L}} - \KL{\Enc{\rvz_{1:L}}{\rvx}}{p_{\theta}(\rvz_{1:L})} \biggr] ,
+\end{aligned}
+\end{equation}
+
+where $r(\rvx)$ is the empirical data distribution. Further, to avoid clutter, we will use $\E_{\rvx}\left[\cdot\right]$ instead of $\E_{r(\rvx)}\left[\cdot\right]$, meaning that the expectation is taken with respect to the empirical distribution. 
+% In addition, we use $r^{\text{test}}(\rvx)$ for the hold-out data, where relevant.
+
+% ==== SubSECTION ====
+\subsection{VampPrior}
+The latent variable prior (or marginal) plays a crucial role in the VAE performance, which motivates the usage of data-dependent priors. 
+% \cite{tomczak2018vae} propose a data-dependent prior
+Note that the KL-divergence term in the ELBO (see Eq.~\ref{eq:vae_elbo}) can be expressed as follows \citep{hoffman2016elbo}:
+\begin{equation}
+    \mathbb{E}_{\rvx} \KL{q_{\phi}(\rvz|\rvx)}{p(\rvz)} = \KL{q_{\phi}(\rvz)}{ p(\rvz)} + \mathbb{E}_{\rvx} \biggl[ \KL{q_{\phi}(\rvz|\rvx)}{q(\rvz)} \biggr] .
+\end{equation}
+
+Therefore, the optimal prior that maximizes the ELBO has the following form:
+\begin{equation}\label{eq:optimal_prior}
+    p^*(\rvz) = \mathbb{E}_{\rvx} \left[ q_{\phi}(\rvz|\rvx) \right].
+\end{equation}
+
+The main problem with the optimal prior in Eq. \ref{eq:optimal_prior} is the summation over all $N$ training datapoints. Since $N$ could be very large (e.g., tens or hundreds of thousands), using such a prior is infeasible due to potentially very high memory demands. As an alternative approach, \cite{tomczak2018vae} proposed VampPrior, a new class of priors that approximate the optimal prior in the following manner:
+\begin{equation} \label{eq:vamp_prior_approx}
+    p^*(\rvz) = \mathbb{E}_{\rvx} q_{\phi}(\rvz|\rvx) \approx \mathbb{E}_{r(\rvu)} q_{\phi}(\rvz|\rvu),
+\end{equation}
+where $\rvu$ is a \textit{pseudoinput}, i.e., a variable mimicking real data, $r(\rvu) =\frac{1}{K}\sum_k \delta(\rvu - \rvu_k)$ is the distribution of $\rvu$ in the form of the mixture of Dirac's deltas, and $\{u_k\}_{k=1}^K$ are learnable parameters (we will refer to them as pseudoinputs as well). $K$ is a hyperparameter and is assumed to be smaller than the size of the training dataset, $K < N$. Pseudoinputs are randomly initialized before training and are learned along with model parameters by optimizing the ELBO objective using a gradient-based method. 
+% :  parameter and has less components than number of  points in the dataset.
+
+In follow-up work, \cite{egorov2021boovae} suggested using a separate objective for pseudoinputs (a greedy boosting approach) and demonstrated the superior performance of such formulation in the continual learning setting. Here, we will present a different approximation to the optimal prior instead.
+
+% ==== SubSECTION ====
+\subsection{Ladder VAEs (a.k.a. Top-down VAEs)} \label{sec:hierarchical_vae}
+% \ak{Here talk more about orignal Ladder VAE and how VDVAE and NVAE differ from those}
+We refer to models with many stochastic layers $L$ as deep hierarchical VAEs. They can differ in the way the prior and variational posterior distributions are factorized and parameterized. Here, we follow the factorization proposed in Ladder VAE \citep{sonderby2016ladder} that considers the prior distribution over the latent variables factorized in an autoregressive manner:
+\begin{equation}
+ p_{\theta}(\rvz_1, \ldots, \rvz_L) = p_{\theta}(\rvz_L)\prod_{l=1}^{L-1}\Dec{\rvz_{l}}{\rvz_{l+1:L}} .
+\end{equation}
+Next, using the top-down inference model results in the following variational posterior~\citep{sonderby2016ladder}: 
+\begin{equation}
+\Enc{\rvz_1, \ldots, \rvz_L}{\rvx} = \Enc{\rvz_L}{\rvx}\prod_{l=1}^{L-1}\Enc{\rvz_l}{\rvz_{l+1:L}, \rvx}.    
+\end{equation}
+This factorization has been previously used by successful deep hierarchical VAEs, among others, 
+% BIVA~\citep{maaloe2019biva}, % AK: bive uses different factorization (bi-directional instead of the ladder)
+NVAE~\citep{vahdat2020nvae} and Very Deep VAE (VDVAE)~\citep{Child2020-ze}. It was shown empirically that such a formulation allows one to achieve state-of-the-art performance of the hierarchical VAEs on several image datasets. 

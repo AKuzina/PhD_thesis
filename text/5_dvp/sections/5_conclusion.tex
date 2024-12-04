@@ -1,0 +1,16 @@
+
+\section{Limitations}
+
+One limitation of DVP-VAE is the long sampling time reported in Table \ref{tab:vamp_scalability} (sec. per 1000 images).
+It is a direct consequence of using a diffusion-based prior. 
+While diffusion is a powerful generative model that allows us to achieve outstanding performance, it is known to be slow at sampling. In our experiments, we use 50 diffusion steps to generate a pseudoinput, however, there are efficient distillation techniques \citep{salimans2022progressive, geng2024one} that can be applied to mitigate this issue and reduce the number of diffusion steps to just a single forward pass through the model. We leave this optimization for future work.
+
+Furthermore, within DVP-VAE, we add an extra learnable block to the model, namely, the diffusion-based prior over pseudoinputs, as a result, additional modelling choices should be made. We provide an ablation study to show the effect of these choices on the performance of the model.
+% The original formulation of the VampPrior is a mixture model, where the architecture of the prior is fully determined by the variational posterior. Here, we introduce amortization, and,
+% are many existing approaches (e.g. distillation) which can be applied to improve sampling speed which we leave for futher research.
+
+\section{Conclusion}
+In this work, we introduce DVP-VAE, a new class of deep hierarchical VAEs with the diffusion-based VampPrior. We propose to use a VampPrior approximation which allows us to use it with hierarchical VAEs with little computational overhead. We show that the proposed approach demonstrate competitive performance
+% achieves state-of-the-art performance 
+in terms of the negative log-likelihood on three benchmark datasets with much fewer parameters and stochastic layers compared to the best performing contemporary hierarchical VAEs. 
+
