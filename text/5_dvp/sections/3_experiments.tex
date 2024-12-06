@@ -6,7 +6,7 @@
 
 %----SECTION----
 \subsection{Settings}
-We evaluate DVP-VAE on dynamically binarized MNIST \citep{lecun1998mnist} and OMNIGLOT \citep{lake2015human}. Furthermore, we conduct experiments on natural images using the CIFAR10 dataset \citep{alex2009learning}. We provide all the hyperparameters for training DVP-VAE in Appendix \ref{appendix:hyperparams} and in the code repository\footnote{\url{github.com/AKuzina/dvp_vae}}.
+We evaluate DVP-VAE on dynamically binarized MNIST \citep{lecun1998mnist} and OMNIGLOT \citep{lake2015human}. Furthermore, we conduct experiments on natural images using the CIFAR10 dataset \citep{Krizhevsky09learningmultiple}. We provide all the hyperparameters for training DVP-VAE in Appendix \ref{appendix:hyperparams} and in the code repository\footnote{\url{github.com/AKuzina/dvp_vae}}.
 %----SECTION----
 \subsection{Main Quantitative and Qualitative Results}\label{sect:exp_image_generations}
 
@@ -57,6 +57,7 @@ We evaluate DVP-VAE on dynamically binarized MNIST \citep{lecun1998mnist} and OM
             % NDM \citep{bartosh2023neural}&  --- & --- & --- &  & & 2.70\\
             \bottomrule
         \end{tabular}% % \end{varwidth}%\hfill 
+        \vskip 10pt
         }
  \end{table} 
 We report all results in Table \ref{tab:main_results}, where we compare the proposed approach with other hierarchical VAEs. 
@@ -70,24 +71,28 @@ This effect can be further observed in Figure~\ref{fig:generative_recon} where w
 Namely, the second row uses the pseudoinput above and all the $4\times4$ latent variables from the variational posterior, then the third row uses additionally $8\times8$ latent variables, and so on. 
 
  \begin{figure}[t]
+ \begin{center}
     \begin{tabular}{c}
-        \includegraphics[width=0.85\textwidth]{pics/5_dvp/cifar10_dct_prior_samples.pdf} \\
-        \includegraphics[width=0.85\textwidth]{pics/5_dvp/mnist_dct_prior_samples.pdf} \\
-        \includegraphics[width=0.85\textwidth]{pics/5_dvp/omniglot_dct_prior_samples.pdf} \\
+        \includegraphics[width=0.5\textwidth]{pics/5_dvp/cifar10_dct_prior_samples.pdf} \\
+        \includegraphics[width=0.5\textwidth]{pics/5_dvp/mnist_dct_prior_samples.pdf} \\
+        \includegraphics[width=0.5\textwidth]{pics/5_dvp/omniglot_dct_prior_samples.pdf} \\
     \end{tabular}
+    \end{center}
     \caption{Unconditional samples from the Diffusion-based VampPrior (top) and corresponding samples from the DVP-VAE (bottom).}
-    \vskip -5pt
     \label{fig:dct_samples}
+    \vskip 20pt
 \end{figure}
 
 \begin{figure}[t]
+\begin{center}
     \begin{tabular}{cc}
-        \includegraphics[width=0.43\textwidth]{pics/5_dvp/cifar10_generative_rec_6.pdf} &
-        \includegraphics[width=0.43\textwidth]{pics/5_dvp/cifar10_generative_rec_9.pdf} \\ 
+        \includegraphics[width=0.4\textwidth]{pics/5_dvp/cifar10_generative_rec_6.pdf} &
+        \includegraphics[width=0.4\textwidth]{pics/5_dvp/cifar10_generative_rec_9.pdf} \\ 
     \end{tabular}
+\end{center}
     \caption{\textit{Generative reconstruction}s. The top row is using a pseudoinput sampled from $r(\rvu|\rvx)$ \textbf{only}.}
-    \vskip -5pt
     \label{fig:generative_recon}
+    \vskip 10pt
 \end{figure}
 % \begin{table}[t]
 % \begin{minipage}[t]{0.45\linewidth}
@@ -144,12 +149,9 @@ However, in DVP-VAE, we were able to eliminate gradient skipping and gradient sm
 We report the difference in key hyperparameters and test performance in Table \ref{tab:ablation_stability}. We also add a comparison with Efficient-VDVAE (see Table 3 in \cite{hazami2022efficientvdvae}).
 We observe that DVP-VAE achieves comparable performance within much fewer training iterations than both VDVAE implementations. 
 
-
-\begin{table*}[t]
-\begin{minipage}[t]{.3\linewidth}
-    % \vskip -10pt   
+\begin{table}[t]
     \centering
-    \captionof{table}{Test performance for the model trained for 500 epochs (or approximately 200k training iterations) on CIFAR10.}    \label{tab:increase_num_layers}
+    \caption{Test performance for the model trained for 500 epochs (or approximately 200k training iterations) on CIFAR10.}    \label{tab:increase_num_layers}
     \begin{tabular}{ll|cc}
         \toprule
          \textsc{L} & \textsc{Size} & \textsc{BPD}$\leq$ $\downarrow$ & \textsc{AU} $\uparrow$\\
@@ -160,17 +162,32 @@ We observe that DVP-VAE achieves comparable performance within much fewer traini
         44 & 48M & 2.84 & 97\%\\
         \bottomrule
     \end{tabular}
-    \vskip -25pt   
-\end{minipage}\hfill
-\begin{minipage}[t]{.67\linewidth}
-    % \vskip -10pt   
+    \vskip 20pt
+\end{table}
+
+% \begin{table*}[t]
+% \begin{minipage}[t]{.3\linewidth}
+%     \centering
+%     \captionof{table}{Test performance for the model trained for 500 epochs (or approximately 200k training iterations) on CIFAR10.}    \label{tab:increase_num_layers}
+%     \begin{tabular}{ll|cc}
+%         \toprule
+%          \textsc{L} & \textsc{Size} & \textsc{BPD}$\leq$ $\downarrow$ & \textsc{AU} $\uparrow$\\
+%         \midrule
+%         20 & 24M & 2.99 & 94\%\\
+%         28 & 32M & 2.94 & 93\% \\
+%         36 & 40M & 2.89 & 98\%\\
+%         44 & 48M & 2.84 & 97\%\\
+%         \bottomrule
+%     \end{tabular}
+%     \vskip -25pt   
+% \end{minipage}\hfill
+% \begin{minipage}[t]{.67\linewidth}
+\begin{table}[t]
     \centering
     \captionof{table}{Training settings for the model trained on CIFAR-10 compared to two VDVAE implementations. 
-    % Both models have 45 stochastic layers and are trained with batch size 32.
     }
-    \vskip -5pt   
     \label{tab:ablation_stability}
-    \small{
+    % \small{
     \begin{tabular}{l|ccc}
         \toprule
          & \small{\textsc{VDVAE}} & \small{\textsc{Efficient-VDVAE}} &\small{\textsc{DVP-VAE}} \\
@@ -193,10 +210,11 @@ We observe that DVP-VAE achieves comparable performance within much fewer traini
         \textsc{Test BPD} & 2.87 & 2.87 &2.86 \\
         \bottomrule
     \end{tabular}
-    }
-    \vskip -30pt   
-\end{minipage}
-\end{table*}
+    \vskip 20pt
+    % }
+    % \vskip -30pt   
+% \end{minipage}
+\end{table}
 
 
 \paragraph{Latent Aggregation Increases Latent Space Utilization}\label{subsec:active_units}
@@ -210,8 +228,8 @@ Here $M_{l}$ is the dimensionality of the stochastic layer $l$, $\left[ B \right
 Following \citet{burda2015importance}, we use the threshold $\delta = 0.01$. The higher the share of active units, the more efficient the model is in utilizing its latent space. 
 
 We report results in Table~\ref{tab:ablation_active_units} and observe that the model with latent aggregation always attains more than 90\% of active units. Furthermore, latent aggregation considerably improves the utilization of the latent space if we compare it with exactly the same model but with the conditional likelihood parameterized using deterministic feature from the TopDown path (see Eq.~\ref{eq:cond_like_vdvae}).
-\begin{table}[t]
-\begin{minipage}[t]{.51\linewidth}
+\begin{table*}[t]
+\begin{minipage}[t]{.49\linewidth}
    \centering
        \captionof{table}{Active Units for the DCT-VAE with and without latent aggregation. 
        }
@@ -239,7 +257,7 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
     \end{tabular}
     }
 \end{minipage}\hfill
-\begin{minipage}[t]{0.50\linewidth}
+\begin{minipage}[t]{0.49\linewidth}
 \centering
       \captionof{table}{Test NLL for the model with and without pseudoinputs. Averaged over 4 random seeds, standard deviation in parenthesis.}
     % \vskip 5pt
@@ -261,8 +279,8 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
         \bottomrule
     \end{tabular}
     }
-\end{minipage}\hfill
-\end{table}
+\end{minipage}
+\end{table*}
 
 
 \begin{figure}[t]
@@ -272,10 +290,11 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
         (a) MNIST &
         (b) OMNIGLOT \\
     \end{tabular}
-    \vskip -3pt
     \caption{Ablation study of for the pseudoinputs type (DCT and Downsampled image), pseudoinputs prior (Diffusion model and Mixture of Gaussians) and pseudoinputs size (ranging from $3\times 3$ to $11\times 11$). Each configuration is trained with four different random seeds.}
     \label{fig:mnist_ctx_ablations}
+    \vskip 10pt
 \end{figure}
+
 \begin{figure}[t]
     \begin{tabular}{cc}
         \includegraphics[width=0.43\textwidth]{pics/5_dvp/mnist_linear_prior_samples.pdf} &
@@ -283,8 +302,9 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
         (a) Learnable pseudoinputs &
         (b) DCT pseudoinputs \\
     \end{tabular}
-    \caption{Samples from the pseudoinputs prior $\Tilde{\rvu} \sim \hat{r}(\rvu)$ (top row) and corresponding samples from the model $\Tilde{\rvx} \sim p_{\theta}(\rvx|\rvz_{1:L}, \rvu=\Tilde{\rvu})$ (other rows). Columns corresponds to models trained with different random seeds.}
+    \caption[][\baselineskip]{Samples from the pseudoinputs prior $\Tilde{\rvu} \sim \hat{r}(\rvu)$ (top row) and corresponding samples from the model $\Tilde{\rvx} \sim p_{\theta}(\rvx|\rvz_{1:L}, \rvu=\Tilde{\rvu})$ (other rows). Columns corresponds to models trained with different random seeds.}
     \label{fig:linear_context_sampels}
+    \vskip 10pt
 \end{figure}
 
 
@@ -305,10 +325,10 @@ This lack of consistency motivates us to use a non-trainable transformation for 
 % Each row corresponds to the model trained with different random seeds.
 
 
-\begin{wraptable}{l}{0.49\textwidth}
-\small{
+% \begin{wraptable}{l}{0.49\textwidth}
+% \small{
 % \resizebox{\linewidth}{!}{
-    \vskip -15pt   
+\begin{table}[]
     \centering
     \caption{Wall-clock time, memory consumption and sampling time for DVP and VampPrior.}
     \label{tab:vamp_scalability}
@@ -341,10 +361,12 @@ This lack of consistency motivates us to use a non-trainable transformation for 
                 & 1000  & OOM  & >40Gb & 22.1M & ---\\
             \bottomrule
         \end{tabular}% % \end{varwidth}%\hfill 
+        \vskip 15pt
+    \end{table}
 % \end{minipage}
-\vskip -5pt
-}
-\end{wraptable} 
+% \vskip -5pt
+% }
+% \end{wraptable} 
 
 \paragraph{Scalability}
 Here, we study how DVP-VAE scales as we increase model size and input size in comparison with VampPrior.

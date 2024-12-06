@@ -222,17 +222,17 @@ In the variational posteriors, we use the amortization of $r(\rvu)$ outlined in 
     \draw[-Latex, black] (zL_gen) -- (k8.center) |- ($(z2_gen.west)+(0.1em,-0.8em)$);
     \draw[-Latex, black] (zL_gen) -- (k8.center) |- ($(z3_gen.west)+(0.1em,-0.8em)$);
 \end{tikzpicture}}
-    \caption{Graphical model of the TopDown hierarchical VAE with three latent variables (a) without pseudoinputs and (b) with pseudoinputs. The inference model (left) and the generative model (right) share parameters in the TopDown path (blue). The dashed arrow represents a non-trainable transformation.}
+    \caption[][\baselineskip]{Graphical model of the TopDown hierarchical VAE with three latent variables (a) without pseudoinputs and (b) with pseudoinputs. The inference model (left) and the generative model (right) share parameters in the TopDown path (blue). The dashed arrow represents a non-trainable transformation.}
     \label{fig:dct_vae_graph_model}
 \vskip 10pt
 \end{figure}
 
-Let us consider a Ladder VAE (a TopDown VAE) with three levels of latent variables. We depict the graphical model of this latent variable model in Figure~\ref{subfig:ladder_graph} with the inference model on the left and the generative model on the right. Note that inference and generative models use shared parameters in the TopDown path, denoted by the blue arrows. 
+Let us consider a Ladder VAE (a TopDown VAE) with three levels of latent variables. We depict the graphical model of this latent variable model in Figure~\ref{fig:dct_vae_graph_model}a with the inference model on the left and the generative model on the right. Note that inference and generative models use shared parameters in the TopDown path, denoted by the blue arrows. 
 
-In Figure~\ref{subfig:ctx_ladder_graph} we show a graphical model of our proposed model that additionally contains pseudoinputs $\rvu$.
+In Figure~\ref{fig:dct_vae_graph_model}b we show a graphical model of our proposed model that additionally contains pseudoinputs $\rvu$.
 % There are two main different between Ladder VAE in two ways. 
 % As shown in , we introduce additional random variable $\rvu$. 
-The generation model (Figure~\ref{subfig:ctx_ladder_graph} right) is conditioned on the pseudoinput variable $\rvu$ at each level. 
+The generation model (Figure~\ref{fig:dct_vae_graph_model}b right) is conditioned on the pseudoinput variable $\rvu$ at each level. 
 This formulation is similar to the iVAE model \citep{khemakhem2020variational} in which the auxiliary random variable $\rvu $ is used to enforce the identifiability of the latent variable model. 
 However, unlike iVAE, we do not treat $\rvu$ as a separate observed variable. Instead, we use a non-trainable transformation to obtain it during training and introduce the pseudoinput prior distribution $p_{\gamma}(\rvu)$ with learnable parameters $\gamma$ to sample $\rvu$ at test time. 
 This allows us to get unconditional samples from the model.
@@ -287,14 +287,14 @@ Note that $\mathbb{H}[r(\rvu|\rvx)] = \frac{P}{2}\log(2\pi \exp \sigma^2)$ where
 %----SECTION----
 
 % \newpage
-\section{Model Details: \\ Architecture and parameterization} \label{sec:architecture}
+\section{Model Details: Architecture and parameterization} \label{sec:architecture}
 
 The model architecture and parameterization are crucial to the scalability of the model. In this section, we discuss the specific choices we made.
-The starting point for our architecture is the architecture proposed in VDVAE~\citep{Child2020-ze}. However, there are certain differences. We schematically depict our architecture in Figure~\ref{subfig:model_full}. We consider a hierarchical TopDown VAE with $L$ stochastic layers, namely, latent variables $\rvz_1, \dots, \rvz_L$. We assume that each latent variable has the same number of channels, but they differ in spatial dimensions: $\rvz_l \in \mathbb{R}^{c \times h_l \times w_l}$. We refer to different spatial dimensions of the latent space as \textit{scales}.
+The starting point for our architecture is the architecture proposed in VDVAE~\citep{Child2020-ze}. However, there are certain differences. We schematically depict our architecture in Figure~\ref{fig:model_schema}. We consider a hierarchical TopDown VAE with $L$ stochastic layers, namely, latent variables $\rvz_1, \dots, \rvz_L$. We assume that each latent variable has the same number of channels, but they differ in spatial dimensions: $\rvz_l \in \mathbb{R}^{c \times h_l \times w_l}$. We refer to different spatial dimensions of the latent space as \textit{scales}.
 
  \subsection{Bottom-up} \label{subsec:arch_encoder}
-The bottom-up part corresponds to calculations of intermediary variables dependent on $\rvx$. We follow the implementation of \citet{Child2020-ze} for it. We start from the bottom-up path depicted in Figure~\ref{subfig:model_full} (left), which is fully deterministic and consists of several ResNet blocks (see Figure~\ref{subfig:resnet}). 
-The input is processed by $N_{\text{enc}}$ blocks at each scale, and the output of the last resnet block of each scale is passed to the TopDown path in Figure~\ref{subfig:model_full} (right). Note that here $N_{\text{enc}}$ is a separate hyperparameter that does not depend on the number of stochastic layers $L$.
+The bottom-up part corresponds to calculations of intermediary variables dependent on $\rvx$. We follow the implementation of \citet{Child2020-ze} for it. We start from the bottom-up path depicted in Figure~\ref{fig:model_schema}a (left), which is fully deterministic and consists of several ResNet blocks (see Figure~\ref{fig:model_schema}c). 
+The input is processed by $N_{\text{enc}}$ blocks at each scale, and the output of the last resnet block of each scale is passed to the TopDown path in Figure~\ref{fig:model_schema}a (right). Note that here $N_{\text{enc}}$ is a separate hyperparameter that does not depend on the number of stochastic layers $L$.
 
 
   \begin{figure}[t]
@@ -307,29 +307,27 @@ The input is processed by $N_{\text{enc}}$ blocks at each scale, and the output 
         \begin{tabular}{@{}cc@{}}
         \multicolumn{2}{c}{
             \subfloat[Top down block\label{subfig:top_down}]{%
-                \includegraphics[width=.28\linewidth]{pics/5_dvp/_top_down_dct_2.pdf}}
+                \includegraphics[width=.26\linewidth]{pics/5_dvp/_top_down_dct_2.pdf}}
         }\\
             \subfloat[Resnet block\label{subfig:resnet}]{%
-                \includegraphics[width=.24\linewidth]{pics/5_dvp/_resnet_block.pdf}} &
+                \includegraphics[width=.22\linewidth]{pics/5_dvp/_resnet_block.pdf}} &
             \subfloat[Pseudoinput block\label{subfig:context}]{%
-                \includegraphics[width=.24\linewidth]{pics/5_dvp/_context_block.pdf}} \\
+                \includegraphics[width=.22\linewidth]{pics/5_dvp/_context_block.pdf}} \\
     \end{tabular}}
     \end{tabular}
-    \caption{A diagram of the DVP-VAE: TopDown hierarchical VAE with the diffusion-based VampPrior.\\
+    \caption[][\baselineskip]{A diagram of the DVP-VAE: TopDown hierarchical VAE with the diffusion-based VampPrior.\\
      (a) A \textit{BottomUp} path (left) and a \textit{TopDown} path (right). (b) A \textit{TopDown} block that takes features from the block above $\mathbf{h}^{dec}$, encoder features $\mathbf{h}^{enc}$ (only during training) and a pseudoinput $\rvu$ as inputs. (c) A single Resnet block. (d) A single pseudoinput block.
-    }
-    \label{fig:model_schema}
-    \vskip -7pt
+    } \label{fig:model_schema}
   \end{figure}
   
 
  \subsection{TopDown} \label{subsec:arch_decode}
-The TopDown path depicted in Figure~\ref{subfig:model_full} (right) computes the parameters of the variational posterior and the prior distribution starting from the top latent variable $\rvz_L$. 
+The TopDown path depicted in Figure~\ref{fig:model_schema}a (right) computes the parameters of the variational posterior and the prior distribution starting from the top latent variable $\rvz_L$. 
 
-The first step is the pseudoinput block shown in Figure~\ref{subfig:context}. Using the deterministic function $f_{\text{dct}}$, it creates the pseudoinput random variable from the input $\rvx$ (see Algorithm~\ref{alg:context_forward}) that is used to train the Diffusion-based VampPrior $\hat{r}_{\gamma}(\rvu)$.
+The first step is the pseudoinput block shown in Figure~\ref{fig:model_schema}d. Using the deterministic function $f_{\text{dct}}$, it creates the pseudoinput random variable from the input $\rvx$ (see Algorithm~\ref{alg:context_forward}) that is used to train the Diffusion-based VampPrior $\hat{r}_{\gamma}(\rvu)$.
 At test time, a pseudoinput is sampled using this unconditional prior. The pseudoinput sample is then converted back to the input domain (see Algorithm~\ref{alg:context_backward}) and used to condition prior distributions at all levels $p_{\theta}(\rvz_{1:L}|\rvu)$.
 
-Next, the model has $L$ TopDown blocks depicted in Figure~\ref{subfig:top_down}. 
+Next, the model has $L$ TopDown blocks depicted in Figure~\ref{fig:model_schema}b. 
 Each TopDown block takes deterministic features from the corresponding scale of the bottom-up path denoted as $h_{\text{enc}}$, the output of the pseudoinput block $\rvu$, and deterministic features from the TopDown block above $h_{\text{dec}}$ as inputs. Our implementation of this block is similar to the VDVAE architecture, but there are several differences that we summarize below:
 \begin{itemize}%[leftmargin=*]
     \item \textit{Incorporating pseudoinputs}\\
@@ -337,7 +335,7 @@ Each TopDown block takes deterministic features from the corresponding scale of 
     \item \textit{Variational posterior parameters} \\
     We assume that both $h_{\text{dec}}$ and $h_{\text{enc}}$ have the same number of channels, allowing us to sum them instead of concatenating. This reduces the total number of parameters and the memory consumption.
     \item \textit{Additional ResNet Connections}\\
-    Our TopDown block has three ResNet blocks (Figure \ref{subfig:resnet}). In contrast to our architecture, in VDVAE only the block that updates $h_{\text{dec}}$ has a residual connection. 
+    Our TopDown block has three ResNet blocks (Figure~\ref{fig:model_schema}c). In contrast to our architecture, in VDVAE only the block that updates $h_{\text{dec}}$ has a residual connection. 
 \end{itemize}
 
 We did not observe any training instabilities and did not apply the \textit{gradient skipping} used in \cite{Child2020-ze}.
