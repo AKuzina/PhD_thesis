@@ -9,14 +9,15 @@
 %    \caption{Histograms of the log posterior ratios \textcolor{blue}{before HMC (blue)} and \textcolor{orange}{after HMC (orange)} evaluated on the MNIST dataset.}
 %    \label{fig:mnist_post_ratio_main}
 %\end{wrapfigure}
-\begin{figure}
+\begin{figure}[t]
 	\centering
 	\includegraphics[width=0.5\textwidth]{pics/3_adv_att/mnist_posterior_ratio.pdf}
 	\caption{Histograms of the log posterior ratios \textcolor{blue}{before HMC (blue)} and \textcolor{orange}{after HMC (orange)} evaluated on the MNIST dataset.}
 	\label{fig:mnist_post_ratio_main}
+    \vskip 15pt
 \end{figure}
 
-We motivate our method by the hypothesis that the adversarial attack "shifts" a latent code to the region of a lower posterior density, while our approach moves it back to a high posterior probability region. In Section \ref{sec:defence} we theoretically justify our hypothesis, while here we provide an additional empirical evidence.
+We motivate our method by the hypothesis that the adversarial attack "shifts" a latent code to the region of a lower posterior density, while our approach moves it back to a high posterior probability region. In Section~\ref{sec:defence} we theoretically justify our hypothesis, while here we provide an additional empirical evidence.
 % In order to verify our claim that applying an MCMC method allows us to counteract attacks by moving a latent code from a region of a lower posterior probability mass to a region of a higher density, we propose to quantify this effect by measuring the ratio of posteriors for $\rvz_1$ and $\rvz_2$. 
 The true posterior $p(\rvz | \rvx^{r})$ is not available due to the cumbersome marginal distribution $p(\rvx^{r})$, however, we can calculate the ratio of posteriors because the marginal will cancel out. In our case, we are interested in calculating the posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) as the baseline, and the posterior ratio between the reference and adversarial code after applying the HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$). The lower the posterior ratio, the better. For practical reasons, we use the logarithm of the posterior ratio since the logarithm does not change the monotonicity and turns products to sums:
 \begin{equation}
@@ -28,7 +29,7 @@ The true posterior $p(\rvz | \rvx^{r})$ is not available due to the cumbersome m
 % \text{PR}(\rvz_1, \rvz_2) &= \tfrac{p_{\theta}(\rvz_1|\rvx^r)}{p_{\theta}(\rvz_2|\rvx^r)} \\
 % &= \tfrac{p_{\theta}(\rvx^r|\rvz_1)p(\rvz_1)}{p_{\theta}(\rvx^r| \rvz_2)p(\rvz_2)} .
 % \end{align}
-In Figure \ref{fig:mnist_post_ratio_main} we show a plot with two histograms: one with the posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) in blue, and the second histogram of the posterior ratio between the reference and adversarial code after applying the HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$) in orange. We observe that the histogram has moved to the left after applying the HMC. This indicates that posterior of the adversarial (in the denominator) is increasing when the HMC is used. This is precisely the effect we hoped for and this result provides an empirical evidence in favor of our hypothesis. For more details see \ref{appendix:posterior_ratio}.
+In Figure \ref{fig:mnist_post_ratio_main} we show a plot with two histograms: one with the posterior ratio between the reference and adversarial latent codes ($\rvz_1 = \rvz^r$,  $\rvz_2 = \rvz^a$) in blue, and the second histogram of the posterior ratio between the reference and adversarial code after applying the HMC ($\rvz_1 = \rvz^r$ , $\rvz_2 = \rvz^a_{\text{HMC}}$) in orange. We observe that the histogram has moved to the left after applying the HMC. This indicates that the posterior of the adversarial (in the denominator) is increasing when the HMC is used. This is precisely the effect we hoped for, and this result provides empirical evidence in favor of our hypothesis. For more details, see Appendix~\ref{appendix:posterior_ratio}.
 
 
 % \mw{Max: corrected until here}
@@ -41,7 +42,7 @@ In Figure \ref{fig:mnist_post_ratio_main} we show a plot with two histograms: on
 % First, we consider attacks on VAE with a single level of latent variables. 
 All implementation details and hyperparameters are included in the Appendix ~\ref{appendix:experimental_details} and code repository~\footnote{\url{github.com/AKuzina/defend_vae_mcmc}}. 
 \paragraph{Datasets}
-VAEs are trained on the MNIST, Fashion MNIST \cite{xiao2017fashion} and Color MNIST datasets. Following \cite{Cemgil2019-vn}, we construct the Color MNIST dataset from MNIST by artificially coloring each image with seven colors (all corners of RGB cube except for black). 
+VAEs are trained on the MNIST \citep{lecun1998mnist} , Fashion MNIST \cite{xiao2017fashion} and Color MNIST datasets. Following \citet{Cemgil2019-vn}, we construct the Color MNIST dataset from MNIST by artificially coloring each image with seven colors (all corners of RGB cube except for black). 
 
 % \begin{wrapfigure}{r}{0.55\textwidth}
 \begin{figure}
@@ -76,9 +77,9 @@ VAEs are trained on the MNIST, Fashion MNIST \cite{xiao2017fashion} and Color MN
 
 
 \paragraph{Models}
-We train vanilla fully convolutional VAEs, as well as $\beta$-VAE \cite{higgins2016beta} and $\beta$-TCVAE \cite{chen2018isolating, kim2018disentangling}. Both $\beta$-VAE and $\beta$-TCVAE modify the ELBO objective to encourage disentanglement. $\beta$-VAE weighs the KL-term in the ELBO with $\beta > 0$. It is said that the larger values of $\beta$ encourage disentangling of latent representations \cite{chen2018isolating} and improve the model robustness as observed by \cite{camuto2021towards}. $\beta$-TCVAE puts a higher weight on the total correlation (TC) term of the ELBO. Penalization of the total correlation was shown to increase the robustness of VAE adversarial attacks \cite{Willetts2019-mu}.
+We train vanilla fully convolutional VAEs, as well as $\beta$-VAE \cite{higgins2016beta} and $\beta$-TCVAE \cite{chen2018isolating, kim2018disentangling}. Both $\beta$-VAE and $\beta$-TCVAE modify the ELBO objective to encourage disentanglement. $\beta$-VAE weighs the KL-term in the ELBO with $\beta > 0$. It is said that the larger values of $\beta$ encourage disentangling of latent representations \cite{chen2018isolating} and improve the model robustness as observed by \citet{camuto2021towards}. $\beta$-TCVAE puts a higher weight on the total correlation (TC) term of the ELBO. Penalization of the total correlation was shown to increase the robustness of VAE adversarial attacks \cite{Willetts2019-mu}.
 
-In Appendix \ref{appendix:beta_vae_param} we provide details of the architecture, optimization, and results on the test dataset for VAE trained with different values of $\beta$. 
+In Appendix~\ref{appendix:beta_vae_param} we provide details of the architecture, optimization, and results on the test dataset for VAE trained with different values of $\beta$. 
 We note that the optimal value in terms of the negative log-likelihood (NLL) is always $\beta=1$. Larger values of $\beta$ are supposed to improve robustness in exchange for the reconstruction quality. When evaluating the robustness of $\beta$-VAE and $\beta$-TCVAE, we train models with $\beta \in \{2, 5, 10\}$. Then, we select the value of $\beta$ that provides the most robust model in terms of the used metric. Next, we apply our defence strategy to this model to observe the potential performance improvement. 
 
 
@@ -208,10 +209,10 @@ AVAE-SS\textsuperscript{*}
 %     \label{fig:mnist_adv_acc}
 % \end{figure}
 \paragraph{Attacks on the Encoder} 
-In the first setup, we assume that the attacker has access to the encoder of the model $\Enc{z}{x}$ {\cite{barrett2021certifiably, Gondim-Ribeiro2018-cu, Willetts2019-mu}. We use the projected gradient descent (PGD) with 50 steps to maximize the symmetric KL-divergence in the unsupervised setting (\eqref{eq:objective_unsup}). We train 10 adversarial attacks (with different random initialization) for each of 50 reference points. See Appendix \ref{appendix:vae_attack} for the details. We report similarity between the reconstruction of the adversarial and reference point as a measure of the robustness (see Section \ref{sect:adversarial_attacks}). 
+In the first setup, we assume that the attacker has access to the encoder of the model $\Enc{z}{x}$ {\cite{barrett2021certifiably, Gondim-Ribeiro2018-cu, Willetts2019-mu}. We use the projected gradient descent (PGD) with 50 steps to maximize the symmetric KL-divergence in the unsupervised setting (Eq.~\ref{eq:objective_unsup}). We train 10 adversarial attacks (with different random initialization) for each of 50 reference points. See Appendix~\ref{appendix:vae_attack} for the details. We report similarity between the reconstruction of the adversarial and reference point as a measure of the robustness (see Section~\ref{sect:adversarial_attacks}). 
 
 \paragraph{Attacks on the downstream task} 
-In this setup, we examine how the proposed approach can aleviate the effect of the attack on the downstream tasks in the latent space. For this purpose, we follow the procedure from \cite{cemgil2020autoencoding, Cemgil2019-vn}. Once the VAE is trained, we learn a linear classifier using the mean mappings as features. For the MNIST and Fashion MNIST datasets, we have the 10-class classification problem (digits in the former and pieces of clothing in the latter case). For the ColorMNIST dataset, we consider two classification tasks: the digit classification (10 classes), and the color classification (7 classes). We construct the attack to fool the classifier. See Appendix \ref{appendix:vae_attack} for the details.
+In this setup, we examine how the proposed approach can aleviate the effect of the attack on the downstream tasks in the latent space. For this purpose, we follow the procedure from \citet{cemgil2020autoencoding, Cemgil2019-vn}. Once the VAE is trained, we learn a linear classifier using the mean mappings as features. For the MNIST and Fashion MNIST datasets, we have the 10-class classification problem (digits in the former and pieces of clothing in the latter case). For the ColorMNIST dataset, we consider two classification tasks: the digit classification (10 classes), and the color classification (7 classes). We construct the attack to fool the classifier. See Appendix~\ref{appendix:vae_attack} for the details.
 
 
 \paragraph{Results} 
@@ -223,7 +224,7 @@ In Table \ref{tab:color_mnist_attack_results} we report the result on the ColorM
 
 Lastly, we would like to highlight that our defence strategy can be also combined with all the above VAE modifications. One advantage of our approach is that it does not require changing the training procedure of a VAE and, as a result, it does not decrease the quality of the generated images. 
 Moreover, we can apply the same procedure to reconstruct the non-corrupted points and it will improve the reconstruction error. 
-This result can be seen in the Tables \ref{tab:mnist_attack_result} and \ref{tab:color_mnist_attack_results} and it goes in line with the results of the \cite{salimans2015markov}, where MCMC was used to improve the VAE performance. 
+This result can be seen in the Tables \ref{tab:mnist_attack_result} and \ref{tab:color_mnist_attack_results} and it goes in line with the results of the \citet{salimans2015markov}, where MCMC was used to improve the VAE performance. 
 % SE and AVAE methods without any restrictions.  
 % Another advantage of our approach is that it does not require changing the training procedure of a VAE and, as a result, it does not decrease the quality of the generated images. \ak{As we observe from the columns \textbf{MSE} and \textbf{FID}, the quality of the vanilla VAE is always better compared to the models with modified training objectives. MODIFY: Mention bridging the gap paper.} We depict several examples of the reconstructions of the attacked point in Figure \ref{fig:adversarial_examples}.
 
@@ -239,10 +240,10 @@ This result can be seen in the Tables \ref{tab:mnist_attack_result} and \ref{tab
     \begin{tabular}{llll}
         \includegraphics[width=0.4\textwidth]{pics/3_adv_att/nvae_mnist_eps_1.pdf} & 
         \includegraphics[width=0.4\textwidth]{pics/3_adv_att/nvae_mnist_eps_2.pdf} \\
-        \multicolumn{2}{c}{\small (a) The reconstruction similarity for MNIST} \\ \\
+        \multicolumn{2}{c}{\normalsize (a) The reconstruction similarity for MNIST} \\ \\
         \includegraphics[width=0.4\textwidth]{pics/3_adv_att/nvae_celeba_eps_1.pdf} & 
         \includegraphics[width=0.4\textwidth]{pics/3_adv_att/nvae_celeba_eps_2.pdf}\\
-         \multicolumn{2}{c}{\small (b) The reconstruction similarity for CelebA}\\
+         \multicolumn{2}{c}{\normalsize (b) The reconstruction similarity for CelebA}\\
     \end{tabular}
     \end{adjustbox}
     \caption[][\baselineskip]{The robustness improvement for the hierarchical model (NVAE) on (a) MNIST and (b) CelebA for two different attack radii. Higher values correspond to more robust representations.}
@@ -254,7 +255,7 @@ This result can be seen in the Tables \ref{tab:mnist_attack_result} and \ref{tab
 \paragraph{Model and datasets} In this section, we explore the robustness of the deep hierarchical VAE (NVAE) \cite{vahdat2020nvae}, a specific implementation of a hierarchical VAE that works well for high-dimensional data. We attack models trained on MNIST and CelebA \cite{liu2015faceattributes} datasets. We use the weights of the pre-trained model provided in the official NVAE implementation\footnote{The code and model weights were taken from \url{github.com/NVlabs/NVAE}}. 
 
 \paragraph{Attacks construction}
-Following \cite{kuzina2021adv} we construct adversarial attacks on the hierarchical VAE by considering higher-level latent variables. That being said, we use latent variables $\{\rvz_{L-k_A}, \rvz_{L-k_A+1}, \dots, \rvz_L\}$ when constructing an attack (\eqref{eq:objective_unsup}). Otherwise, we follow the same procedure we used for VAEs with a single level of latent variables. We assume that the attacker has access to the model's encoder and uses the symmetric KL-divergence as the objective. The radius of an attack is measured with the $L_{\inf}$ norm. For optimization, we use the projected gradient descent with the number of iterations limited to 50 per point. Further details are reported in the Appendix \ref{appendix:vae_attack}.
+Following \citet{kuzina2021adv} we construct adversarial attacks on the hierarchical VAE by considering higher-level latent variables. That being said, we use latent variables $\{\rvz_{L-k_A}, \rvz_{L-k_A+1}, \dots, \rvz_L\}$ when constructing an attack (Eq.~\ref{eq:objective_unsup}). Otherwise, we follow the same procedure we used for VAEs with a single level of latent variables. We assume that the attacker has access to the model's encoder and uses the symmetric KL-divergence as the objective. The radius of an attack is measured with the $L_{\inf}$ norm. For optimization, we use the projected gradient descent with the number of iterations limited to 50 per point. Further details are reported in the Appendix~\ref{appendix:vae_attack}.
 
 
 \paragraph{Results}
@@ -283,9 +284,9 @@ In Figure \ref{fig:nvae_res}, we present reconstruction similarity of the refere
 \subsection{Ablation Study: What if the attacker knows the defence strategy?} \label{sec:ablation}
 In our experiments, we rely on the assumption that the attacker does not take into account the defence strategy that we use. We believe that it is reasonable, since the defence requires access to the decoder part of the model, $p_{\theta}(x|z)$, which is not necessarily available to the attacker. 
 
-In this ablation study we verify how the robustness results change if we construct the attack with the access to the defence strategy. We train an adversarial attack with the modified objective \ref{eq:objective_unsup}, which takes into account the HMC step. See Appendix \ref{appendix:attack_mcmc} for more details on the experimental setup. 
+In this ablation study we verify how the robustness results change if we construct the attack with the access to the defence strategy. We train an adversarial attack with the modified objective (Eq.~\ref{eq:objective_unsup}), which takes into account the HMC step. See Appendix \ref{appendix:attack_mcmc} for more details on the experimental setup. 
 
-In Figure \ref{fig:attack_mcmc} we show the experiment results for various attack radii between 0 and 1. We observe that constructing an attack with such an objective is much harder (Figure \ref{fig:attack_mcmc} (b)).  
+In Figure \ref{fig:attack_mcmc} we show the experiment results for various attack radii between 0 and 1. We observe that constructing an attack with such an objective is much harder (Figure~\ref{fig:attack_mcmc}b).  
 
 % In both cases the reconstructions are almost as close as the initial points, which proves the defence strategy to be successful for this experiment.
 

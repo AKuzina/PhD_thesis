@@ -5,7 +5,7 @@
 \paragraph{Latent prior in VAEs}
 The original VAE formulation uses the standard Gaussian distribution as a prior over the latent variables.
 This can be an overly simplistic choice, as the prior minimizing the Evidence Lower bound is given by the aggregated posterior \citep{hoffman2016elbo, tomczak2018vae}. 
-Furthermore, using a unimodal prior with multimodal real-world data can lead to non-smooth encoder or meaningless distances in the latent space \citet{bozkurt2019rate}.
+Furthermore, using a unimodal prior with multimodal real-world data can lead to non-smooth encoder or meaningless distances in the latent space \citep{bozkurt2019rate}.
 % \citet{bozkurt2019rate} study how rate-regularization affects VAE generalization and 
 % Several prior works prosed to use more flexible prior distributions. 
 More flexible prior distributions proposed in the literature include the Gaussian Mixture Model \citep{jiang2016variational, nalisnick2016approximate, tran2022cauchy}, the autoregressive normalizing flow \citep{chen2016variational}, the autoregressive model \citep{gulrajani2016pixelvae, sadeghi2019pixelvae++}, the rejection sampling distribution with the learned acceptance function \citep{bauer2019resampled}, the diffusion-based prior \citep{vahdat2021score, wehenkel2021diffusion}. The VampPrior \citep{tomczak2018vae} proposes using an approximation of the aggregated posterior as a prior distribution. The approximation is constructed using learnable pseudoinputs to the encoder.
@@ -28,7 +28,7 @@ In this work, in contrast, we use auxiliary variable to increase the prior flexi
 
 \citet{khemakhem2020variational} consider the non-identifiability problem of VAEs. They propose to use auxiliary observation $\rvu$ and use it to condition the prior distribution. This additional observation is similar to the pseudoinputs that we consider in our work. However, we define a way to construct $\rvu$ from the input and learn a prior distribution to sample it during inference, while \citet{khemakhem2020variational} require $\rvu$ to be observed both during training and at the inference time.
 
-Similarly to our work, \citep{klushyn2019learning} consider the hierarchical prior $p_{\theta}(\rvz|\rvu)p(\rvu)$. However, they treat $\rvu$ rather as a second layer of latent variables and learn a variational posterior in the form $q_{\phi}(\rvu, \rvz|\rvx) = q_{\phi}(\rvu|\rvz)q_{\phi}(\rvz|\rvx)$. 
+Similarly to our work, \citet{klushyn2019learning} consider the hierarchical prior $p_{\theta}(\rvz|\rvu)p(\rvu)$. However, they treat $\rvu$ rather as a second layer of latent variables and learn a variational posterior in the form $q_{\phi}(\rvu, \rvz|\rvx) = q_{\phi}(\rvu|\rvz)q_{\phi}(\rvz|\rvx)$. 
 
 \paragraph{Latent Variables Aggregation}
 There are different ways in which the conditional likelihood $p_{\theta}(\rvx|\rvz_{1:L})$ can be parameterized. In LadderVAE \citep{sonderby2016ladder}, where TopDown hierarchical VAE was originally proposed, the following formulation is used:

@@ -44,7 +44,7 @@ Note that the same likelihood term was used for continuous atom positions in the
 
 \subsection*{Training objective}
 
-We can use (\ref{eq:5_dvp_forward_diffusion_latent_from_data}) and (\ref{eq:5_dvp_forward_diffusion_previous_latent}) to define the variational lower bound as follows:
+We can use Eq.~\ref{eq:5_dvp_forward_diffusion_latent_from_data} and Eq.~\ref{eq:5_dvp_forward_diffusion_previous_latent} to define the variational lower bound as follows:
 \begin{align} \label{eq:diff_elbo_appx}
     \hat{r}_{\gamma}(\rvu) \geq L_{vlb}(\rvu, \gamma) = & \underbrace{\E_{q(\rvy_0|\rvu)}[\ln r(\rvu|\rvy_0)]}_{-L_0} % \notag \\
     % &

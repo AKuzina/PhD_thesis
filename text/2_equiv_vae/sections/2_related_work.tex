@@ -2,28 +2,28 @@
 
 
 \paragraph{Generative Compressed Sensing} \label{sec:related_gen_cs}
-It is common to address a compressed sensing problem using the maximum likelihood approach. Assuming that the additive noise $\vepsilon$ in the linear inverse problem (\ref{eq:cs_main}) is standard Gaussian, the likelihood would also follow Gaussian distribution $p(\vy|\vx) = \mathcal{N}(\vy| \mA\vx, \mI)$. Maximum-Likelihood estimation of the unknown signal is, therefore, a solution of the following optimization problem:
+It is common to address a compressed sensing problem using the maximum likelihood approach. Assuming that the additive noise $\vepsilon$ in the linear inverse problem (Eq.~\ref{eq:cs_main}) is standard Gaussian, the likelihood would also follow Gaussian distribution $p(\vy|\vx) = \mathcal{N}(\vy| \mA\vx, \mI)$. Maximum-Likelihood estimation of the unknown signal is, therefore, a solution of the following optimization problem:
 \begin{equation}\label{cs:mle}
     \vx^* = \arg\min_\vx \| \vy - \mathbf{A}\vx\|_2^2.
 \end{equation}
-\cite{Bora2017-as} proposed to use a generative model as a prior in this setup. It is assumed that the generative model is equipped with the generator $G(\cdot)$, which maps latent variables $\vz$ (often assumed to be standard Gaussian) to the space of signals. This way, generative model serves as a regularizer and the optimization problem (\ref{cs:mle}) can be reformulated as
+\cite{Bora2017-as} proposed to use a generative model as a prior in this setup. It is assumed that the generative model is equipped with the generator $G(\cdot)$, which maps latent variables $\vz$ (often assumed to be standard Gaussian) to the space of signals. This way, generative model serves as a regularizer and the optimization problem (Eq.~\ref{cs:mle}) can be reformulated as
 \begin{align}
     \vx^* &= G(\vz^*),\\
     \vz^* &= \arg \min_{\vz} \|\vy - \mathbf{A} G(\vz)\|_2^2. \label{eq:cs_mle}
 \end{align}
-Using MLP-VAE and DCGAN models as a prior was shown to perform better than the sparsity prior \cite{Bora2017-as}. There are many follow-up works on better optimization over latent space \cite{daras_intermediate_2021,lei_inverting_2019}. The authors in \cite{Hussein2020-yk} introduce the Image-Adaptive GAN model, where the generator is updated together with the latent code. Normalizing Flow model is used as prior in \cite{Asim2019-lv} and shown that it outperforms previous GAN-based approaches for a variety of inverse problems, including compressed sensing. 
+Using MLP-VAE and DCGAN models as a prior was shown to perform better than the sparsity prior \cite{Bora2017-as}. There are many follow-up works on better optimization over latent space \cite{daras_intermediate_2021,lei_inverting_2019}. \citet{Hussein2020-yk} introduce the Image-Adaptive GAN model, where the generator is updated together with the latent code. Normalizing Flow model is used as prior in \citet{Asim2019-lv} and shown that it outperforms previous GAN-based approaches for a variety of inverse problems, including compressed sensing. 
 
-It was observed that the maximum likelihood estimation (\eqref{eq:cs_mle}) usually requires a proper regularization for faster convergence. Natural way to impose such regularization would be maximum a posteriori estimate of the unknown signal:
+It was observed that the maximum likelihood estimation (Eq.~\ref{eq:cs_mle}) usually requires a proper regularization for faster convergence. Natural way to impose such regularization would be maximum a posteriori estimate of the unknown signal:
 \begin{equation}
     \vx^{\text{MAP}} = \arg \max_\vx \log p(\vy|\vx) + \log p(\vx).
 \end{equation}
 
-MAP formulation was introduced in \cite{Whang2021-fj} and can be as well written in terms of the generative prior and Gaussian noise model:
+MAP formulation was introduced in \citet{Whang2021-fj} and can be as well written in terms of the generative prior and Gaussian noise model:
 \begin{align}
     &\vx^{\text{MAP}} = G(\vz^*),\\
     &\vz^* = \arg \min_\vz \|\vy - \mathbf{A} G(\vz)\|_2^2 + \log p_{G}(G(\vz)). \label{eq:cs_map}
 \end{align}
-It is worth mentioning that the latter term of \eqref{eq:cs_map} limits the applicability of the formulations to the generative priors with the explicit density functions, e.g. normalizing flows.  
+It is worth mentioning that the latter term of Eq.~\ref{eq:cs_map} limits the applicability of the formulations to the generative priors with the explicit density functions, e.g. normalizing flows.  
 
 In some applications it is also beneficial to recover the whole distribution of the unknown signal $\vx$ given the observation $\vy$. Since the true posterior distribution is either too hard or even impossible to recover, one can use stochastic variational inference (SVI) to get the approximate posterior:
 \begin{equation}
@@ -37,11 +37,11 @@ This approach was recently applied to compressed sensing \cite{Whang2021-if}. It
 The problem can be further amortized \citep{kingma2014autoencoding, rezende2014stochastic}, so that the variational posterior is conditioned on the observation $q_{\vx}(\vx|\vy)$. This significantly reduced the computational complexity of the method. The point estimate of the signal can also be obtained in this case. One can sample from the variational posterior and average the results, which gives a Monte-Carlo estimate of the conditional expectation $\E\left[\vx|\vy\right]$.
 
 \paragraph{Equivariant Generative Models}
-Group equivariant neural networks \citep{cohen2016group} incorporate symmetries of the data in the architecture. The authors in \cite{e2cnn} provide a framework to construct neural networks equivariant under all the isometries of  $\mathbb{R}^2$ plane. Reincorporating symmetries in the architecture was shown to improve generalization and sample efficiency for discriminative models. In \cite{Karras2021-yx} authors show that rotation and translation equivariance can be beneficial for GANs as well.  In this work, we introduce VAE with fully equivariant latent space. Benefits of the equivariant decoder were also shown in \cite{Bepler2019-qi}, where authors use a spacial generator network, which allows representing rotation and translation as a coordinate space transformation. Homeomorphic-VAE \cite{falorsi2018explorations} focuses on generative models with latent space that has SO(3), in general, a Lie group, values. In this work, we consider a conventional Euclidean latent space with real-valued entries. On this space, we deﬁne the action of a discrete group of 2D rotations ($C_n$). 
+Group equivariant neural networks \citep{cohen2016group} incorporate symmetries of the data in the architecture. \citet{e2cnn} provide a framework to construct neural networks equivariant under all the isometries of  $\mathbb{R}^2$ plane. Reincorporating symmetries in the architecture was shown to improve generalization and sample efficiency for discriminative models. In \citet{Karras2021-yx} authors show that rotation and translation equivariance can be beneficial for GANs as well.  In this work, we introduce VAE with fully equivariant latent space. Benefits of the equivariant decoder were also shown in \citet{Bepler2019-qi}, where authors use a spacial generator network, which allows representing rotation and translation as a coordinate space transformation. Homeomorphic-VAE \cite{falorsi2018explorations} focuses on generative models with latent space that has SO(3), in general, a Lie group, values. In this work, we consider a conventional Euclidean latent space with real-valued entries. On this space, we deﬁne the action of a discrete group of 2D rotations ($C_n$). 
 
-Another promising direction in this area is employing equivariant normalizing flow models. Recent works have introduced equivariant generative models based on continuous normalizing flows  \cite{kohler2020equivariant, satorras2021n}, which are, however difficult to scale. 
+Another promising direction in this area is employing equivariant normalizing flow models. Recent works have introduced equivariant generative models based on continuous normalizing flows \cite{kohler2020equivariant, satorras2021n}, which are, however difficult to scale. 
 
 \paragraph{Compressed Sensing and Unknown Orientation}
-In this work, we focus on the reconstruction of the signal with an unknown orientation. The authors in \cite{davenport2007smashed} consider reconstructing the rotation angle of the input and focuses primarily on compressive classiﬁcation and not signal reconstruction. We aim at restoring the signal regardless of the fact that it was rotated or not. Multi-reference alignment \cite{bendory2017bispectrum} aims at solving inverse problems from multiple observations of a single source in different unknown orientations. The main challenge, and focus of research, in these works, is the alignment of these observations. For us, there is only a single observation, and the alignment step does not apply. To the best of our knowledge, this is the first work considering compressed sensing problems with unknown orientation. 
+In this work, we focus on the reconstruction of the signal with an unknown orientation. \citet{davenport2007smashed} consider reconstructing the rotation angle of the input and focuses primarily on compressive classiﬁcation and not signal reconstruction. We aim at restoring the signal regardless of the fact that it was rotated or not. Multi-reference alignment \cite{bendory2017bispectrum} aims at solving inverse problems from multiple observations of a single source in different unknown orientations. The main challenge, and focus of research, in these works, is the alignment of these observations. For us, there is only a single observation, and the alignment step does not apply. To the best of our knowledge, this is the first work considering compressed sensing problems with unknown orientation. 
 
 

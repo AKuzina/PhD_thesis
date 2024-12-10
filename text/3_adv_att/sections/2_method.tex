@@ -22,12 +22,12 @@ In the case of $K>1$, we consider a hierarchical latent structure with the gener
 \begin{equation}
     p_{\theta}(\rvx, \rvz_1, \ldots, \rvz_K) = \Dec{\rvx}{\rvz_1, \ldots, \rvz_K} \prod_{k=1}^{K}\Dec{\rvz_{k}}{\rvz_{>k}}.
 \end{equation}
-There are various possible formulations of the family of variational posteriors. However, here we follow the proposition of \cite{So_nderby2016-en} with the autoregressive inference model, namely, $$\Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}$$. 
+There are various possible formulations of the family of variational posteriors. However, here we follow the proposition of \citet{So_nderby2016-en} with the autoregressive inference model, namely, $$\Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}$$. 
 % where the inference model with skip-connections was proposed \mw{maybe just say autoregressive model?}, namely:
 % \begin{equation}
 %     \Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}.
 % \end{equation}
-This formulation was used, among others, in NVAE \cite{vahdat2020nvae}. Because of the top-down structure, it allows sharing data-dependent information between the inference model and the generative model.
+This formulation was used, among others, in NVAE \citep{vahdat2020nvae}. Because of the top-down structure, it allows sharing data-dependent information between the inference model and the generative model.
 
 
 % ==== SubSECTION ====
@@ -35,7 +35,6 @@ This formulation was used, among others, in NVAE \cite{vahdat2020nvae}. Because 
 \begin{table}[t]
 	\caption[][\baselineskip]{Different types of attacks on the VAE. We denote $g_{\theta}(z)$ the deterministic mapping induced by decoder $p_{\theta}(x|z)$ and as $p_{\psi}(y|z)$ classification model in the latent space (downstream task).\\
 		\textsuperscript{*} Only used during VAE training}
-	%\vskip -5pt
 	\label{tab:attack_variation}
 	\begin{center}
 		\resizebox{\textwidth}{!}{
@@ -76,7 +75,7 @@ This formulation was used, among others, in NVAE \cite{vahdat2020nvae}. Because 
 		% \end{sc}
 		% \end{small}
 	\end{center}
-	\vskip 0.2in
+	\vskip 15pt
 \end{table}
 
 
@@ -101,17 +100,16 @@ There are different ways to select $f$ and $\Delta$ in the literature. Furthermo
 
 In this work, we focus on attacking the encoder and the downstream classification task using unsupervised adversarial attacks. 
 %\mw{I am slightly confused how the description below relates to the text above?}This work focuses on two types of unsupervised attacks\mw{isn't the second one a supervised attack?}: attack on the encoder and the downstream classification task. 
-In the former, we maximize the symmetric KL-divergence to get the point with the most unexpected latent code and, therefore, the reconstruction. In the latter, the latent code is passed to a classifier. The attack is trained to change the class of the point by maximizing the cross-entropy loss. However, the method we propose in Section \ref{sec:defence} is not limited to these setups since it is agnostic to how the attack was trained. 
+In the former, we maximize the symmetric KL-divergence to get the point with the most unexpected latent code and, therefore, the reconstruction. In the latter case, the latent code is passed to a classifier. The attack is trained to change the class of the point by maximizing the cross-entropy loss. However, the method we propose in Section \ref{sec:defence} is not limited to these setups since it is agnostic to how the attack was trained. 
 
 %%%%%%%%%%%%%%%%%%%%
 %-----SubSECTION-----
 %%%%%%%%%%%%%%%%%%%%
 \paragraph{Robustness measures} 
 To measure the robustness of the VAE as well as the success of the proposed defence strategy, we focus on two metrics: $\mathrm{MSSSIM}$ and Adversarial accuracy.
+For latent space attacks, we follow \citet{kuzina2021adv} in using Multi-Scale Structural Similarity Index Measure ($\mathrm{MSSSIM}$) \citep{wang2003multiscale}. We calculate $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$, that is, the similarity between the reconstructions of $\rvx^{r}$ and the corresponding $\rvx^{a}$. We do not report the similarity between a reference and the corresponding adversarial input, since this value is the same for all the considered models (for a given attack radius). A successful adversarial attack would have a small value of  $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$. 
 
-For latent space attacks we follow \cite{kuzina2021adv} in using Multi-Scale Structural Similarity Index Measure ($\mathrm{MSSSIM}$) \cite{wang2003multiscale}. We calculate $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$, i.e., the similarity between reconstructions of $\rvx^{r}$ and the corresponding $\rvx^{a}$. We do not report the similarity between a reference and the corresponding adversarial input, since this value is the same for all the considered models (for a given attack radius). A successful adversarial attack would have a small value of  $\mathrm{MSSSIM}[\widetilde{\rvx}^{r}, \widetilde{\rvx}^{a}]$. 
-
-For the attacks on the downstream classifier, we follow \cite{cemgil2020autoencoding, Cemgil2019-vn} and calculate the adversarial accuracy. For a given trained VAE model, we first train a linear classifier using latent codes as features. Afterwards, the attack is trained to fool the classifier. Adversarial accuracy is the proportion of points for which the attack was unsuccessful. Namely, when the predicted class of the reference and corresponding adversarial point are the same.  
+For the attacks on the downstream classifier, we follow \citet{cemgil2020autoencoding, Cemgil2019-vn} and calculate the adversarial accuracy. For a given trained VAE model, we first train a linear classifier using latent codes as features. Afterwards, the attack is trained to fool the classifier. Adversarial accuracy is the proportion of points for which the attack was unsuccessful. Namely, when the predicted class of the reference and corresponding adversarial point are the same.  
 
 %%%%%%%%%%%%%%%%%%%%
 %-----SubSECTION-----
@@ -196,7 +194,6 @@ The upper bound on the total variation distance between samples from MCMC for a 
 
 As discussed already, the first component gets smaller with more steps of the MCMC. %In other words, we can say that it results in the \mw{not so sure this is only variance, as during burn in we also have bias} \textit{variance} (the more steps of the MCMC we apply, the smaller the difference). 
 The second component could be treated as a \textit{bias} of the family of variational posteriors. Finally, there is the last element that corresponds to a constant error that is unavoidable. However, this term decays faster than the square root of the attack radius for the asymptotically small attack radius.
-% \jt{[Anything else could be added here?]} 
 
 \paragraph{Specific implementation of the proposed approach}
 In this paper, we use a specific MCMC method, namely, the Hamiltonian Monte Carlo (HMC) \cite{betancourt2017conceptual, duane1987hybrid}. Once the VAE is trained, the attacker calculates an adversarial point $\rvx^a$ using the encoder of the VAE. After the attack, the latent representation of $\rvx^a$ is calculated, $\rvz^a$, and used as the initialization of the HMC.
@@ -212,9 +209,7 @@ When applying the proposed defence to hierarchical models, we update all the lat
 $U(\rvz) = -\ln \Dec{\rvx^a}{\rvz} - \sum_{k=1}^K\ln p_{\theta}(\rvz_k|\rvz_{k+1}). $
 % \end{equation}
 
-% \begin{wrapfigure}[17]{R}{0.53\textwidth}
-% \begin{minipage}{0.54\textwidth}
-% \vskip -11pt
+
 \begin{algorithm}
 	\caption{One Step of HMC.}
 	\label{alg:hmc_step}
@@ -241,12 +236,8 @@ $U(\rvz) = -\ln \Dec{\rvx^a}{\rvz} - \sum_{k=1}^K\ln p_{\theta}(\rvz_k|\rvz_{k+1
 Eventually, the resulting latents from the HMC are decoded. The steps of the whole process are presented below:
 \begin{enumerate}%[wide, labelwidth=0pt, labelindent=0pt]
     \item (\textit{Defender}) Train a VAE: $q_{\phi}(\rvz|\rvx)$, $p(\rvz)$, $p_{\theta}(\rvx|\rvz)$.
-    \item (\textit{Attacker}) For given $\rvx^r$, calculate the attack $\rvx^{a}$ using the criterion \eqref{eq:objective_unsup} or \eqref{eq:objective_sup}.
+    \item (\textit{Attacker}) For given $\rvx^r$, calculate the attack $\rvx^{a}$ using the criterion from Eq.~\ref{eq:objective_unsup} or Eq.~\ref{eq:objective_sup}.
     \item (\textit{Defender}) Initialize the latent code $\rvz := \rvz_0$, where $\rvz_{0} \sim q_{\phi}(\rvz|\rvx^{a})$. Then, run $T$ steps of HMC (Algorithm \ref{alg:hmc_step}) with the step size $\eta$ and $L$ \textit{leapfrog} steps.
-    % \mw{this symbol is also the attach radius} \ak{switched to eta}
 \end{enumerate}
 
 The resulting latent code $\rvz$ can be passed to the decoder to get a reconstruction or to the downstream classification task.
-% \jt{ANNA, please check whether this procedure is correct. It should be but maybe there is some typo and/or you used a different implementation of the HMC}.
-
-% \jt{The second thing is that it would be good to provide a description how the Hamiltonian is defined for the hierarchical model. Moreover, maybe mention how the HMC is performed, e.g., for some of the latents, or all of them. This is important for the paper!}

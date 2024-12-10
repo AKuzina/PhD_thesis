@@ -54,7 +54,7 @@ where the matrix $\mW$ is given as follows:
 \label{eq:group_circulant}
 \end{equation}
 A group convolutional neural network is defined by concatenating group convolution layers with pointwise non-linearities in the middle. At each layer, multiple 
-kernel like $\vw$ can be chosen, each one corresponding to a single channel. It is possible to use other representations of the group $\gG$ to build equivariant networks (see \cite{cohen_steerable_2016,e2cnn} for some examples). 
+kernel like $\vw$ can be chosen, each one corresponding to a single channel. It is possible to use other representations of the group $\gG$ to build equivariant networks (see \citet{cohen_steerable_2016,e2cnn} for some examples). 
 
 % where the $i$-th entry contains the value of the function evaluated on $g_i$:
 % \begin{equation}
@@ -199,9 +199,9 @@ Note that this bound needs to hold for a fixed $\vx$ and not all $\vx$, and ther
 % \]
 % Using equivariant generative priors, the recovery problem .
 \subsection{Proof}
-To train the generative prior, we assume that the data is given in a canonical orientation. The existence of a canonical orientation is not necessary. The following argument can be reworked by considering the quotient space and its proper parametrization instead. Without rotation, generative priors enjoy recovery guarantees of type provided in \cite{Bora2017-as}. For canonical orientations, the very same analysis holds for equivariant generative priors too.  The difference appears for the scenario with unknown orientation $g$. 
+To train the generative prior, we assume that the data is given in a canonical orientation. The existence of a canonical orientation is not necessary. The following argument can be reworked by considering the quotient space and its proper parametrization instead. Without rotation, generative priors enjoy recovery guarantees of type provided in \citet{Bora2017-as}. For canonical orientations, the very same analysis holds for equivariant generative priors too.  The difference appears for the scenario with unknown orientation $g$. 
 
-The proof for the equivariant priors follows standard steps exactly as \cite{Bora2017-as}. The reason is that unknown rotations are absorbed into the latent of the generative model so the main steps remain intact. We replicate the essence of the proof here to be self-contained.
+The proof for the equivariant priors follows standard steps exactly as \citet{Bora2017-as}. The reason is that unknown rotations are absorbed into the latent of the generative model so the main steps remain intact. We replicate the essence of the proof here to be self-contained.
 
 The proof strategy for Theorem \ref{thm:equivmodel} is as follows. First, let $\hat{\vz}$ be the estimated latent that minimizes $\norm{\vy-\mA G(\vz)}$ to within error of $\delta_{\text{approx}}$. This means that for all $\vz$, we have
 \[
@@ -243,7 +243,7 @@ The goal is to convert this inequality to another one in terms of $\norm{\gT_g^x
     4\norm{\gT_g^x\vx_\star- \gT_g^x G(\vz_\star)}_2 +2\norm{\vepsilon}_2+\delta_{approx}+ \delta
     }{\gamma}\tag{condition (\ref{eq:norm_condition})}
 \end{align}
-These inequalities, Lemma 4.3 in \cite{Bora2017-as}, only require triangle inequalities, $\srec$  property and bound on the condition (\ref{eq:norm_condition}), where the last two conditions are satisfied by random Gaussian sensing matrices with i.i.d. entries and appropriately chosen variance. Using the following triangle inequality,
+These inequalities, Lemma 4.3 in \citet{Bora2017-as}, only require triangle inequalities, $\srec$  property and bound on the condition (Eq.~\ref{eq:norm_condition}), where the last two conditions are satisfied by random Gaussian sensing matrices with i.i.d. entries and appropriately chosen variance. Using the following triangle inequality,
 \begin{equation}
     \norm{\gT_g^x G(\vz_\star)- G(\hat{\vz})}_2\geq \norm{\gT_g^x\vx_\star- G(\hat{\vz})}_2 -\norm{\gT_g^x\vx_\star - \gT_g^x G(\vz_\star)}_2,
 \end{equation}
@@ -254,7 +254,7 @@ and unitary property of $\gT_g^x$
 the theorem follows. 
 
 
-Let's consider the $\srec$  property and the condition (\ref{eq:norm_condition}). The later is satisfied by a random Gaussian matrix properly normalized. We use Gaussian concentration inequality to prove this.
+Let's consider the $\srec$  property and the condition (Eq.~\ref{eq:norm_condition}). The later is satisfied by a random Gaussian matrix properly normalized. We use Gaussian concentration inequality to prove this.
 
 \begin{theorem}[{Theorem 8.34  - \cite{foucart_mathematical_2013}}]
 For a Lipschitz function $f:\R^n\to\R$ with Lipschitz constant $L$, if $\vg$ is a standard Gaussian random vector, then for all $t>0$, we have
@@ -280,13 +280,13 @@ Finally, by choosing $t= \sqrt{m}\norm{\vx}_2$, we get with probability $1-e^{-m
 \]
 Normalizing entries of the standard Gaussian random matrix $\mA$ by $1/\sqrt{m}$ will provide the desired result by choosing $\vx = \gT_g^x \vx^\star-\gT_g^x G(\vz_\star)$ which is a fixed vector independent of $\mA$.
 
-The next step is, therefore, $\srec$ property. Since we use an equivariant generative model, the ambiguity about the rotation operation is captured in the latent space. Therefore, the very same approach of \cite{Bora2017-as} can be used to build $\epsilon$-nets and use that to establish $\srec$ for the equivariant generative model. We re-state this theorem for completeness here.
+The next step is, therefore, $\srec$ property. Since we use an equivariant generative model, the ambiguity about the rotation operation is captured in the latent space. Therefore, the very same approach of \citet{Bora2017-as} can be used to build $\epsilon$-nets and use that to establish $\srec$ for the equivariant generative model. We re-state this theorem for completeness here.
 
 \begin{lemma}
 For $L$-Lipshcitz equivariant generative model $G:\R^k\to\R^n$ and $\alpha<1$, the random Gaussian matrix $\mA\in\R^{m\times n}$ with i.i.d. entries $\gN(0,m^{-1})$ and $m =\Omega\left(\frac{k}{\alpha^2} \log (Lr/\delta)\right)$ satisfies $\srec(G(B_k(r)),1-\alpha,\delta)$ with probability $1-e^{-\Omega(\alpha^2m)}$.
 \end{lemma}
 
-Note that the proof of this lemma remains identical to \cite{Bora2017-as}, since the equivariance property does not play any role in the proof. It  is only necessary to establish it for a generative model $G$ and choosing $\gS=G(B_k(r))$.
+Note that the proof of this lemma remains identical to \citet{Bora2017-as}, since the equivariance property does not play any role in the proof. It  is only necessary to establish it for a generative model $G$ and choosing $\gS=G(B_k(r))$.
 
 % \gT_{g_\star}^x
 % \gT_{\hat{g}}^x
@@ -334,7 +334,7 @@ Group choice can be rather important to the performance of compressed sensing. T
 
 \newpage
 \subsection{Eq-VAE: Samples}\label{appx:eq_vae_group_sample}
-We report the compressed sensing results for the $C_{16}$-equivariant VAE. Figure \ref{fig:vae_prior_samples} shows, how the reconstructions change when we apply the group action to a latent code and push it through the decoder (for three different latent codes). This way we observe that even though the model was not trained on the rotated images, it can generate them perfectly well.
+We report the compressed sensing results for the $C_{16}$-equivariant VAE. Figure~\ref{fig:vae_prior_samples} shows, how the reconstructions change when we apply the group action to a latent code and push it through the decoder (for three different latent codes). This way we observe that even though the model was not trained on the rotated images, it can generate them perfectly well.
 \begin{figure}[h]
     \centering
     \begin{tabular}{cc}

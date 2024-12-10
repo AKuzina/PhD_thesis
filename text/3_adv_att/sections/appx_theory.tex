@@ -52,13 +52,13 @@ Then, the log-ratio of two distributions is the following:
 \end{align}
 Notice that $\varepsilon^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} $ is the dot product between $\varepsilon$ and $\nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r} $, i.e., $\varepsilon^T \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r}  = \langle \varepsilon, \nabla_{\rvx} g(\rvx, \rvz) \Big|_{\rvx^r}  \rangle$.
 
-We can now plug this into the KL-divergence definition (\ref{eq:kl_def}):
+We can now plug this into the KL-divergence definition (Eq.~\ref{eq:kl_def}):
 \begin{align}
      \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= \E_{p_{\theta}(\rvz|\rvx^r)} \left[ -\langle \varepsilon, \nabla_{\rvx} \ln p_{\theta}(\rvz|\rvx) \Big|_{\rvx^r}  \rangle + o(\|\varepsilon\|)\right] \\
      &=   -\langle \varepsilon, \underbrace{ \E_{p_{\theta}(\rvz|\rvx^r)}  \nabla_{\rvx} \ln p_{\theta}(\rvz|\rvx) \Big|_{\rvx^r}}_{\text{A}(\rvx^r)}  \rangle + o(\|\varepsilon\|) \label{eq:kl_in_lemma1}
 \end{align}
 
-Note that for (\ref{eq:kl_in_lemma1}) to hold we need to make sure that $\E_z R_1 = o(\|\varepsilon\|)$. As follows from (\ref{eq:remainder}), this requirement is satisfied if $\E_{z}\nabla^2_{\rvx\rvx} g(\rvx + \theta (\rvx - \rvx^r), \rvz)$ is bounded around $\rvx = \rvx^r$.
+Note that for Eq.~\ref{eq:kl_in_lemma1} to hold we need to make sure that $\E_z R_1 = o(\|\varepsilon\|)$. As follows from Eq.~\ref{eq:remainder}, this requirement is satisfied if $\E_{z}\nabla^2_{\rvx\rvx} g(\rvx + \theta (\rvx - \rvx^r), \rvz)$ is bounded around $\rvx = \rvx^r$.
 
 Let us take a closer to look at the term $\text{A}(\rvx^r)$ in the equation above:
 
@@ -74,9 +74,9 @@ Let us take a closer to look at the term $\text{A}(\rvx^r)$ in the equation abov
 &= \frac{1}{p_{\theta}(\rvx^r)}  \underbrace{\left[ \E_{p(\rvz)} \nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} -  \E_{p(\rvz)}\nabla_{\rvx} p_{\theta}(\rvx|\rvz)\Big|_{\rvx^r} \right]}_{=0} = 0.
 \end{align}
 
-where we use Bayes rule in \ref{eq:bayes_rule}, \ref{eq:bayes_rule_2}, log-derivative trick in \ref{eq:log_derivative}. 
+where we use Bayes rule in Eq.~\ref{eq:bayes_rule}, Eq.~\ref{eq:bayes_rule_2}, log-derivative trick in Eq.~\ref{eq:log_derivative}. 
 
-We have shown that $\text{A}(\rvx^r) = 0$, therefore, from \eqref{eq:kl_in_lemma1} we have:
+We have shown that $\text{A}(\rvx^r) = 0$, therefore, from Eq.~\ref{eq:kl_in_lemma1} we have:
  
 \begin{align}
     \KL{p_{\theta}(\rvz|\rvx^r)}{p_{\theta}(\rvz|\rvx^a)} &= -\langle \varepsilon, \text{A}(\rvx^r) \rangle + o(\|\varepsilon\|) \\
@@ -142,7 +142,7 @@ Moreover, the Total Variation distance is a lower bound of the KL-divergence (by
 
 Applying Pinsker inequality to 
 % the second and the third terms in the right-hand part of \eqref{eq:three_comp} 
-\ref{eq:three_comp_2} and \ref{eq:three_comp_3}
+Eq.~\ref{eq:three_comp_2} and Eq.~\ref{eq:three_comp_3}
 yields:
 \begin{align}
 \TV{q^{(t)}(\rvz|\rvx^a)}{q_{\phi}(\rvz|\rvx^r)}

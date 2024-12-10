@@ -6,9 +6,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Additional experiments} \label{appendix:extra_results}
 
-In this section, we present extended evaluation of all models introduced in the main work. Following~\cite{nichol2021improved}, we show the assessment of generations quality in terms of additional metrics namely Inception Score~\cite{salimans2016improved} and spatial Fréchet Inception Distance~\cite{nash2021generating} -- a version of standard FID score but based on spatial image features.
+In this section, we present extended evaluation of all models introduced in the main work. Following~\citet{nichol2021improved}, we show the assessment of generations quality in terms of additional metrics namely Inception Score~\cite{salimans2016improved} and spatial Fréchet Inception Distance~\cite{nash2021generating} -- a version of standard FID score but based on spatial image features.
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \caption{Extended evaluation results for CIFAR10 dataset.
 }
@@ -40,7 +40,7 @@ In this section, we present extended evaluation of all models introduced in the 
 \end{table}
 
 
-\begin{table}[h!]
+\begin{table}[h]
   \centering
   \caption{Extended evaluation results for CelebA dataset. Additionally to standard models, we also include evaluation for \ours{} setup where DAE model is trained only on ImageNet dataset.
 }
@@ -73,7 +73,7 @@ In this section, we present extended evaluation of all models introduced in the 
 \vspace*{2\baselineskip}
 \end{table}
 
-\begin{table}[h!]
+\begin{table}[ht]
   \centering
   \caption{Extended evaluation results for Fashion MNIST dataset.
 }
@@ -109,24 +109,24 @@ In this section, we present extended evaluation of all models introduced in the 
 \newpage
 \subsection{Signal-to-noise ratio detailed plots}\label{appx:full_snr}
 
-In this section we present detailed signal-to-noise ratio (SNR) plots that are used for analysis in Sec. 3 for all evaluated datasets. Independently on the original dataset, SNR changes in the similar manner -- with the most drastic loss in the first ~10\% steps.
-\begin{figure}[htb!]
+In this section we present detailed signal-to-noise ratio (SNR) plots that are used for analysis in Section~\ref{sec:analysis} for all evaluated datasets. Independently on the original dataset, SNR changes in the similar manner -- with the most drastic loss in the first ~10\% steps.
+\begin{figure}[ht]
 	\centering
-    \subfloat[FashionMNIST]{
+    \subfloat[\normalsize{FashionMNIST}]{
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/FashionMNIST_snr_w.pdf}
     \quad \quad
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/FashionMNIST_delta_snr.pdf}} 
     \quad
-    \subfloat[CIFAR10]{
+    \subfloat[\normalsize{CIFAR10}]{
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/CIFAR10_snr_w.pdf}
     \quad \quad
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/CIFAR10_delta_snr.pdf}}  
     \quad
-    \subfloat[CelebA]{
+    \subfloat[\normalsize{CelebA}]{
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/CelebA_snr_w.pdf}
     \quad \quad
     \includegraphics[width=0.34\linewidth]{pics/4_daed/snr/CelebA_delta_snr.pdf}}  
-	\caption{Signal-to-noise ratio and its discrete derivative for each of the three datasets: (a) FashionMNIST, (b) CIFAR10 and (c) CelebA).}
+	\caption{Signal-to-noise ratio and its discrete derivative for each of the three datasets: (a) FashionMNIST, (b) CIFAR10 and (c) CelebA.}
 	\label{fig:snr_per_dataset} 
 \vspace*{\baselineskip}
 \end{figure}
@@ -141,9 +141,9 @@ In this section we present generations for all datasets with different models we
 
 \begin{figure}[htbp!]
 	\centering
-	\subfloat[DDGM]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_classic_500_100k_no_KL_no_sigma.png}}
-	\subfloat[\ours{} $\beta_1=0.1$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_dae_468_100k_no_KL_no_sigma.png}}
-	\subfloat[\ours{} $\beta_1=0.001$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_dae_500_100k_no_KL_no_sigma.png}}
+	\subfloat[\normalsize{DDGM}]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_classic_500_100k_no_KL_no_sigma.png}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.1$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_dae_468_100k_no_KL_no_sigma.png}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.001$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/FMnist_dae_500_100k_no_KL_no_sigma.png}}
 		\caption[][\baselineskip]{ Generations from different models trained on FashionMNIST dataset. All models were trained with Simple loss function.}
 	\label{fig:fmnist_gen}
 %\vspace*{\baselineskip}
@@ -153,9 +153,9 @@ In this section we present generations for all datasets with different models we
 
 \begin{figure}[htbp!]
 	\centering
-	\subfloat[DDGM]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFARAUG_classic_1000_500k_4GPU_no_KL.jpg}}
-	\subfloat[\ours{} $\beta_1=0.1$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFARAUG_dae_900_500k_4GPU_no_KL_no_sigma.jpg}}
-	\subfloat[\ours{} $\beta_1=0.001$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFAR_dae_1000_linear_500k_4GPU_no_KL_no_sigma.jpg}}
+	\subfloat[\normalsize{DDGM}]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFARAUG_classic_1000_500k_4GPU_no_KL.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.1$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFARAUG_dae_900_500k_4GPU_no_KL_no_sigma.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.001$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CIFAR_dae_1000_linear_500k_4GPU_no_KL_no_sigma.jpg}}
 	\caption[][\baselineskip]{ Generations from different models trained on CIFAR10 dataset. All models were trained with Simple loss function.}
 	\label{fig:cifar_gen}
 %\vspace*{\baselineskip}
@@ -166,9 +166,9 @@ In this section we present generations for all datasets with different models we
 
 \begin{figure}[htbp!]
 	\centering
-	\subfloat[DDGM]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_classic_1000_500k_4GPU_no_KL_no_sigma.jpg}}
-	\subfloat[\ours{} $\beta_1=0.1$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_900_500k_4GPU_no_KL_no_sigma.jpg}}
-	\subfloat[\ours{} $\beta_1=0.001$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_1000_linear_500k_4GPU_no_KL_no_sigma.jpg}}
+	\subfloat[\normalsize{DDGM}]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_classic_1000_500k_4GPU_no_KL_no_sigma.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.1$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_900_500k_4GPU_no_KL_no_sigma.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.001$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_1000_linear_500k_4GPU_no_KL_no_sigma.jpg}}
 		\caption[][\baselineskip]{ Generations from different models trained on CelebA dataset. All models were trained with Simple loss function.}
 	\label{fig_ch4:celeba_gen}
 %\vspace*{\baselineskip}
@@ -177,9 +177,9 @@ In this section we present generations for all datasets with different models we
 
 \begin{figure}[htbp!]
 	\centering
-	\subfloat[DDGM]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_classic_1000_500k_4GPU_with_KL.jpg}}
-	\subfloat[\ours{} $\beta_1=0.1$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_900_500k_4GPU_with_KL.jpg}}
-	\subfloat[\ours{} $\beta_1=0.001$]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_1000_linear_500k_4GPU_with_KL.jpg}}
+	\subfloat[\normalsize{DDGM}]{\includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_classic_1000_500k_4GPU_with_KL.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.1$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_900_500k_4GPU_with_KL.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.001$}]{ \includegraphics[width=0.34\linewidth, valign=c]{pics/4_daed/generations/CelebA_dae_1000_linear_500k_4GPU_with_KL.jpg}}
 		\caption[][\baselineskip]{Generations from different models trained on CelebA dataset with original VLB loss function.}
 	\label{fig:celeba_gen_kl} 
 %	\vspace*{\baselineskip}
@@ -187,7 +187,7 @@ In this section we present generations for all datasets with different models we
 
 \begin{figure}[htbp!]
 	\centering
-	\subfloat[\ours{} $\beta_1=0.1$]{\includegraphics[width=0.45\linewidth, valign=c]{pics/4_daed/generations/CelebA_ImageNet.jpg}}
+	\subfloat[\normalsize{\ours{} $\beta_1=0.1$}]{\includegraphics[width=0.5\linewidth, valign=c]{pics/4_daed/generations/CelebA_ImageNet.jpg}}
 		\caption[][\baselineskip]{Generations from \ours{} model where DDGM part was trained on CelebA dataset while DAE on ImageNet.}
 	\label{fig:celeba_gen_im} 
 \vspace*{\baselineskip}
@@ -200,23 +200,23 @@ In this section we present generations for all datasets with different models we
 \subsection{Training Dynamics}\label{appx:train_curve}
 
 \paragraph{How does the objective of a diffusion model change in time?}
-In the standard DDGM setup, a single model is optimized with a joint loss from all of the diffusion steps. However, as depicted in Fig~\ref{fig:nnl_cumsum_fullfig}~(a), different parts of the diffusion contribute to the sum differently. In fact, the first step of the diffusion is already responsible for 75\% of the whole training loss, while first 1\% of steps contributes to over the 90\% of the training objective. This observation implies that a single neural network applied to all diffusion steps %same model used for the remaining 99\% of diffusion steps 
+In the standard DDGM setup, a single model is optimized with a joint loss from all of the diffusion steps. However, as depicted in Figure~\ref{fig:nnl_cumsum_fullfig}a, different parts of the diffusion contribute to the sum differently. In fact, the first step of the diffusion is already responsible for 75\% of the whole training loss, while first 1\% of steps contributes to over the 90\% of the training objective. This observation implies that a single neural network applied to all diffusion steps %same model used for the remaining 99\% of diffusion steps 
 is mostly optimized to denoise the initial steps. 
-In Fig.~\ref{fig:NLL_dynamics} we present how this loss contribution changes over time. Surprisingly, only 2\% of the training time is needed to align latter 90\% of training steps to the loss value below $0.01$. These observations led to the emergence of cosine scheduler~\cite{nichol2021improved} where authors change the noise scheduler to increase the number of steps with higher loss values.
+In Figure~\ref{fig:NLL_dynamics} we present how this loss contribution changes over time. Surprisingly, only 2\% of the training time is needed to align latter 90\% of training steps to the loss value below $0.01$. These observations led to the emergence of cosine scheduler in \citet{nichol2021improved} where authors change the noise scheduler to increase the number of steps with higher loss values.
 
-In this work, we propose to tackle this problem from a different perspective and to analyze what happens if we detach the loss from initial diffusion steps from the total sum. In Figure~\ref{fig:nnl_cumsum_fullfig}(b), we compare how such a detachment of the first step of 1000-stepped DDGM with \ours{} influence the loss value on the remaining 999 steps. As depicted in \ours{}, the loss converges to lower values that explains the improvement of the performance of \ours{} when training with the VLB loss.
+In this work, we propose to tackle this problem from a different perspective and to analyze what happens if we detach the loss from initial diffusion steps from the total sum. In Figure~\ref{fig:nnl_cumsum_fullfig}b, we compare how such a detachment of the first step of 1000-stepped DDGM with \ours{} influence the loss value on the remaining 999 steps. As depicted in \ours{}, the loss converges to lower values that explains the improvement of the performance of \ours{} when training with the VLB loss.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
-	\subfloat[NLL Cumsum\label{fig:nll_cumsum}]{\includegraphics[width=.5\linewidth]{pics/4_daed/experiments/NLL_cumsum.pdf}}%
-	\subfloat[NLL Cumsum without $t_1$]{\includegraphics[width=.5\linewidth]{pics/4_daed/experiments/NLL_cumsum_compare.pdf}\label{fig:nll_cumsum_compare}}%
+	\subfloat[\normalsize{NLL Cumsum}]{\includegraphics[width=.5\linewidth]{pics/4_daed/experiments/NLL_cumsum.pdf}}%
+	\subfloat[\normalsize{NLL Cumsum without $t_1$}]{\includegraphics[width=.5\linewidth]{pics/4_daed/experiments/NLL_cumsum_compare.pdf}}%
 	\caption[][\baselineskip]{The cumulative sum of the negative log likelihood for different steps of a standard DDGM trained on CIFAR10 with the VLB objective (left), and the same cumulative sum without the first diffusion step in comparison to \ours{} with exactly the same $\beta$ scheduler.}
 	\label{fig:nnl_cumsum_fullfig}
 	\vspace*{2\baselineskip}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[ht]
 	\centering
-    \includegraphics[width=\linewidth]{pics/4_daed/experiments/NLL_dynamics.pdf}
+    \includegraphics[width=\textwidth]{pics/4_daed/experiments/NLL_dynamics.pdf}
 	\caption{Dynamics of the negative log likelihood for different steps of standard DDGM trained on CIFAR10 with VLB objective. Already after 2\% of training time, $p_\theta$ converges to very low loss values (below 0.001) for all of the training steps above 0.1T. }
 	\label{fig:NLL_dynamics}
 		\vspace*{2\baselineskip}
@@ -226,11 +226,11 @@ In this work, we propose to tackle this problem from a different perspective and
 
 \newpage
 \subsection{Training Hyperparameters}\label{appx:hyperparams}
-In all of our experiments, we follow~\cite{nichol2021improved}. We train all models with U-Net architecture, with three or four depth levels (depending on a dataset), with three residual blocks each, with a given number of filters depending on the dataset -- as presented in Table~\ref{tab:hyperparams}. In all of our models, we use time embeddings and attention-based layers with three attention heads in each model.
+In all of our experiments, we follow \citet{nichol2021improved}. We train all models with U-Net architecture, with three or four depth levels (depending on a dataset), with three residual blocks each, with a given number of filters depending on the dataset -- as presented in Table~\ref{tab:hyperparams}. In all of our models, we use time embeddings and attention-based layers with three attention heads in each model.
 
 We optimize our models on the basis of randomly selected diffusion steps. For the standard DDGM, for simplicity, we use a uniform sampler, while for~\ours{}, we propose a weighted uniform sampler, where the probability of sampling from a given step $t$ is proportional to the given $\beta_t$. This also applies to the Denoising Autoencoder as a part of \ours{} that is updated accordingly to the new sampler. We update models parameters with AdamW~\cite{loshchilov2017decoupled} optimizer for a given number of batches as presented in Table~\ref{tab:hyperparams}. To prevent our model from overfitting, we use dropout~\cite{hinton2012improving} with probability $p=0.3$. Detailed implementation choices, examples of training runs and models can be found in the attached code repository.
 
-\begin{table}[h]
+\begin{table}[ht]
   \centering
   \caption{DDGM and \ours{} hyperparameters for different datasets
 }

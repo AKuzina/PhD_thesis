@@ -6,29 +6,28 @@ This happens because we did not initiate the KL-term to be zero at the beginning
 However, we did not observe our model diverge since the gradient is clipped to reasonable values (200 in these experiments) and after the first few gradient updates, the KL-term goes to reasonable values.
 Moreover, we plot training and validation losses in Figure \ref{fig:losses_depth}.
 
-\begin{figure}[!htbp] 
+\begin{figure}[t] 
 \includegraphics[width=\textwidth]{pics/5_dvp/cifar_depth_grad_norm.pdf}
-\caption{The gradient norm at each training iteration. Models were trained on CIFAR10 with different stochastic depths $\mathrm{L}$.}
+\caption[][0.5\baselineskip]{The gradient norm at each training iteration. Models were trained on CIFAR10 with different stochastic depths $\mathrm{L}$.}
 \label{fig:grad_norm_depth}
 \end{figure}
 
-\begin{figure}[!htbp] 
+\begin{figure}[t] 
 \centering
 \includegraphics[width=0.7\textwidth]{pics/5_dvp/cifar_depth_losses.pdf}
-\caption{The ELBO per pixel on train (left) and validation (right) dataset. Models were trained on CIFAR10 with different stochastic depths $\mathrm{L}$.}
+\caption[][\baselineskip]{The ELBO per pixel on train (left) and validation (right) dataset. Models were trained on CIFAR10 with different stochastic depths $\mathrm{L}$.}
 \label{fig:losses_depth}
 \end{figure}
 
 \newpage
-\section{Model details}
-
-\subsection{Hyperparameters}\label{appendix:hyperparams}
+% \section{Model details}
+\section{Hyperparameters}\label{appendix:dvp_hyperparams}
 In Table \ref{tab:5_dvp_setup}, we report all hyperparameter values that were used to train the DVP-VAE.
 
 \paragraph{The pseudoinput prior}
 We use the diffusion generative model as a prior over pseudoinputs. As a backbone, we use the UNet implementation from \citep{dhariwal2021diffusion}, available on GitHub\footnote{https://github.com/openai/guided-diffusion} with the hyperparameters provided in Table \ref{tab:5_dvp_setup}.
 
-\begin{table}[h]
+\begin{table*}[h]
 \caption{Full list of hyperparameters.}
 \label{tab:5_dvp_setup}
 \begin{center}
@@ -176,7 +175,7 @@ We use the diffusion generative model as a prior over pseudoinputs. As a backbon
 \bottomrule
 \end{tabular}
 \end{center}
-\end{table}
+\end{table*}
 
 
 \newpage
@@ -194,8 +193,7 @@ In Figure \ref{fig:all_samples}, we present non-cherry-picked unconditional samp
         % \includegraphics[width=0.75\textwidth]{pics/mnist_dct_vae_sample.pdf} \\
         % (a) DCT-VAE \\
     \end{tabular}
-    \caption{Uncoditional samples.}
-    \vskip -10pt
+    \caption{Unconditional samples.}
     \label{fig:all_samples}
 \end{figure}
 
@@ -207,8 +205,7 @@ In Figure \ref{fig:all_samples}, we present non-cherry-picked unconditional samp
         \includegraphics[width=0.3\textwidth]{pics/5_dvp/cifar10_ctx_samples.pdf}\\
         (a) MNIST  & (b) OMNIGLOT & (c) Cifar10\\
     \end{tabular}
-    \caption{Uncoditional samples of pseudoinputs.}
-    \vskip -10pt
+    \caption{Unconditional samples of pseudoinputs.}
     \label{fig:ctx_samples}
 \end{figure}
 

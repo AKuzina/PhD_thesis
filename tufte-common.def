@@ -351,6 +351,7 @@
     citecolor = DarkGreen,
     linkcolor = DarkBlue,
     urlcolor = DarkGreen,
+    colorlinks = true,
   }%
 }
 

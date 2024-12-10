@@ -7,7 +7,7 @@
 In this work, we introduce the Diffusion-based VampPrior VAE (DVP-VAE). It is a deep hierarchical VAE model that approximates the optimal prior distribution at all levels of the hierarchical VAE in an efficient way.
 
 \subsection{VampPrior for hierarchical VAE}
-Directly using the VampPrior approximation (see Eq.~\ref{eq:vamp_prior_approx}) for deep hierarchical VAE can be very computationally expensive since it requires evaluating the variational posterior of all latent variables for $K$ pseudoinputs at each training iteration. Thus, \citep{tomczak2018vae} proposed a modification in which only the top latent variable uses VampPrior, namely:
+Directly using the VampPrior approximation (see Eq.~\ref{eq:vamp_prior_approx}) for deep hierarchical VAE can be very computationally expensive since it requires evaluating the variational posterior of all latent variables for $K$ pseudoinputs at each training iteration. Thus, \citet{tomczak2018vae} proposed a modification in which only the top latent variable uses VampPrior, namely:
 \begin{equation}\label{eq:hierarchical_vamp}
 \begin{aligned}
 p^*(\rvz_{1:L}) &= \mathbb{E}_{\rvx} q_{\phi, \theta}(\rvz_{1:L}|\rvx) \\
@@ -224,7 +224,7 @@ In the variational posteriors, we use the amortization of $r(\rvu)$ outlined in 
 \end{tikzpicture}}
     \caption[][\baselineskip]{Graphical model of the TopDown hierarchical VAE with three latent variables (a) without pseudoinputs and (b) with pseudoinputs. The inference model (left) and the generative model (right) share parameters in the TopDown path (blue). The dashed arrow represents a non-trainable transformation.}
     \label{fig:dct_vae_graph_model}
-\vskip 10pt
+\vskip 15pt
 \end{figure}
 
 Let us consider a Ladder VAE (a TopDown VAE) with three levels of latent variables. We depict the graphical model of this latent variable model in Figure~\ref{fig:dct_vae_graph_model}a with the inference model on the left and the generative model on the right. Note that inference and generative models use shared parameters in the TopDown path, denoted by the blue arrows. 
@@ -289,36 +289,44 @@ Note that $\mathbb{H}[r(\rvu|\rvx)] = \frac{P}{2}\log(2\pi \exp \sigma^2)$ where
 % \newpage
 \section{Model Details: Architecture and parameterization} \label{sec:architecture}
 
+  \begin{figure*}[t]
+    \centering
+    \resizebox{1.3\textwidth}{!}{
+    \begin{tabular}{cc}
+    \adjustbox{valign=b}{\subfloat[Model architecture\label{subfig:model_full}]{%
+          \includegraphics[width=0.51\linewidth]{pics/5_dvp/_full_model.pdf}}}
+    &      
+    \adjustbox{valign=b}{
+        \begin{tabular}{@{}cc@{}}
+        \multicolumn{2}{c}{
+            \subfloat[Top down block\label{subfig:top_down}]{%
+                \includegraphics[width=.28\linewidth]{pics/5_dvp/_top_down_dct_2.pdf}}
+        }\\
+            \subfloat[Resnet block\label{subfig:resnet}]{%
+                \includegraphics[width=.25\linewidth]{pics/5_dvp/_resnet_block.pdf}} &
+            \subfloat[Pseudoinput block\label{subfig:context}]{%
+                \includegraphics[width=.25\linewidth]{pics/5_dvp/_context_block.pdf}} \\
+    \end{tabular}}
+    \end{tabular}
+    }
+    % \caption[][\baselineskip]{A diagram of the DVP-VAE: TopDown hierarchical VAE with the diffusion-based VampPrior.\\
+    %  (a) A \textit{BottomUp} path (left) and a \textit{TopDown} path (right). (b) A \textit{TopDown} block that takes features from the block above $\mathbf{h}^{dec}$, encoder features $\mathbf{h}^{enc}$ (only during training) and a pseudoinput $\rvu$ as inputs. (c) A single Resnet block. (d) A single pseudoinput block.
+    % } 
+    \captionsetup{width=1.3\textwidth, margin={0pt, -.3\textwidth}}
+    \caption{A diagram of the DVP-VAE: TopDown hierarchical VAE with the diffusion-based VampPrior.
+     (a) A \textit{BottomUp} path (left) and a \textit{TopDown} path (right). (b) A \textit{TopDown} block that takes features from the block above $\mathbf{h}^{dec}$, encoder features $\mathbf{h}^{enc}$ (only during training) and a pseudoinput $\rvu$ as inputs. (c) A single Resnet block. (d) A single pseudoinput block.
+    } 
+    \label{fig:model_schema}
+    % \vskip 15pt
+    \vskip -15pt
+  \end{figure*}
+  
 The model architecture and parameterization are crucial to the scalability of the model. In this section, we discuss the specific choices we made.
 The starting point for our architecture is the architecture proposed in VDVAE~\citep{Child2020-ze}. However, there are certain differences. We schematically depict our architecture in Figure~\ref{fig:model_schema}. We consider a hierarchical TopDown VAE with $L$ stochastic layers, namely, latent variables $\rvz_1, \dots, \rvz_L$. We assume that each latent variable has the same number of channels, but they differ in spatial dimensions: $\rvz_l \in \mathbb{R}^{c \times h_l \times w_l}$. We refer to different spatial dimensions of the latent space as \textit{scales}.
 
  \subsection{Bottom-up} \label{subsec:arch_encoder}
 The bottom-up part corresponds to calculations of intermediary variables dependent on $\rvx$. We follow the implementation of \citet{Child2020-ze} for it. We start from the bottom-up path depicted in Figure~\ref{fig:model_schema}a (left), which is fully deterministic and consists of several ResNet blocks (see Figure~\ref{fig:model_schema}c). 
 The input is processed by $N_{\text{enc}}$ blocks at each scale, and the output of the last resnet block of each scale is passed to the TopDown path in Figure~\ref{fig:model_schema}a (right). Note that here $N_{\text{enc}}$ is a separate hyperparameter that does not depend on the number of stochastic layers $L$.
-
-
-  \begin{figure}[t]
-    \centering
-    \begin{tabular}{cc}
-    \adjustbox{valign=b}{\subfloat[Model architecture\label{subfig:model_full}]{%
-          \includegraphics[width=0.49\linewidth]{pics/5_dvp/_full_model.pdf}}}
-    &      
-    \adjustbox{valign=b}{
-        \begin{tabular}{@{}cc@{}}
-        \multicolumn{2}{c}{
-            \subfloat[Top down block\label{subfig:top_down}]{%
-                \includegraphics[width=.26\linewidth]{pics/5_dvp/_top_down_dct_2.pdf}}
-        }\\
-            \subfloat[Resnet block\label{subfig:resnet}]{%
-                \includegraphics[width=.22\linewidth]{pics/5_dvp/_resnet_block.pdf}} &
-            \subfloat[Pseudoinput block\label{subfig:context}]{%
-                \includegraphics[width=.22\linewidth]{pics/5_dvp/_context_block.pdf}} \\
-    \end{tabular}}
-    \end{tabular}
-    \caption[][\baselineskip]{A diagram of the DVP-VAE: TopDown hierarchical VAE with the diffusion-based VampPrior.\\
-     (a) A \textit{BottomUp} path (left) and a \textit{TopDown} path (right). (b) A \textit{TopDown} block that takes features from the block above $\mathbf{h}^{dec}$, encoder features $\mathbf{h}^{enc}$ (only during training) and a pseudoinput $\rvu$ as inputs. (c) A single Resnet block. (d) A single pseudoinput block.
-    } \label{fig:model_schema}
-  \end{figure}
   
 
  \subsection{TopDown} \label{subsec:arch_decode}
@@ -338,7 +346,7 @@ Each TopDown block takes deterministic features from the corresponding scale of 
     Our TopDown block has three ResNet blocks (Figure~\ref{fig:model_schema}c). In contrast to our architecture, in VDVAE only the block that updates $h_{\text{dec}}$ has a residual connection. 
 \end{itemize}
 
-We did not observe any training instabilities and did not apply the \textit{gradient skipping} used in \cite{Child2020-ze}.
+We did not observe any training instabilities and did not apply the \textit{gradient skipping} used in \citet{Child2020-ze}.
 
  \subsection{Latent Aggregation in Conditional Likelihood} \label{subsec:latent_aggr}
 

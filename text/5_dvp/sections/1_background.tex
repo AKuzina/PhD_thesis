@@ -19,7 +19,6 @@ where $r(\rvx)$ is the empirical data distribution. Further, to avoid clutter, w
 % ==== SubSECTION ====
 \subsection{VampPrior}
 The latent variable prior (or marginal) plays a crucial role in the VAE performance, which motivates the usage of data-dependent priors. 
-% \cite{tomczak2018vae} propose a data-dependent prior
 Note that the KL-divergence term in the ELBO (see Eq.~\ref{eq:vae_elbo}) can be expressed as follows \citep{hoffman2016elbo}:
 \begin{equation}
     \mathbb{E}_{\rvx} \KL{q_{\phi}(\rvz|\rvx)}{p(\rvz)} = \KL{q_{\phi}(\rvz)}{ p(\rvz)} + \mathbb{E}_{\rvx} \biggl[ \KL{q_{\phi}(\rvz|\rvx)}{q(\rvz)} \biggr] .
@@ -30,14 +29,14 @@ Therefore, the optimal prior that maximizes the ELBO has the following form:
     p^*(\rvz) = \mathbb{E}_{\rvx} \left[ q_{\phi}(\rvz|\rvx) \right].
 \end{equation}
 
-The main problem with the optimal prior in Eq. \ref{eq:optimal_prior} is the summation over all $N$ training datapoints. Since $N$ could be very large (e.g., tens or hundreds of thousands), using such a prior is infeasible due to potentially very high memory demands. As an alternative approach, \cite{tomczak2018vae} proposed VampPrior, a new class of priors that approximate the optimal prior in the following manner:
+The main problem with the optimal prior in Eq.~\ref{eq:optimal_prior} is the summation over all $N$ training datapoints. Since $N$ could be very large (e.g., tens or hundreds of thousands), using such a prior is infeasible due to potentially very high memory demands. As an alternative approach, \citet{tomczak2018vae} proposed VampPrior, a new class of priors that approximate the optimal prior in the following manner:
 \begin{equation} \label{eq:vamp_prior_approx}
     p^*(\rvz) = \mathbb{E}_{\rvx} q_{\phi}(\rvz|\rvx) \approx \mathbb{E}_{r(\rvu)} q_{\phi}(\rvz|\rvu),
 \end{equation}
 where $\rvu$ is a \textit{pseudoinput}, i.e., a variable mimicking real data, $r(\rvu) =\frac{1}{K}\sum_k \delta(\rvu - \rvu_k)$ is the distribution of $\rvu$ in the form of the mixture of Dirac's deltas, and $\{u_k\}_{k=1}^K$ are learnable parameters (we will refer to them as pseudoinputs as well). $K$ is a hyperparameter and is assumed to be smaller than the size of the training dataset, $K < N$. Pseudoinputs are randomly initialized before training and are learned along with model parameters by optimizing the ELBO objective using a gradient-based method. 
 % :  parameter and has less components than number of  points in the dataset.
 
-In follow-up work, \cite{egorov2021boovae} suggested using a separate objective for pseudoinputs (a greedy boosting approach) and demonstrated the superior performance of such formulation in the continual learning setting. Here, we will present a different approximation to the optimal prior instead.
+In follow-up work, \citet{egorov2021boovae} suggested using a separate objective for pseudoinputs (a greedy boosting approach) and demonstrated the superior performance of such formulation in the continual learning setting. Here, we will present a different approximation to the optimal prior instead.
 
 % ==== SubSECTION ====
 \subsection{Ladder VAEs (a.k.a. Top-down VAEs)} \label{sec:hierarchical_vae}

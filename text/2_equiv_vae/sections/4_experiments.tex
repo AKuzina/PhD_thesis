@@ -1,9 +1,9 @@
 \section{Experiments}\label{sec_equiv:experiments}
 
-We consider two different setups. The conventional compressed sensing discussed in section \ref{sec:related_gen_cs} (no rotation) and compressed sensing with unknown orientation discussed in section \ref{sec:gen_cs_rotation} (unknown rotation).  
+We consider two different setups. The conventional compressed sensing discussed in Section \ref{sec:related_gen_cs} (no rotation) and compressed sensing with unknown orientation discussed in Section \ref{sec:gen_cs_rotation} (unknown rotation).  
 
 \paragraph{Datasets}
-We conduct experiments on two different datasets. We start with benchmarking experiments on MNIST. 
+We conduct experiments on two different datasets. We start with benchmarking experiments on MNIST\citep{lecun1998mnist}. 
 Subsequently, concerning a real-world application of the proposed approach, we conduct experiments on the Low Dose CT Image and Projection Data\footnote{\url{https://www.aapm.org/grandchallenge/lowdosect/}} (MAYO) dataset \citep{moen2021low}, which consist of three types of data: DICOM-CT-PD projection data, DICOM image data, and Excel clinical data reports. To our aim, we use the DICOM subset only. Images are divided into three sets labelled N for neuro, C for chest, and L for liver each of which comprises 512x512 images from 50 different patients. To train the generative priors, we consider the L subset which is made of $\sim$7K samples that we divide into train, validation and test sets comprising $\sim$80\%, $\sim$10\%, and $\sim$10\% of the images, respectively.
 Before feeding a model, we randomly crop the image and then rescale it to 128x128, and finally, we normalize the pixels value in $[0,1]$.
 
@@ -32,7 +32,7 @@ When it comes to measuring the success of the compressed sensing, we are interes
 
 
 \subsection{Benchmark experiments on MNIST}
-Concerning compressed sensing experiments, we consider a different number of linear measurements to reconstruct the input signal. Specifically, in \autoref{tab:mnist_cs_results} we report CS results for the MNIST dataset considering 50, 100, and 200 measurements. For each of the mentioned values, and each prior model, we report the average value for the MSE and the number of iterations required to achieve a 100\% success rate for reconstructing the input signals.
+Concerning compressed sensing experiments, we consider a different number of linear measurements to reconstruct the input signal. Specifically, in Table~\ref{tab:mnist_cs_results} we report CS results for the MNIST dataset considering 50, 100, and 200 measurements. For each of the mentioned values, and each prior model, we report the average value for the MSE and the number of iterations required to achieve a 100\% success rate for reconstructing the input signals.
 As mentioned previously, we consider two different scenarios: no rotations and unknown rotations. In both cases, Eq-VAE prior report the best performance concerning MSE and the number of iterations required to reconstruct the input images.
 Indeed, although with all the priors we observe a 100\% convergence rate for the CS experiments, Eq-VAE requires fewer iterations and reports a lower average MSE than all the other models.
 
@@ -45,7 +45,7 @@ Figure \ref{fig:vae_prior_types} also shows that larger latent space of the conv
 
 
 \subsection{CT scans reconstruction: MAYO dataset}
-We report in~\autoref{tab:mayo_cs_results} results for the MAYO dataset. Differently from the MNIST result, in this case, we fix the number of measurements to 200 and evaluate the performance of the different generative priors on the CS task considering a different number of iterations. Specifically, we consider 50, 100, 150, and 200 iterations, and for each of them, we report the average MSE and the percentage of points successfully reconstructed (i.e., with MSE per pixel below 0.01). 
+In Table~\ref{tab:mayo_cs_results} we report results for the MAYO dataset. Differently from the MNIST result, in this case, we fix the number of measurements to 200 and evaluate the performance of the different generative priors on the CS task considering a different number of iterations. Specifically, we consider 50, 100, 150, and 200 iterations, and for each of them, we report the average MSE and the percentage of points successfully reconstructed (i.e., with MSE per pixel below 0.01). 
 Being the MAYO dataset more complex than the MNIST, in this case, we do not observe a clear dominance of one type of prior compared to the others. However, as a general remark, we can notice that using Eq-VAE the average percentage of converged points is higher than for other models for both no rotations, 85.0\%, and unknown rotations, 85.5\%. As a comparison, the second-best performing priors are the VAE with 75.3\%, and the Flow with 85.2\%, concerning no and unknown rotations, respectively. 
 Instead, regarding the MSE, all the results agree within 1 standard deviation.
 

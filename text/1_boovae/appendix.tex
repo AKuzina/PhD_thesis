@@ -5,12 +5,12 @@
 
 \paragraph{Appendix Organization}
 \begin{itemize}
-    \item Section (\ref{app:algodetails}) contains technical details of BooVAE algorithm. In \ref{app:MEPVI} we provide skipped details related to the algorithm derivation: ELBO decomposition, approximated optimal prior, properties of the optimization problem and functional gradient of the objective. Next, we provide derivations for trainable flow-based prior (\ref{app:flowvae}). Finally, we discuss step-back for selection of the number of components for each task (\ref{app:stepback}).
-    \item Section (\ref{app:expdetails}) contains broader details and results for experiments in continual framework. 
+    \item Section~\ref{app:algodetails} contains technical details of BooVAE algorithm. In Section~\ref{app:MEPVI} we provide skipped details related to the algorithm derivation: ELBO decomposition, approximated optimal prior, properties of the optimization problem and functional gradient of the objective. Next, we provide derivations for trainable flow-based prior in Section~\ref{app:flowvae}. Finally, we discuss step-back for selection of the number of components for each task in Section~\ref{app:stepback}.
+    \item Section~\ref{app:expdetails} contains broader details and results for experiments in continual framework. 
     \begin{itemize}
-        \item In Sections (\ref{app:incr}) - (\ref{app:samples}) we provide more detailed overview of models performance. In Section (\ref{app:incr}) we report NLL and diversity metric after each additional task is trained. We discuss how the performance changes on the whole test dataset as we keep training in continual learning setting. Moreover, we report and discuss these metrics for each task separately in Section (\ref{app:pertask}). Finally, we visually study the samples from the model on each step in Section (\ref{app:samples}). 
-        \item In Section (\ref{app:coreset})  we provide additional comparison with random coresets, showing that BooVAE requires much less components to get comparable results in term of NLL and diversity metrics.
-        \item The implementation details for experiments are in Sec. (\ref{app:archicture}), including architecture of neural networks and optimization details.
+        \item In Sections~\ref{app:incr}) - \ref{app:samples} we provide more detailed overview of models performance. In Section~\ref{app:incr} we report NLL and diversity metric after each additional task is trained. We discuss how the performance changes on the whole test dataset as we keep training in continual learning setting. Moreover, we report and discuss these metrics for each task separately in Section~\ref{app:pertask}. Finally, we visually study the samples from the model on each step in Section~\ref{app:samples}. 
+        \item In Section~\ref{app:coreset}  we provide additional comparison with random coresets, showing that BooVAE requires much less components to get comparable results in term of NLL and diversity metrics.
+        \item The implementation details for experiments are in Section~\ref{app:archicture}, including architecture of neural networks and optimization details.
         The source code is available at \url{https://github.com/AKuzina/BooVAE}.
     \end{itemize}
     
@@ -22,7 +22,7 @@
 \subsection{Derivations for the optimal prior in continual framework}
 \label{app:MEPVI}
 \paragraph{ELBO decomposition derivation}
-We begin with derivations of the used decomposition in Eq.(\ref{eq:decomp}). We start form the ELBO definition (\ref{eq:elbo}) and conclude with the desirable result with several re-arrangements. 
+We begin with derivations of the used decomposition in Eq.~\ref{eq:decomp}. We start form the ELBO definition (Eq.~\ref{eq:elbo}) and conclude with the desirable result with several re-arrangements. 
 \begin{equation}
 \label{eq:app_decomp_begin}
     \begin{aligned}
@@ -44,8 +44,8 @@ This decomposition holds for any choice of the density $\hat{q}(\rvz)$ (under mi
      = & \KL{\hat{q}(\rvz)}{\pi(\rvz)}.
     \end{aligned}
 \end{equation}
-We substitute (\ref{eq:app_term1}) in (\ref{eq:app_decomp_begin})
-and obtain the decomposition (\ref{eq:decomp}):
+We substitute Eq.~\ref{eq:app_term1} in Eq.~\ref{eq:app_decomp_begin}
+and obtain the decomposition in Eq.~\ref{eq:decomp}:
 \begin{fullwidth}
 \begin{equation}
 \begin{aligned}
@@ -66,7 +66,7 @@ Next, we proceed to the case of $p_{e}(\rvx) = \alpha~p_{e}^{1}(\rvx) + (1-\alph
 \end{equation}
 \end{fullwidth}
 	
-We select $\hat{q}_{i}(\rvz) = \E_{p^{i}_{e}(\rvx)}q_{\phi}(\rvz|\rvx),~i=1,2$ and with direct using derivations above conclude with the desirable decomposition (\ref{eq:big_decimpose}):
+We select $\hat{q}_{i}(\rvz) = \E_{p^{i}_{e}(\rvx)}q_{\phi}(\rvz|\rvx),~i=1,2$ and with direct using derivations above conclude with the desirable decomposition in Eq.~\ref{eq:big_decimpose}:
 \begin{fullwidth}
 \begin{equation}
     \begin{aligned}
@@ -74,7 +74,7 @@ We select $\hat{q}_{i}(\rvz) = \E_{p^{i}_{e}(\rvx)}q_{\phi}(\rvz|\rvx),~i=1,2$ a
     \end{aligned}
 \end{equation}
 \end{fullwidth}
-\paragraph{Proof of the approximated optimal prior in (\ref{eq:second_kl_opt})}
+\paragraph{Proof of the approximated optimal prior in Eq.~\ref{eq:second_kl_opt}}
 We consider the modified optimization problem over the probability density space $\mathcal{P}$ ($\ref{eq:first_kl_opt}$) with the approximation of the aggregated variational posterior of the first task
 $\hat{q}_{1}^{a}(\rvz)\approx\hat{q}_{1}(\rvz)$:
 \begin{equation}
@@ -83,7 +83,7 @@ $\hat{q}_{1}^{a}(\rvz)\approx\hat{q}_{1}(\rvz)$:
     \min\limits_{\pi(\rvz)\in\mathcal{P}}\alpha~\KL{\hat{q}^{a}(\rvz)}{\pi(\rvz)}  + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}.
     \end{aligned}
 \end{equation}
-The optimization problem (\ref{eq:app_optprior}) is convex over $\pi(\rvz)$ as the sum of convex functions, hence we proceed with FOC of the corresponded Lagrangian with normalization conditions:
+The optimization problem (Eq.~\ref{eq:app_optprior}) is convex over $\pi(\rvz)$ as the sum of convex functions, hence we proceed with FOC of the corresponded Lagrangian with normalization conditions:
 \begin{fullwidth}
 \begin{equation}
     \begin{aligned}
@@ -99,7 +99,7 @@ By rearranging terms and normalize the solution, we conclude with the stated res
     \pi^{1,2}(\rvz) = \alpha \hat{q}_{1}^{a}(\rvz) + (1-\alpha) \hat{q}_{2}(\rvz).
     \end{aligned}
 \end{equation}
-\paragraph{Proof of the bi-convexity of the optimization problem (\ref{eq:third_kl_opt}) over $h$ and $\beta$}
+\paragraph{Proof of the bi-convexity of the optimization problem in Eq.~\ref{eq:third_kl_opt} over $h$ and $\beta$}
 We consider the functional:
 \begin{equation}
     \begin{aligned}
@@ -122,7 +122,7 @@ We check convexity over $\beta$ by expecting of the second derivative:
     & \nabla^{2}_{\beta}\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} = \int d\rvz~\hat{q}_{1}^{a}(\rvz) \left(\frac{h(\rvz)-\pi^{1}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}\right)^2 > 0.
     \end{aligned}
 \end{equation*}
-\paragraph{Derivation of the functional gradient for the optimization problem (\ref{eq:third_kl_opt}) over $h$}
+\paragraph{Derivation of the functional gradient for the optimization problem in Eq.~\ref{eq:third_kl_opt} over $h$}
 The functional of our interest is $\alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} +  (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)})$.
 We consider the perturbation of the argument $\pi^{1}(\rvz)$ with $h(\rvz)$ as following $(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)$. We start from the linearization of the first term:
 \begin{equation}
@@ -142,7 +142,7 @@ With application of this result to the second term, we obtain:
     & \quad\quad- \beta\underbrace{\left(\int d\rvz~h(\rvz)\left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]- 1\right)}_{ \raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}}} + o(\beta).
     \end{aligned}
 \end{equation}
-The term $\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}}$ is the functional gradient. We project direction $h$ to match it at the optimization problem (\ref{eq:final_opt}).
+The term $\raisebox{.5pt}{\textcircled{\raisebox{-.9pt} {\text{\ttfamily \normalfont 1}}}}$ is the functional gradient. We project direction $h$ to match it at the optimization problem in Eq.~\ref{eq:final_opt}.
 
 %%%%%%%
 \newpage
@@ -203,19 +203,16 @@ In the experiment setting we report the \textbf{maximal} number of components. T
 \section{Details of the Experiments and Ablation Study}\label{app:expdetails}
 All the experiments we performed on a single NVIDIA Tesla V100 GPU.
 
-\subsection{Results in continual learning setting}\label{app:incr}
-In Tables (\ref{tab:onlineNLL}), (\ref{tab:onlineDiv}) we provide full results for continual learning experiments, which are illustrated by Fig.(\ref{fig:online:diversity}),(\ref{fig:online:NLL}). We provide negative log-likelihood in Table (\ref{tab:onlineNLL}) and KL-divergence used as diversity measure in Table (\ref{tab:onlineDiv}). The first column in both tables states how many tasks did the VAE see in total and the value in the table indicates value of negative log-likelihood or diversity metrics on the test set containing current and all the previous tasks.
 
-We add comparison with multi-head architectures. We observe that BooVAE is capable to achieve results comparable to multi-head architecture. We find this to be a good result, because fixed architecture that we use has approximately 6 times less parameters. Moreover, when computing NLL on the test set multi-head architecture requires task tables in order to use proper head, while in case of BooVAE the test evaluation is performed in unsupervised manner.
-% We compare our method (BooVAE) with VAE with standard normal prior, Elastic Weight Consolidation (EWC), Random coresets, VAE with MoG prior and multihead VAE (with and without EWC). In multi-head the separate Encoder was trained for each tasks, as well as the separate head for the Decoder. Thus, number of parameters in this case is much larger. In all other models we use a single Encoder-Decoder pair for all the tasks.
-% Results in the tables above demonstrate that BooVAE manages to overcome catastrophic forgetting better than pure EWC regularization with standard normal prior. At the same time, a combination of EWC regularization and Boosting approach leads to the improvement of the latter and produces the best result among one-headed architectures in most cases.
-% There are also works, where multi-head architectures are used to improve performance in the incremental setting. It means that task-specific layers are being added to the network. In our experiments, the architecture was fixed, and we only increase the number of components in the prior; therefore, it is not fair to compare the two. Nevertheless, we provide results for multi-head approach as used in  \citep{nguyen2017variational} with multi-head decoder and task-specific encoder networks both with and without regularizations for the comparison.
-\begin{table}[!h]
-\caption{NLL on a test set, averaged over 5 runs with standard deviation in the brackets. Each model was trained on 10 tasks in a continual setting, in multi-head models new encoder and extra decoder layer was added for every new task. We use \textbf{\textit{bold italics}} to denote the best result among all the models and \textbf{bold} to denote best among the models with one encoder-decoder pair for all the tasks.}\label{tab:onlineNLL}
-\begin{adjustbox}{max width=1\textwidth}{}
+\begin{table*}[t]
+\captionsetup{width=1.2\textwidth, margin={0pt, -.2\textwidth}}
+% \captionsetup{width=1.2\textwidth, margin={-.2\textwidth, 0pt}}
+\caption{NLL on a test set, averaged over 5 runs with standard deviation in the brackets. Each model was trained on 10 tasks in a continual setting, in multi-head models new encoder and extra decoder layer was added for every new task. We use \textbf{\textit{bold italics}} to denote the best result among all the models and \textbf{bold} to denote best among the models with one encoder-decoder pair for all the tasks.}
+\label{tab:onlineNLL}
+\resizebox{1.2\textwidth}{!}{
 \begin{tabular}{@{}c|lllllll|ll@{}}\toprule
-\multirow{4}{*}{\rotatebox{70}{\# Tasks }} & Standard & EWC  & VCL & Coreset &MoG & Boo & Boo + VCL & Multihead & Multihead +  \\
-  &  &  & &  & & & & & EWC \\
+\multirow{4}{*}{\rotatebox{70}{\# Tasks }} & Standard & EWC  & VCL & Coreset &MoG & Boo & Boo & Multihead & Multihead  \\
+  &  &  & &  & & & + VCL & & +EWC \\
 &\multicolumn{9}{c}{\multirow{2}{*}{MNIST}}  \\
 & \multicolumn{9}{c}{} \\\midrule
 2  & 343.5 (26)   & 258.3 (12)   & 84.8 (0.4)  & 108.6 (2.2) & 98.1 (3.2)  & 96.1 (0.9)  & \textbf{\textit{74.9 (0.3)}}  & 399.2 (6.8) & 119.6 (18.5) \\
@@ -251,12 +248,19 @@ We add comparison with multi-head architectures. We observe that BooVAE is capab
 10 & 799.9 (273)& 399.2 (27)  & 268.6 (1.5) & 263.0 (1.6) & 330.9 (8.4) & 250.6 (4.6) & \textbf{\textit{248.7 (0.5)}} & 569.1 (28.4)& \textit{\textbf{247.3 (4.7)}}   \\
 \bottomrule
 \end{tabular}
-\end{adjustbox}
-\vspace*{\baselineskip}
-\end{table}
+}
+% \vspace*{\baselineskip}
+\end{table*}
 
-\begin{fullwidth}
-\begin{table}[!ht]
+
+\subsection{Results in continual learning setting}\label{app:incr}
+In Tables~\ref{tab:onlineNLL}, \ref{tab:onlineDiv} we provide full results for continual learning experiments, which are illustrated by Figures~\ref{fig:online:diversity}, \ref{fig:online:NLL}. We provide negative log-likelihood in Table~\ref{tab:onlineNLL} and KL-divergence used as diversity measure in Table~\ref{tab:onlineDiv}. The first column in both tables states how many tasks did the VAE see in total and the value in the table indicates value of negative log-likelihood or diversity metrics on the test set containing current and all the previous tasks.
+
+We add comparison with multi-head architectures. We observe that BooVAE is capable to achieve results comparable to multi-head architecture. We find this to be a good result, because fixed architecture that we use has approximately 6 times less parameters. Moreover, when computing NLL on the test set multi-head architecture requires task tables in order to use proper head, while in case of BooVAE the test evaluation is performed in unsupervised manner.
+
+
+% \begin{fullwidth}
+\begin{table}[t]
 \captionof{table}{Diversity results, averaged over 5 runs with standard deviation in the brackets. The lower is better, we use \textbf{bold} to denote the best model with one encoder-decoder pair.}\label{tab:onlineDiv}
 \begin{adjustbox}{max width=1.\textwidth}{}
 \begin{tabular}{@{}c|lllllll@{}}\toprule
@@ -303,9 +307,9 @@ We add comparison with multi-head architectures. We observe that BooVAE is capab
 \end{adjustbox}
 \vspace*{\baselineskip}
 \end{table}
-\end{fullwidth}
+% \end{fullwidth}
 
-Even though NLL on a test set is a default way of assessing VAEs, during our experiments, we've observed that good NLL scores do not always correspond to diverse samples from the prior in the continual setting. See samples in Fig.(\ref{fig:MNIST_gen}),(\ref{fig:notMNIST_gen}),(\ref{fig:fMNIST_gen}) for the confirmation of this observation. For example, random coresets are performing well in terms of NLL, but we can see that they are still prone to catastrophic forgetting when it comes to generating samples. 
+Even though NLL on a test set is a default way of assessing VAEs, during our experiments, we've observed that good NLL scores do not always correspond to diverse samples from the prior in the continual setting. See samples in Figures~\ref{fig:MNIST_gen},~\ref{fig:notMNIST_gen},~\ref{fig:fMNIST_gen} for the confirmation of this observation. For example, random coresets are performing well in terms of NLL, but we can see that they are still prone to catastrophic forgetting when it comes to generating samples. 
 Therefore, we were interested in quantitative evaluation of the samples, produced by the VAE on each step. As the diversity score we calculate KL-divergence between desired $P(x)$ and observed $Q(x)$ distribution of generated images over the classes. Desired distribution is multinomial with equal probabilities for each class. To evaluate observed distribution of classes we generate $N = 10^3$ samples from VAE and classify them using neural network, trained on the same dataset as the VAE. Then we calculate the proportion of images from the class $i$ in the generated sample and evalutate KL-divergence:
 \begin{equation}
 \begin{aligned}
@@ -316,11 +320,11 @@ Q(x=i) &= \hat{p}_i = \frac{N_i}{N}, \,\, i \in \{1, \dots, T\},\\
 \KL{P(x)}{Q(x)} &= \sum_{i=1}^T \frac{1}{T} \log\frac{\frac{1}{T}}{\hat{p}_i}.
 \end{aligned}
 \end{equation}
-If the model generates images from all the classes in equal proportions, the value of the metrics is zero. The large is KL-divergence, the less diversity is there in the samples. We would like to note, that this metric is reflecting the situation that we observe in Figures \ref{fig:MNIST_gen}, \ref{fig:notMNIST_gen}, \ref{fig:fMNIST_gen} and confirms that BooVAE is dealing with catastrophic forgetting much better that other methods. Moreover, we observe that even though the combination of BooVAE with VCL is the best in terms of reconstruction error (NLL), it produce more blurred samples and therefore the classification network make more error with is reflected on the KL-divergence.
+If the model generates images from all the classes in equal proportions, the value of the metrics is zero. The large is KL-divergence, the less diversity is there in the samples. We would like to note, that this metric is reflecting the situation that we observe in Figures~\ref{fig:MNIST_gen},~\ref{fig:notMNIST_gen},~\ref{fig:fMNIST_gen} and confirms that BooVAE is dealing with catastrophic forgetting much better that other methods. Moreover, we observe that even though the combination of BooVAE with VCL is the best in terms of reconstruction error (NLL), it produce more blurred samples and therefore the classification network make more error with is reflected on the KL-divergence.
 
 \newpage
 \subsection{Metrics for each task separately} \label{app:pertask}
-In Fig.(\ref{fig:online:NLL_pertask}),(\ref{fig:online:Div_pertask}) we report test NLL and diversity metrics from the previous section for each task separately. Each subgraph shows performance of the VAE on one specific task (e.g. on '0's, '1's, etc. for MNIST), depending on the total number of tasks seen by the model in continual setting. Each line begins when the class appears in the train set for the first time. We observe, how the performance on this task changes as wee keep updating the model on the new tasks. We expect the line to be as flat as possible. This means, that quality of reconstructions and proportion of samples does not get worse when new tasks arrive. 
+In Figures~\ref{fig:online:NLL_pertask},~\ref{fig:online:Div_pertask} we report test NLL and diversity metrics from the previous section for each task separately. Each subgraph shows performance of the VAE on one specific task (e.g. on '0's, '1's, etc. for MNIST), depending on the total number of tasks seen by the model in continual setting. Each line begins when the class appears in the train set for the first time. We observe, how the performance on this task changes as wee keep updating the model on the new tasks. We expect the line to be as flat as possible. This means, that quality of reconstructions and proportion of samples does not get worse when new tasks arrive. 
 %\begin{figure}[!h]
 %	\begin{subfigure}[b]{\textwidth}
 %	\centering
@@ -339,16 +343,17 @@ In Fig.(\ref{fig:online:NLL_pertask}),(\ref{fig:online:Div_pertask}) we report t
 %	\end{subfigure}
 %	\caption{NLL on the test dataset for each task separately averaged over 5 runs. The lower is better.}\label{fig:online:NLL_pertask}
 %\end{figure}
-\begin{figure}[h]
+\begin{figure*}[t]
 	\centering
-		\subfloat[MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/MNIST_pertask.pdf}} \hfill
-		\subfloat[notMNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/notMNIST_pertask.pdf}}\hfill
-		\subfloat[Fashion MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/FashionMNIST_pertask.pdf}}
+		\subfloat[\normalsize{MNIST}]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/MNIST_pertask.pdf}} \hfill
+		\subfloat[\normalsize{notMNIST}]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/notMNIST_pertask.pdf}}\hfill
+		\subfloat[\normalsize{Fashion MNIST}]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/FashionMNIST_pertask.pdf}}
 	\setfloatalignment{t} 
+            \captionsetup{width=1.25\textwidth, margin={0pt, -.2\textwidth}}
 		\caption{NLL on the test dataset for each task separately averaged over 5 runs. The lower is better.}\label{fig:online:NLL_pertask}
-	\vspace*{\baselineskip}
-\end{figure}
-In Fig.(\ref{fig:online:Div_pertask}) we show each term in the KL-divergence as a characteristic of the per task diversity, which is equal to the $\tfrac1K \left(\log\tfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$. Ideally, this value should be 0 everywhere. If it is positive, then there is not enough images from a given class in the sample. And vice versa, in case of negative value, there are too many samples from a given class. As we can see from the plots, BooVAE is extremely close to the desired behaviour. If the method suffer from catastrophic forgetting, it produces too many samples when the task is seen for the first time (green zone on the graph) and not enough samples later on (red area), since it forgets how to produce this samples.
+	% \vspace*{\baselineskip}
+\end{figure*}
+In Figure~\ref{fig:online:Div_pertask} we show each term in the KL-divergence as a characteristic of the per task diversity, which is equal to the $\tfrac1K \left(\log\tfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$. Ideally, this value should be 0 everywhere. If it is positive, then there is not enough images from a given class in the sample. And vice versa, in case of negative value, there are too many samples from a given class. As we can see from the plots, BooVAE is extremely close to the desired behaviour. If the method suffer from catastrophic forgetting, it produces too many samples when the task is seen for the first time (green zone on the graph) and not enough samples later on (red area), since it forgets how to produce this samples.
 %\begin{figure}[!h]
 %	\begin{subfigure}[b]{\textwidth}
 %	\centering
@@ -367,21 +372,23 @@ In Fig.(\ref{fig:online:Div_pertask}) we show each term in the KL-divergence as 
 %	\end{subfigure}
 %	\caption{Diversity score for each computed for each class separately. Each subgraph shows values $\sfrac1K \left(\log\sfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$ for the task $k$. That is one term from the sum (KL-divergence), which shows difference between ideal and generated proportion of images for a specific class. On the $x$ axis there is total number of tasks seen by the model. Negative value means that model generates too many images of the class, positive --- not enough images from the given class. }\label{fig:online:Div_pertask}
 %\end{figure}
-\begin{figure}[t!]
+\begin{figure*}[t!]
 	\centering
-	\subfloat[MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/MNIST_pertask_kl.pdf}} \hfill
-	\subfloat[notMNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/notMNIST_pertask_kl.pdf}}\hfill
-	\subfloat[Fashion MNIST]{\includegraphics[width=1.05\textwidth]{pics/1_boovae/FashionMNIST_pertask_kl.pdf}}
+	\subfloat[MNIST]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/MNIST_pertask_kl.pdf}} \hfill
+	\subfloat[notMNIST]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/notMNIST_pertask_kl.pdf}}\hfill
+	\subfloat[Fashion MNIST]{\includegraphics[width=1.25\textwidth]{pics/1_boovae/FashionMNIST_pertask_kl.pdf}}
 	\setfloatalignment{t} 
+    \captionsetup{width=1.25\textwidth, margin={-.25\textwidth, 0pt,}}
+    % \captionsetup{width=1.2\textwidth, margin={0pt, -.2\textwidth}}
 	\caption{Diversity score for each computed for each class separately. Each subgraph shows values $\sfrac1K \left(\log\sfrac1K - \log\hat{p_i}\right), \, i \in \{1, \cdots, K\}$ for the task $k$. That is one term from the sum (KL-divergence), which shows difference between ideal and generated proportion of images for a specific class. On the $x$ axis there is total number of tasks seen by the model. Negative value means that model generates too many images of the class, positive --- not enough images from the given class. }\label{fig:online:Div_pertask}
-	\vspace*{\baselineskip}
-\end{figure}
+	% \vspace*{\baselineskip}
+\end{figure*}
 
 \clearpage
 \subsection{Examples of generated samples} \label{app:samples}
-Figures (\ref{fig:celeba_gen}),(\ref{fig:MNIST_gen}),(\ref{fig:notMNIST_gen}),(\ref{fig:fMNIST_gen}) contain samples from different VAE. Each row-block corresponds to the total number of tasks seen by the model, while each columns corresponds to a different model. We can clearly see, that BooVAE generates diverse samples after training on all the tasks (last row). We also observe that addition of the regularization-based approaches makes samples from the models more blurred. We assume that this is exactly reflected in the worse diversity metrics for BooVAE with VCL. Even though the samples are still diverse, they are are sometimes of lower quality and classification network makes more mistakes.  
+Figures~\ref{fig:celeba_gen},~\ref{fig:MNIST_gen},~\ref{fig:notMNIST_gen},~\ref{fig:fMNIST_gen} contain samples from different VAE. Each row-block corresponds to the total number of tasks seen by the model, while each columns corresponds to a different model. We can clearly see, that BooVAE generates diverse samples after training on all the tasks (last row). We also observe that addition of the regularization-based approaches makes samples from the models more blurred. We assume that this is exactly reflected in the worse diversity metrics for BooVAE with VCL. Even though the samples are still diverse, they are are sometimes of lower quality and classification network makes more mistakes.  
 
-These samples provide qualitative proof of the generation diversity metrics, shown in Figure (\ref{fig:online:diversity}) and in Tables (\ref{tab:onlineDiv}),(\ref{tab:celeba_fid}). 
+These samples provide qualitative proof of the generation diversity metrics, shown in Figure~\ref{fig:online:diversity} and in Tables~\ref{tab:onlineDiv},~\ref{tab:celeba_fid}. 
 
 \begin{figure}[ht]
 		\centering
@@ -432,8 +439,8 @@ We use validation dataset to select hyperparameters for a simple VAE (with a sta
 
 For MNIST and FashionMNIST we randomly remove 10'000 images from the train dataset for validation. For notMNIST we use small version of the dataset (19k images in total) and remove 10\% as a test data and 10\% more as validation. For CelebA dataset we use split provided by the dataset authors. 
 
-We use Adam to perform the optimization for all the datasets with LR scheduler, that reduce learning rate by the \texttt{factor} when the loss is not decreasing for \texttt{patience} number of epochs. In the Table \ref{tab:optim_params} we provide all the parameters of the optimization procedure. For CelebA dataset we use $\beta$-VAE with $\beta$ annealing. The value of $\beta$ is gradually increasing from 0 to 2 during the first 10 epochs. 
-\begin{table}[ht]
+We use Adam to perform the optimization for all the datasets with LR scheduler, that reduce learning rate by the \texttt{factor} when the loss is not decreasing for \texttt{patience} number of epochs. In the Table~\ref{tab:optim_params} we provide all the parameters of the optimization procedure. For CelebA dataset we use $\beta$-VAE with $\beta$ annealing. The value of $\beta$ is gradually increasing from 0 to 2 during the first 10 epochs. 
+\begin{table}[t]
 \begin{center}
 \caption[][\baselineskip]{Optimization parameters used in the experiments.}
 \label{tab:optim_params}
@@ -448,22 +455,25 @@ Initial Learning rate       & 5e--4 & 5e--4    & 5e--4        & 1e--3\\
 LR scheduler patience       & 30    & 30       & 30           & 9\\
 LR scheduler factor         & 0.5   & 0.5      & 0.5          & 0.5\\ 
 Max epochs                  & 500   & 500      & 1000         & 300\\
-Early stopping              & 50    & 50       & 50           & 15\\
+Early stopping              & \multirow{2}{*}{50}& \multirow{2}{*}{50} & \multirow{2}{*}{50} & \multirow{2}{*}{15}\\
 (\# ep. without improvement)&       &          &              &    \\
 Latent dimension            & 40    & 40       & 40           & 128\\
 Beta annealing              & No    & No       & No           & From 0 to 2\\
-              &     &        &            & during first 10 epochs\\
-\# components per task (BooVAE)      & 15    &15        & 15           & 40 \\
-Regularization weight (BooVAE, Eq.~\eqref{eq:obj_with_reg}) & 1& 1& 1&1\\
+              &     &        &            & \, during first \\
+              &     &        &            & \, 10 epochs\\
+\# components per task       & \multirow{2}{*}{15}    &\multirow{2}{*}{15}        & \multirow{2}{*}{15}           & \multirow{2}{*}{40} \\
+(BooVAE)& & & &\\
+Regularization weight  & \multirow{2}{*}{1}& \multirow{2}{*}{1}& \multirow{2}{*}{1}&\multirow{2}{*}{1}\\
+(BooVAE, Eq.~\ref{eq:obj_with_reg})& & & &\\
 \bottomrule
 \end{tabular}}
 \vspace{20pt}
 \end{center}
 \end{table}
 
-\paragraph{MNIST architecture} We've used MLP with 3 linear layers and LeakyReLU activations both for the encoder and decoder in all the cases. Detailed architectures are presented in Table \ref{tab:mnist_arc}.
+\paragraph{MNIST architecture} We've used MLP with 3 linear layers and LeakyReLU activations both for the encoder and decoder in all the cases. Detailed architectures are presented in Table~\ref{tab:mnist_arc}.
 
-\begin{table}[ht]
+\begin{table}[t]
 \begin{center}
 \caption[][\baselineskip]{MLP architectures for MNIST, notMNIST and FashionMNIST datasets.}
 \label{tab:mnist_arc}
@@ -494,7 +504,7 @@ Regularization weight (BooVAE, Eq.~\eqref{eq:obj_with_reg}) & 1& 1& 1&1\\
 
 \paragraph{CelebA architecture} For CelebA dataset we've used convolutional NN. We use 2D convolutions with kernel size $5\times 5$, Batch normalization and ReLU activations for encoder and symmetric architecture but with transposed convolutions for the decoder. See all the details in Table \ref{tab:celeba_arc}.
 
-\begin{table}[ht]
+\begin{table}[t]
 \begin{center}
 \caption{Convolutional architecture for CelebA dataset.}
 \label{tab:celeba_arc}

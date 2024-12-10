@@ -26,7 +26,7 @@ Furthermore, symmetric property should hold for the decoder network. Namely,
     \vx &\sim p_{\theta}(\vx| \vz).
 \end{align}
 
-We now discuss how to construct the Encoder and Decoder networks to ensure that both requirements (\ref{eq:eq_encoder}) and (\ref{eq:eq_decoder}) hold.
+We now discuss how to construct the Encoder and Decoder networks to ensure that both requirements (Eq.~\ref{eq:eq_encoder} and Eq.~\ref{eq:eq_decoder}) hold.
 
 \paragraph{Equivariant Encoder}
 The common choice of the variational posterior distribution $q_{\phi}(\vz|\vx)$ is Gaussian 
@@ -43,12 +43,12 @@ Such parametrization is practical for several reasons. Firstly, Gaussian distrib
 \begin{equation}
     \vz = \mu +  \mL\varepsilon,
 \end{equation}
-This is crucial for backpropogation through the ELBO (\ref{eq_ch2:elbo}). Secondly, the KL-term between variational posterior and prior is to be computed at each iteration. The prior is usually chosen to be standard Gaussian, which gives a closed form for the KL-divergence:
+This is crucial for backpropogation through the ELBO (Eq.~\ref{eq_ch2:elbo}). Secondly, the KL-term between variational posterior and prior is to be computed at each iteration. The prior is usually chosen to be standard Gaussian, which gives a closed form for the KL-divergence:
 \begin{align} \label{eq:gaus_kl}
     \KL{q_{\phi}(\vz|\vx)}{p(\vz)} = \tfrac{1}{2}\big[-\log\det\Sigma - d + 
     \text{tr}\Sigma + \mu^T\mu \big]. 
 \end{align}
-With the diagonal covariance matrix computing the log-determinant in \eqref{eq:gaus_kl} reduces to a summation of $d$ scalars.
+With the diagonal covariance matrix computing the log-determinant in Eq.~\ref{eq:gaus_kl} reduces to a summation of $d$ scalars.
 
 In this work, we also focus on the Gaussian $q_{\phi}$. Then it is enough to match the first and second moments of $\gT_g^z \vz$ and $\vz_g$ to satisfy the desired properties of the equivariant latent space. 
 When it comes to $\vz_g$, it follows a Gaussian distribution, which gives us the following moments: 
@@ -57,7 +57,7 @@ When it comes to $\vz_g$, it follows a Gaussian distribution, which gives us the
     \E(\vz_g - \E \vz_g) (\vz_g - \E \vz_g)^T &= L_{\phi}(\gT_g^x \vx)L_{\phi}(\gT_g^x \vx)^T.
 \end{align}
 
-Next, we would like to find the moments of $\gT_g^z \vz$, knowing that $\vz$ is a Gaussian random variable (\ref{eq:var_posterior}). The mean value is given by
+Next, we would like to find the moments of $\gT_g^z \vz$, knowing that $\vz$ is a Gaussian random variable (Eq.~\ref{eq:var_posterior}). The mean value is given by
 \begin{equation}
     \E \gT_g^z \vz = \E \gT_g^z[\mu + \mL\varepsilon] =  \gT_g^z[\mu].
 \end{equation}
@@ -79,7 +79,7 @@ This property can be satisfied when using an equivariant neural network to model
     L_{\phi}(\gT_g^x \vx)L_{\phi}^T(\gT_g^x \vx) = \mathcal{T}_g^z[L_{\phi}(\vx)] \left(\gT_g^z[L_{\phi}(\vx)]\right)^T.
 \end{equation}
 
-The main restriction that results from the (\ref{eq:eq_encoder_var_final}) is that the diagonal covariance matrix can violate the desired equivariance property. As mentioned earlier, one usually chooses $L_{\phi}(\vx) = \diag \sigma(\vx)$. In this case $L_{\phi}(\gT_g^x \vx)$ will always be diagonal. However, $\mathcal{T}_g^z[L_{\phi}(\vx)]$ is not necessarily staying diagonal. Therefore, we have to use a non-diagonal covariance matrix. We still need to be able to sample $\vz$, compute log-determinant on the forward pass and ensure that the matrix is positive definite. To this end, we propose to use a full-rank covariance matrix in our model:
+The main restriction that results from the Eq.~\ref{eq:eq_encoder_var_final} is that the diagonal covariance matrix can violate the desired equivariance property. As mentioned earlier, one usually chooses $L_{\phi}(\vx) = \diag \sigma(\vx)$. In this case $L_{\phi}(\gT_g^x \vx)$ will always be diagonal. However, $\mathcal{T}_g^z[L_{\phi}(\vx)]$ is not necessarily staying diagonal. Therefore, we have to use a non-diagonal covariance matrix. We still need to be able to sample $\vz$, compute log-determinant on the forward pass and ensure that the matrix is positive definite. To this end, we propose to use a full-rank covariance matrix in our model:
 \begin{equation}
     \Sigma = V_{\phi}(\vx)V_{\phi}(\vx)^T + \eta \mI,
 \end{equation}
@@ -89,7 +89,7 @@ where $V_{\phi}(\cdot)$ is an equivariant function, which outputs a full-rank ma
 \paragraph{Equivariant Decoder}
 For the decoder to be equivariant, we should ensure a similar property as we did for the encoder. We consider two distributions to model the conditional likelihood $p_{\theta}(\vx|\vz)$. For RGB images, we can use Gaussian distribution. The same assumptions about the mean function and covariance should be satisfied in this case. 
 
-For grey-scale images, Bernoulli distribution is used: $p_{\theta}(\vx|\vz) = \mathcal{B}e(\vx | f_{\theta}(\vz))$. In this case, it is straightforward to respect the property (\ref{eq:eq_decoder}): 
+For gray-scale images, Bernoulli distribution is used: $p_{\theta}(\vx|\vz) = \mathcal{B}e(\vx | f_{\theta}(\vz))$. In this case, it is straightforward to respect the property (Eq.~\ref{eq:eq_decoder}): 
 \begin{equation}
 f_{\theta}(\gT_g^z \vz)  = \mathcal{T}_g^x[f_{\theta}(\vz)],
 \end{equation}
@@ -100,6 +100,7 @@ which means that we should just ensure that $f_{\theta}$ is an equivariant funct
 	\caption{Forward pass through equivariant VAE}
 	\label{alg:vae_forward}
 	\begin{algorithmic}
+        \\\hrulefill
 	    \State \hskip-3mm \textbf{Input}: $x$
 	    \State $\mu = \mu_{\phi}(\vx)$  \Comment{Forward pass through the encoder}
 	    \State $\mV = V_{\phi}(\vx)$
@@ -126,7 +127,7 @@ where the sensing matrix $\mA$ is known and $g$ stands for the unknown rotation 
 Our goal is to reconstruct the rotated signal $\gT_g^x \vx$. The way to address this problem depends on the type of prior generative model that we are using. Below we consider three different scenarios. 
 
 \paragraph{Standard Prior}
-Firstly, we may have a prior generative model, which is uninformed of the rotation. That is, it was trained on the signals in the non-rotated (canonical) orientation and it is only able to generate such. However, it is still possible to reformulate the optimization problem (\ref{eq:cs_mle}), so that we are able to reconstruct the rotated signal:
+Firstly, we may have a prior generative model, which is uninformed of the rotation. That is, it was trained on the signals in the non-rotated (canonical) orientation and it is only able to generate such. However, it is still possible to reformulate the optimization problem (Eq.~\ref{eq:cs_mle}), so that we are able to reconstruct the rotated signal:
 
 \begin{align}
     \vz^*, g^* &= \arg\min_{\vz, g} \|\vy - \mA \gT_{g}^x G(\vz)\|_2^2, \\
@@ -155,7 +156,7 @@ Finally, we may train a prior with a latent code for all the rotated images. For
 The straightforward advantage of this approach is that we have the same objective as a conventional generative compressed sensing and there is no need to optimize with respect to the rotation angle. Furthermore, in case of equivariant prior, we do not need any additional (augmented) data while training the generative model.
 
 \subsection{Recovery guarantees for equivariant priors}
-With some conditions on the sensing matrix, generative  compressed sensing has recovery guarantees in classical setup. The main idea is presented in \cite{Bora2017-as} with follow-up works on more general sensing setups \cite{liu_generalized_2020, liu_sample_2020}. We can provide the same recovery guarantees for equivariant priors. Before stating the result, we introduce some notations. A generative model $G(\cdot)$ is defined as a mapping from $k$-dimensional ball of radius $r$ in $\R^k$ to $\R^n$. We assume that the action of rotation in $\R^n$ is given by a unitary representation ${\gT_g^x}$.
+With some conditions on the sensing matrix, generative  compressed sensing has recovery guarantees in classical setup. The main idea is presented in \citet{Bora2017-as} with follow-up works on more general sensing setups \cite{liu_generalized_2020, liu_sample_2020}. We can provide the same recovery guarantees for equivariant priors. Before stating the result, we introduce some notations. A generative model $G(\cdot)$ is defined as a mapping from $k$-dimensional ball of radius $r$ in $\R^k$ to $\R^n$. We assume that the action of rotation in $\R^n$ is given by a unitary representation ${\gT_g^x}$.
 
 \begin{theorem}
 Consider an equivariant generative model $G: B_k(r)\to\R^n$, which is assumed to be an $L$-Lipschitz function. 

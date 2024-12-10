@@ -6,12 +6,14 @@
 
 
 \paragraph{Model formulation}
-We follow the formulation of the Diffusion-based Deep Generative Models (DDGMs) as presented in \cite{ho2020denoising,sohl2015deep}. DDGMs could be seen as infinitely deep hierarchical VAEs with a specific family of variational posteriors \cite{huang2021variational, kingma2021variational, tomczak2022deep, tzen2019neural}, namely, Gaussian diffusion processes \cite{sohl2015deep}. Given a data point $\rvx_0$ and latent variables $\rvx_{t}, \ldots, \rvx_{T}$, we want to optimize the marginal likelihood $p_{\theta}(\rvx_0) = \int p_{\theta}(\rvx_0, \ldots, \rvx_{T}) \mathrm{d} \rvx_1, \ldots, \rvx_{T}$. We define the \textit{backward} (or \textit{reverse}) \textit{process} as a Markov chain with Gaussian transitions starting with $p(\rvx_T) = \mathcal{N}(\rvx_{T}; \boldsymbol{0}, \mathbf{I})$, that is:
+We follow the formulation of the Diffusion-based Deep Generative Models (DDGMs) as presented in \citet{ho2020denoising,sohl2015deep}. DDGMs could be seen as infinitely deep hierarchical VAEs with a specific family of variational posteriors \cite{huang2021variational, kingma2021variational, tomczak2022deep, tzen2019neural}, namely, Gaussian diffusion processes \cite{sohl2015deep}. Given a data point $\rvx_0$ and latent variables $\rvx_{t}, \ldots, \rvx_{T}$, we want to optimize the marginal likelihood $p_{\theta}(\rvx_0) = \int p_{\theta}(\rvx_0, \ldots, \rvx_{T}) \mathrm{d} \rvx_1, \ldots, \rvx_{T}$. We define the \textit{backward} (or \textit{reverse}) \textit{process} as a Markov chain with Gaussian transitions starting with $p(\rvx_T) = \mathcal{N}(\rvx_{T}; \boldsymbol{0}, \mathbf{I})$, that is:
 \begin{equation} \label{eq:backward_diffusion}
     p_{\theta}(\rvx_0, \ldots, \rvx_{T}) = p(\rvx_T)\ \prod_{t=0}^{T} p_{\theta}(\rvx_{t-1} | \rvx_{t}),
 \end{equation}
 where $p_{\theta}(\rvx_{t-1} | \rvx_{t}) = \mathcal{N}(\rvx_{t-1}; \mu_{\theta}(\rvx_{t}, t), \Sigma_{\theta}(\rvx_{t}, t))$.
-Additionally, we define the \textit{forward diffusion process} as a Markov chain that gradually adds Gaussian noise to the data according to a variance schedule $\beta_1,...,\beta_T$, namely, $q(\rvx_1, \ldots , \rvx_{T} | \rvx_{0}) = \prod_{t=1}^{T} q(\rvx_t | \rvx_{t-1})$, where $q(\rvx_t|\rvx_{t-1}) = \mathcal{N}(\rvx_t; \sqrt{1 - \beta_t} \rvx_{t-1}, \beta_t \mathbf{I})$. 
+Additionally, we define the \textit{forward diffusion process} as a Markov chain that gradually adds Gaussian noise to the data according to a variance schedule $\beta_1,...,\beta_T$, namely:
+$$q(\rvx_1, \ldots , \rvx_{T} | \rvx_{0}) = \prod_{t=1}^{T} q(\rvx_t | \rvx_{t-1}),$$ 
+where $q(\rvx_t|\rvx_{t-1}) = \mathcal{N}(\rvx_t; \sqrt{1 - \beta_t} \rvx_{t-1}, \beta_t \mathbf{I})$. 
 Let us further define $\alpha_t = 1 - \beta_t$ and $\overline{\alpha}_t = \prod_{i=0}^{t} \alpha_{i}$. Since the conditionals in the forward diffusion can be seen as Gaussian linear models, we can analytically calculate the following distributions: 
 \begin{equation}\label{eq:forward_diffusion_latent_from_data}
     q(\rvx_t|\rvx_0) = \mathcal{N}(\rvx_t; \sqrt{\overline{\alpha}_t} \rvx_0, (1 - \overline{\alpha}_t) \mathbf{I}),
@@ -21,7 +23,7 @@ and
 q(\rvx_{t-1}|\rvx_{t}, \rvx_0) = \mathcal{N}(\rvx_{t-1}; \Tilde{\mu}(\rvx_t, \rvx_0), \Tilde{\beta}_t \mathbf{I}) ,
 \end{equation}
 where $\Tilde{\mu}(\rvx_t, \rvx_0) = \frac{\sqrt{\overline{\alpha}_{t-1}} \beta_{t}}{1-\overline{\alpha}_{t}} \rvx_0 + \frac{\sqrt{\alpha_{t}}\left(1-\overline{\alpha}_{t-1}\right)}{1-\overline{\alpha}_{t}} \rvx_{t}$, 
-and $\Tilde{\beta}_{t}=\frac{1-\overline{\alpha}_{t-1}}{1-\overline{\alpha}_{t}} \beta_{t}$. We can use (\ref{eq:forward_diffusion_latent_from_data}) and (\ref{eq:forward_diffusion_previous_latent}) to define the variational lower bound as follows:
+and $\Tilde{\beta}_{t}=\frac{1-\overline{\alpha}_{t-1}}{1-\overline{\alpha}_{t}} \beta_{t}$. We can use Eq.~\ref{eq:forward_diffusion_latent_from_data} and Eq.~\ref{eq:forward_diffusion_previous_latent} to define the variational lower bound as follows:
 \begin{align} \label{eq:diff_elbo}
     \ln p_{\theta}(\rvx_0) \geq L_{vlb}(\theta) := &\underbrace{\E_{q(\rvx_1|\rvx_0)}[\ln p_{\theta}(\rvx_0|\rvx_1)]}_{-L_0} - \underbrace{\KL{q(\rvx_T |\rvx_0)}{p(\rvx_T)}}_{L_T} \notag \\
     & - \sum_{t=2}^T \underbrace{\E_{q(\rvx_t|\rvx_0)} \KL{q(\rvx_{t-1}|\rvx_t, \rvx_0)}{p_{\theta}(\rvx_{t-1}|\rvx_t)}}_{L_{t-1}}.
@@ -29,7 +31,7 @@ and $\Tilde{\beta}_{t}=\frac{1-\overline{\alpha}_{t-1}}{1-\overline{\alpha}_{t}}
 that we further optimize with respect to the parameters of the backward diffusion.
 
 \paragraph{The conditional likelihood} 
-In this paper, we focus on images, thus, data is represented by integers from $0$ to $255$. Following \cite{ho2020denoising}, we scale them linearly to $[-1, 1]$. As a result, to obtain discrete log-likelihoods, we consider the discretized (binned) Gaussian conditional likelihood \cite{ho2020denoising}:
+In this paper, we focus on images, thus, data is represented by integers from $0$ to $255$. Following \citet{ho2020denoising}, we scale them linearly to $[-1, 1]$. As a result, to obtain discrete log-likelihoods, we consider the discretized (binned) Gaussian conditional likelihood \cite{ho2020denoising}:
 \begin{equation}\label{eq:discretized_Gaussian}
     p_{\theta}\left(\rvx_{0} | \rvx_{1}\right)=\prod_{i=1}^{D} \int_{\delta_{-}\left(x_{0}^{i}\right)}^{\delta_{+}\left(x_{0}^{i}\right)} \mathcal{N}\left(x ; \mu_{\theta}^{i}\left(\mathbf{x}_{1}, 1\right), \sigma_{1}^{2}\right) \mathrm{d} x, 
 \end{equation}
@@ -42,18 +44,18 @@ x+\frac{1}{255} & \text { if } x<1
 x-\frac{1}{255} & \text { if } x>-1\end{cases}\right. .
 \end{equation}
 
-\paragraph{Noise scheduling} Originally, \cite{ho2020denoising} propose to linearly scale the noise parameters $\beta_t$ (\textit{linear scheduling}), e.g., scaling linearly from $\beta_1 = 10^{-4}$ to $\beta_{T} = 0.02$. In   \cite{nichol2021improved}, authors suggest to increase the number of less noisy steps through \textit{cosine scheduling}: % (\textit{cosine scheduling}, 
+\paragraph{Noise scheduling} Originally, \citet{ho2020denoising} propose to linearly scale the noise parameters $\beta_t$ (\textit{linear scheduling}), e.g., scaling linearly from $\beta_1 = 10^{-4}$ to $\beta_{T} = 0.02$. In   \citet{nichol2021improved}, authors suggest to increase the number of less noisy steps through \textit{cosine scheduling}: % (\textit{cosine scheduling}, 
 $\bar{\alpha}_{t}=\frac{f(t)}{f(0)}$, $f(t)=\cos \left(\frac{t / T+c}{1+c} \cdot \frac{\pi}{2}\right)^{2}, c > 0$
 with clipping the values of $\beta_t$ to $0.999$ to prevent potential instabilities at the end of the diffusion.
 
-\paragraph{Training details} In \cite{ho2020denoising}, authors notice that a single part of the variational lower bound is equal to:
+\paragraph{Training details} In \citet{ho2020denoising}, authors notice that a single part of the variational lower bound is equal to:
 \begin{equation}\label{eq:l_t}
     L_{t}(\theta) = \mathbb{E}_{\rvx_{0}, \boldsymbol{\epsilon}}\left[\frac{\beta_{t}^{2}}{2 \sigma_{t}^{2} \alpha_{t}\left(1-\overline{\alpha}_{t}\right)}\left\|\boldsymbol{\epsilon}-\boldsymbol{\epsilon}_{\theta}\left(\sqrt{\overline{\alpha}_{t}} \rvx_{0}+\sqrt{1-\overline{\alpha}_{t}} \boldsymbol{\epsilon}, t\right)\right\|^{2}\right] ,
 \end{equation}
 where $\boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \mathbf{I})$ and $\boldsymbol{\epsilon}_\theta$ is a neural network predicting the noise $\boldsymbol{\epsilon}$ from $\rvx_t$.
-Since we use (\ref{eq:forward_diffusion_previous_latent}) in the variational lower bound objective (\ref{eq:diff_elbo}), and $\rvx_t$ could be sampled from the forward diffusion for a given data, see (\ref{eq:forward_diffusion_latent_from_data}), we can optimize one layer at a time. In other words, we can randomly pick a specific component of the objective, $L_t$, and update the parameters by optimizing $L_t$ without running the whole forward process from $\rvx_0$ to $\rvx_T$. As a result, the training becomes very efficient and learning very deep models (with hundreds or even thousands of steps) is possible.
+Since we use Eq.~\ref{eq:forward_diffusion_previous_latent} in the variational lower bound objective (Eq.~\ref{eq:diff_elbo}), and $\rvx_t$ could be sampled from the forward diffusion for a given data, (see Eq.~\ref{eq:forward_diffusion_latent_from_data}), we can optimize one layer at a time. In other words, we can randomly pick a specific component of the objective, $L_t$, and update the parameters by optimizing $L_t$ without running the whole forward process from $\rvx_0$ to $\rvx_T$. As a result, the training becomes very efficient and learning very deep models (with hundreds or even thousands of steps) is possible.
 
-In \cite{ho2020denoising}, it is also proposed to train a simplified objective that is a version of (\ref{eq:l_t}) without scaling, namely:
+In \citet{ho2020denoising}, it is also proposed to train a simplified objective that is a version of Eq.~\ref{eq:l_t} without scaling, namely:
 \begin{equation}\label{eq:l_t_simple}
     L_{t,\text {simple}}(\theta) = \mathbb{E}_{\mathbf{x}_{0}, \boldsymbol{\epsilon}}\left[\left\|\boldsymbol{\epsilon}-\boldsymbol{\epsilon}_{\theta}\left(\sqrt{\overline{\alpha}_{t}} \mathbf{x}_{0}+\sqrt{1-\overline{\alpha}_{t}} \boldsymbol{\epsilon}, t\right)\right\|^{2}\right] ,
 \end{equation}

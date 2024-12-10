@@ -49,16 +49,18 @@ Our main contributions are the following:
 \begin{itemize}
     \item We relate the approximation of optimal prior, the aggregated posterior and the continual learning task for VAE model. We find an optimal additive perturbation to approximate an optimal prior distribution. We derive the algorithm of effective approximation of the optimal prior for the continual learning framework.
     \item We use this result and present \textit{Boosting Approach for Continual Learning of VAE} (BooVAE), a framework for training VAE models in the continual framework with static architecture.
-    \item We empirically validate the proposed algorithm on commonly used benchmarks (MNIST, Fashion-MNIST, NotMNIST) and CelebA for disjoint sequential image generation tasks. The proposed generative model could be efficiently used in a generative replay for discriminative models. We train both generative and discriminative models incrementally, avoiding retraining the generative model for each task from scratch or storing several generative models. We provide the code at \url{https://github.com/AKuzina/BooVAE}.
+    \item We empirically validate our algorithm on commonly used benchmarks (MNIST, Fashion-MNIST, NotMNIST) and CelebA for disjoint sequential image generation tasks. 
+    The proposed generative model could be efficiently used in a generative replay for discriminative models. 
+    We train both generative and discriminative models incrementally, avoiding retraining the generative model for each task from scratch or storing several generative models. 
+    We provide the code at \url{https://github.com/AKuzina/BooVAE}.
 \end{itemize}
 \section{Background}
 \label{background}
-\paragraph{Variational Autoencoders (VAEs)} Let $p_{\theta}(\rvx, \rvz)$ be the joint distribution of observed variable $\rvx\in\mathbb{R}^{D}$ and hidden latent variable $\rvz$, with the distribution $\pi(\rvz)$. Given the distribution $\rvx\sim p_{e}(\rvx)$, we aim to find $\theta$ which maximizes the marginal log-likelihood $ \E_{p_{e}(\rvx)}\left [\log \int p_{\theta}(\rvx, \rvz)d\rvz\right]$. Since the marginal likelihood is often intractable, we solve this optimization problem by variational inference \citep{jordan1999introduction}. Variational autoencoders (VAE) \citep{kingma2014autoencoding} amortize inference with $q_{\phi}(\rvz|\rvx)$ as variational posterior (encoder) and $p_{\theta}(\rvx|\rvz)$ as a likelihood (decoder). The encoder and decoder are parameterized by neural networks with parameters $\phi, \theta$. Nets are optimized simultaneously via maximization of the evidence lower bound (ELBO) objective:
+\paragraph{Variational Autoencoders (VAEs)} Let $p_{\theta}(\rvx, \rvz)$ be the joint distribution of observed variable $\rvx\in\mathbb{R}^{D}$ and hidden latent variable $\rvz$, with the distribution $\pi(\rvz)$. Given the distribution $\rvx\sim p_{e}(\rvx)$, we aim to find $\theta$ which maximizes the marginal log-likelihood $ \E_{p_{e}(\rvx)}\left [\log \int p_{\theta}(\rvx, \rvz)d\rvz\right]$. Since the marginal likelihood is often intractable, we solve this optimization problem by variational inference \citep{jordan1999introduction}. Variational autoencoders (VAE) \citep{kingma2014autoencoding, rezende2014stochastic} amortize inference with $q_{\phi}(\rvz|\rvx)$ as variational posterior (encoder) and $p_{\theta}(\rvx|\rvz)$ as a likelihood (decoder). The encoder and decoder are parameterized by neural networks with parameters $\phi, \theta$. Nets are optimized simultaneously via maximization of the evidence lower bound (ELBO) objective:
 \begin{equation}
 \label{eq:elbo}
 \begin{aligned}
-    \mathcal{L}(\theta, \phi, \lambda) & \triangleq  \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\left(\log p_{\theta}(\rvx|\rvz)\pi(\rvz) - \log q_{\phi}(\rvz|\rvx)\right) 
-    \leq  \\
+    \mathcal{L}(\theta, \phi, \lambda) & \triangleq  \E_{\substack{p_{e}(\rvx)\\q_{\phi}(\rvz|\rvx)}}\left(\log p_{\theta}(\rvx|\rvz)\pi(\rvz) - \log q_{\phi}(\rvz|\rvx)\right)   \\
     & \leq  \E_{p_{e}(\rvx)}\left [\log \int p_{\theta}(\rvx, \rvz)d\rvz\right].
 \end{aligned}
 \end{equation}
@@ -75,12 +77,12 @@ The additive structure of the optimal prior $\pi^{*}(\rvz)$ over the dataset poi
 \label{sec:boovae}
 We start from defining an optimal prior for the VAE model in the continual learning framework. Next, we find the optimal additive expansion of the current prior to match the innovation coming from the new task. We use obtained result and provide a general algorithm for training the VAE model in the continual learning framework. It works as an iterative Minorization-Maximization algorithm. In the minorization step, we expand the current approximation of the prior and learn pseudo-inputs. At the Maximization step, we update parameters of the encoder and the decoder with the prior being fixed.
 \subsection{Optimal prior in continual learning} \label{sec:opt_prior}
-In this section, we derive an optimal prior for the VAE model in the continual framework and provide the algorithm to it approximation. We provide skipped technical details in Appx.~\ref{app:MEPVI}. We start from the following decomposition of the ELBO (Eq.~\ref{eq:elbo}):
+In this section, we derive an optimal prior for the VAE model in the continual framework and provide the algorithm to it approximation. We provide skipped technical details in Appendix~\ref{app:MEPVI}. We start from the following decomposition of the ELBO (Eq.~\ref{eq:elbo}):
 \begin{equation}
 \label{eq:decomp}
 \begin{aligned}
-  \mathcal{L}(\theta, \phi, \pi) = \E_{p_{e}(\rvx)}\Big[&\E_{q_{\phi}(\rvz|\rvx)}\log p_{\theta}(\rvx|\rvz) - \\
-  - &(\KL{q_{\phi}(\rvz|\rvx)}{\hat{q}(\rvz)}+ \KL{\hat{q}(\rvz)}{\pi(\rvz)})\Big],
+  \mathcal{L}(\theta, \phi, \pi) = \E_{p_{e}(\rvx)}\Big[&\E_{q_{\phi}(\rvz|\rvx)}\log p_{\theta}(\rvx|\rvz) \\
+  &- \left(\KL{q_{\phi}(\rvz|\rvx)}{\hat{q}(\rvz)}+ \KL{\hat{q}(\rvz)}{\pi(\rvz)}\right)\Big],
 \end{aligned}
 \end{equation}
 where $\hat{q}(\rvz)=\E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$ is the aggregated variational posterior. As KL-divergence is non-negative, the global maximum of Eq.~\ref{eq:decomp} over $\pi$ is reached when:
@@ -96,8 +98,8 @@ Then we can decompose the ELBO (Eq.~\ref{eq:elbo}) as following:
 \label{eq:big_decimpose}
 \begin{aligned}
  \mathcal{L}(\theta, \phi, \pi) = & \E_{\substack{p_{e}(\rvx)\\
-q_{\phi}(\rvz|\rvx)}}\log p_{\theta}(\rvx|\rvz) - \\
-- &\sum\limits_{i=1,2}\alpha_i( \E_{p^i_{e}(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{\hat{q}_{i}(\rvz)}+ \KL{\hat{q}_{i}(\rvz)}{\pi(\rvz)}), 
+q_{\phi}(\rvz|\rvx)}}\log p_{\theta}(\rvx|\rvz) \\
+&- \sum\limits_{i=1,2}\alpha_i\left( \E_{p^i_{e}(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{\hat{q}_{i}(\rvz)}+ \KL{\hat{q}_{i}(\rvz)}{\pi(\rvz)}\right), 
 \end{aligned}
 \end{equation}
 where $\alpha_1=\alpha, \alpha_2=1-\alpha$ and $\hat{q}_{i}(\rvz)=\E_{p^{i}_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. 
@@ -110,7 +112,7 @@ Hence, if we can store the data for both tasks we can use the same optimal prior
 \begin{equation}
 \label{eq:second_kl_opt}
 \begin{aligned}
-\pi^{1,2}(\rvz) &= \alpha \hat{q}_{1}^{a}(\rvz) + (1-\alpha) \hat{q}_{2}(\rvz) = \\
+\pi^{1,2}(\rvz) &= \alpha \hat{q}_{1}^{a}(\rvz) + (1-\alpha) \hat{q}_{2}(\rvz) \\
 &= \arg\min\limits_{\pi(\rvz)\in\mathcal{P}}\alpha~\KL{\hat{q}_{a}(\rvz)}{\pi(\rvz)}  + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}.
 \end{aligned}
 \end{equation}
@@ -118,35 +120,36 @@ Next, we consider that the optimal prior for the first task $\pi^{1}(\rvz)$ is a
 \begin{equation}
 \label{eq:third_kl_opt}
 \begin{aligned}
-\min\limits_{h\in\mathcal{P}} &\alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} + \\
-+ &(1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}).
+\min\limits_{h\in\mathcal{P}}  \alpha~&\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} \\
+ & + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}.
 \end{aligned}
 \end{equation}
 The optimization problem (Eq.~\ref{eq:third_kl_opt}) is bi-convex over $h$ and $\beta$. We consider the Functional Frank-Wolfe algorithm (informally, "boosting") \citep{wang2015functional} for the corresponded objective:
 \begin{equation}
 \label{eq:objective}
     \begin{aligned}
-    \mathcal{F}_{\alpha, \beta}[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz),h(\rvz)] = \alpha&~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)} + \\
-    + (1-\alpha)&~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}).
+    \mathcal{F}_{\alpha, \beta}&[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz),h(\rvz)] \\
+    & = \alpha~\KL{\hat{q}_{1}^{a}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}  \\
+    & \quad + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{(1-\beta)\pi^{1}(\rvz)+\beta h(\rvz)}.
     \end{aligned}
 \end{equation}
 We aim to find $h$ as the projection of the functional gradient to the probability density space $\mathcal{P}$ and then optimize over $\beta$ with the stochastic gradient method, while $h$ fixed. The functional gradient of the objective (Eq.~\ref{eq:third_kl_opt}) with respect to perturbation $h$ is $\color{ForestGreen}{\alpha\frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}}$ in the following sense:
 \begin{equation}
     \begin{aligned}
-    & \mathcal{F}_{\alpha, \beta}[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz),h(\rvz)] = \\ 
-    = & \mathcal{F}_{\alpha}[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz)] - \\
-    - &\beta\left(\int d\rvz~h(\rvz){\color{ForestGreen}{\left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]}} - 1\right) + o(\beta).
+     \mathcal{F}_{\alpha, \beta}&[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz),h(\rvz)]  \\ 
+    & =  \mathcal{F}_{\alpha}[\hat{q}_{1}^{a}(\rvz),\hat{q}_{2}(\rvz);\pi^{1}(\rvz)]  \\
+    & \quad - \beta\left(\int d\rvz~h(\rvz){\color{ForestGreen}{\left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]}} - 1\right) + o(\beta).
     \end{aligned}
 \end{equation}
 We consider projection to the probability space as the solution of the optimization problem:
 \begin{equation}
 \label{eq:projection}
 \begin{aligned}
- \max\limits_{h\in\mathcal{P}}\log & \int h(\rvz) \left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]d\rvz \geq \\
+ \max\limits_{h\in\mathcal{P}}\log & \int h(\rvz) \left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}\right]d\rvz  \\
  \geq \max\limits_{h\in\mathcal{P}}& \int h(\rvz)\log \left[\alpha \frac{\hat{q}_{1}^{a}(\rvz)}{\pi^{1}(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)} \right]d\rvz.
 \end{aligned}
 \end{equation}
-We use the lower bound in the (Eq.~\ref{eq:projection}) in order to use Monte-Carlo estimates of the gradients. The problem is linear over $h(\rvz)$ and the solution is a degenerate distribution. To this end, we add the entropy regularization $H[h]=-\int h(\rvz) \log h(\rvz) ~d\rvz$ and obtain the final objective:
+We use the lower bound in the Eq.~\ref{eq:projection} in order to use Monte-Carlo estimates of the gradients. The problem is linear over $h(\rvz)$ and the solution is a degenerate distribution. To this end, we add the entropy regularization $H[h]=-\int h(\rvz) \log h(\rvz) ~d\rvz$ and obtain the final objective:
 \begin{equation}
 \label{eq:final_opt}
 \begin{aligned}
@@ -158,8 +161,8 @@ As far as we update the initial prior $r^{0}(\rvz)=\pi^{1}(\rvz)$ with the mixtu
 \begin{equation}
 \label{eq:diff_encourage}
 \begin{aligned}
- &\KL{h}{\frac{\alpha\hat{q}_{1}^{a}(\rvz) + (1-\alpha)\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}} = \\
-= &\underbrace{\KL{h}{\alpha\hat{q}_{1}^{a}(\rvz) + (1-\alpha)\hat{q}_{2}(\rvz)}}_{\text{match the target prior}} 
+ &\KL{h}{\frac{\alpha\hat{q}_{1}^{a}(\rvz) + (1-\alpha)\hat{q}_{2}(\rvz)}{\pi^{1}(\rvz)}}  \\
+&\quad = \underbrace{\KL{h}{\alpha\hat{q}_{1}^{a}(\rvz) + (1-\alpha)\hat{q}_{2}(\rvz)}}_{\text{match the target prior}} 
 -  \underbrace{\int h(\rvz)\log\frac{1}{\pi^{1}(\rvz)} d\rvz}_{\substack{\text{be different} \\ \text{from the current approximation}}}.
 \end{aligned}
 \end{equation}
@@ -167,12 +170,14 @@ To this end, we have defined the algorithm of learning optimal prior for VAE in 
 \subsection{BooVAE Algorithm}
 \begin{figure}[t]
 	\centering
-		\includegraphics[width=1.05\textwidth]{pics/1_boovae/kek.png}
+		\includegraphics[width=1.0\textwidth]{pics/1_boovae/kek.png}
 	\caption{We propose to expand prior distribution in order to match new information from the coming task. We parametrize each component in the prior distribution with encoder, evaluated on the trainable pseudo-inputs. These pseudoinputs store information about the data in the corresponding task.}\label{fig:sheme_inc}
 \end{figure}
 
-In this section, we formulate the algorithm for continual learning -- BooVAE (short for Boosting VAE).  It works as the iterative Minorization-Maximization algorithm. In the \textit{minorization step}, we use the obtained optimization problem (Eq.~\ref{eq:final_opt}) to learn a new component of the prior.
-These steps are alternated with \textit{ELBO maximization steps} until the desired number of components in prior is reached. From that point further on, only model parameters are updated until convergence. As at maximization step follows the usual routine used in training VAEs, our approach can be easily used on top of any VAE model. The derivations of applications of BooVAE to the VAE with flow-based prior presented at Appx.~\ref{app:flowvae}. These steps are summarized in Alg.~\ref{alg:boo} and idea of prior learning for continual setting is illustrated in Fig.~\ref{fig:sheme_inc}. Now, we are going to consider them in more details.
+In this section, we formulate the algorithm for continual learning -- BooVAE (short for Boosting VAE).  
+It works as the iterative Minorization-Maximization algorithm. 
+In the \textit{minorization step}, we use the obtained optimization problem (Eq.~\ref{eq:final_opt}) to learn a new component of the prior.
+These steps are alternated with \textit{ELBO maximization steps} until the desired number of components in prior is reached. From that point further on, only model parameters are updated until convergence. As at maximization step follows the usual routine used in training VAEs, our approach can be easily used on top of any VAE model. The derivations of applications of BooVAE to the VAE with flow-based prior presented in Appendix~\ref{app:flowvae}. These steps are summarized in Algorithm~\ref{alg:boo} and idea of prior learning for continual setting is illustrated in Figure~\ref{fig:sheme_inc}. Now, we are going to consider them in more details.
 % \begin{wrapfigure}{R}{0.56\textwidth}
 % \vskip -0.2in
 % \begin{minipage}[b]{0.56\textwidth}
@@ -217,10 +222,10 @@ As it was already mentioned, we define the optimal prior to be equal to the aggr
 Since we do not have access to the data from previous tasks, we suggest using trained prior $r^{t-1}$ as a proxy for the corresponding part of the mixture. We use a random subset from the current task $\mathcal{M}^t \subset \train^t$ containing $N_{t}$ observations to estimate the aggregated posterior for the current task.
 \begin{equation}
 \begin{aligned}
-& \pi^{\leq t} \approx  \frac{|\train^{\leq t-1}|}{|\train^{\leq t}|} r^{t-1}(\rvz|\{\rvu\}^{\leq t-1}) + \frac{|\train^{t}|}{|\train^{\leq t}|} \frac{1}{N_{t}}\sum_{\rvx \in  \mathcal{M}^t} q_{\phi}(\rvz|\rvx).
+& \pi^{\leq t}(\rvz) \approx  \frac{|\train^{\leq t-1}|}{|\train^{\leq t}|} r^{t-1}(\rvz|\{\rvu\}^{\leq t-1}) + \frac{|\train^{t}|}{|\train^{\leq t}|} \frac{1}{N_{t}}\sum_{\rvx \in  \mathcal{M}^t} q_{\phi}(\rvz|\rvx).
 \end{aligned}
 \end{equation}
-This formulation allows an algorithm not to forget information from the previous task, which is stored in the prior distribution and pseudo-inputs $\{\rvu\}^{\leq t-1}$. The prior distribution performs regularization for the VAE model. As the budget of components learning per task is reached, we perform component pruning by weight optimization, see Appx.~\ref{app:stepback}.
+This formulation allows an algorithm not to forget information from the previous task, which is stored in the prior distribution and pseudo-inputs $\{\rvu\}^{\leq t-1}$. The prior distribution performs regularization for the VAE model. As the budget of components learning per task is reached, we perform component pruning by weight optimization, see Appendix~\ref{app:stepback}.
 \paragraph{ELBO Maximization Step.} At this step parameters of the encoder and decoder $\theta,\phi$ are updated. We add a regularization term to ensure that the model remembers the information which is stored in the pseudo-inputs. Given the fixed mean parameters of the previous task $r^{t-1}$, we keep their components during training the task $t$ as well as distribution of their fixed decoded mean parameters $p^{t-1}(\cdot)$:
 \begin{align}\label{eq:reqularizers}
    & R_{enc}(\phi)=\sum_{\rvu\in r^{t-1}}\KLsym{q_{\phi}(\rvz|\rvu)}{r^{t-1}(\rvz|\rvu)}, \\ 
@@ -237,17 +242,21 @@ The final objective for the maximization step over $\phi, \theta$ for the task $
 \paragraph{Boosting density approximation.}
 The approximation of the unnormalized distribution with the sequential mixture models has been considered previously in several studies. Several works \citep{miller2017variational,gershman2012nonparametric} perform direct optimization of ELBO with respect to the parameters of the new component. Unfortunately, it leads to an unstable optimization problem. Therefore, other works consider the functional Frank-Wolfe framework, where subproblems are linearized \citep{wang2015functional}. At each step, the KL-divergence functional is linearized at the current approximation point by its convex perturbation, obtaining tractable optimization subproblems over the distribution space for each component. \citet{guo2016boosting} suggested using concave log-det regularization for Gaussian base learners. \citet{egorov2019maxentropy}, \citet{locatello2018boosting} used entropy-based regularization. In our work, we come up with a similar optimization algorithm. We optimize \textit{different objective for different propose}: the weighted sum of exclusive KL to approximate optimal prior for VAE, while the mentioned works approximate inclusive KL, in order to approximate posterior distribution. 
 \paragraph{Continual learning for VAE.}
-\citep{lesort2019generative} compare EwC, generative replay, and random coresets. We use a single pair of encoder and decoder for all the tasks unless otherwise stated. \cite{nguyen2017variational} propose to use multi-head VAE architecture, where a separate encoder is trained for each task, and an extra head is added to the decoder. We believe that even though this model was shown to produce good results, it has several crucial limitations. Firstly, it makes the scalability of the method very poor, since the number of parameters in the models increases dramatically with the number of tasks. Secondly, task labels must be known both during training and validation to use the suitable "head" for each data point. Finally, it limits the amount of information we can share between tasks, and thus may lead to worse performance for the tasks, which has fewer data available and have a lot of similarities with other tasks. We have observed the latter phenomenon on the CelebA dataset, where all the tasks are supposed to generate images with faces but with different hair colors. Recent work \citep{rao2019continual} uses a learnable mixture as the prior distribution. However, this reached by also expanding the architecture of encoder with multi-heads and using self-replay to overcome forgetting. \citet{achillelife} propose similar ideas of encoder expansion and use also self-replay. However, our goal is to provide orthogonal approach, which avoids self-replay and multi-heads, but can be combined with them.
+\citet{lesort2019generative} compare EwC, generative replay, and random coresets. We use a single pair of encoder and decoder for all the tasks unless otherwise stated. \citet{nguyen2017variational} propose to use multi-head VAE architecture, where a separate encoder is trained for each task, and an extra head is added to the decoder. We believe that even though this model was shown to produce good results, it has several crucial limitations. Firstly, it makes the scalability of the method very poor, since the number of parameters in the models increases dramatically with the number of tasks. Secondly, task labels must be known both during training and validation to use the suitable "head" for each data point. Finally, it limits the amount of information we can share between tasks, and thus may lead to worse performance for the tasks, which has fewer data available and have a lot of similarities with other tasks. We have observed the latter phenomenon on the CelebA dataset, where all the tasks are supposed to generate images with faces but with different hair colors. Recent work \citep{rao2019continual} uses a learnable mixture as the prior distribution. However, this reached by also expanding the architecture of encoder with multi-heads and using self-replay to overcome forgetting. \citet{achillelife} propose similar ideas of encoder expansion and use also self-replay. However, our goal is to provide orthogonal approach, which avoids self-replay and multi-heads, but can be combined with them.
 \section{Experiments}
 \label{exper}
 We empirically evaluated our algorithm for both disjoint image generation and classification tasks. In the latter case, we suggest using VAE learned in the continual setting for generative replay \citep{shin2017continual}. 
 
 \subsection{Disjoint image generation task}
-\paragraph{Setup} We consider an experimental setup, where each task contains objects of 1 class (e.g. one digit for MNIST dataset). The resulting generative model, trained on all the classes one-by-one is supposed to generate images from all the classes. We perform experiments on MNIST, notMNIST, fashion MNIST and CelebA datasets. Each of MNIST datasets has 10 classes with digits, characters, and pieces of clothing correspondingly. For the CelebA dataset we consider 4 tasks based on the attributes: black, blond, brown, and gray hair. For all the datasets, we use VAE \citep{kingma2014autoencoding} model with Gaussian posterior. A complete description of the experimental setup, architectures, and hyperparameters can be found in Appx. ~\ref{app:archicture}. 
+\paragraph{Setup} We consider an experimental setup, where each task contains objects of 1 class (e.g. one digit for MNIST dataset). The resulting generative model, trained on all the classes one-by-one is supposed to generate images from all the classes. We perform experiments on MNIST \citep{lecun1998mnist} , notMNIST, fashion MNIST \citep{xiao2017fashion}  and CelebA \citep{liu2015faceattributes} datasets. Each of the MNIST datasets has 10 classes with digits, characters, and pieces of clothing correspondingly. For the CelebA dataset we consider 4 tasks based on the attributes: black, blond, brown, and gray hair. For all the datasets, we use VAE \citep{kingma2014autoencoding} model with Gaussian posterior. A complete description of the experimental setup, architectures, and hyperparameters can be found in Appendix~\ref{app:archicture}. 
 
+\paragraph{Compared methods} As a baseline we consider standard VAE model. We expect it to suffer from catastrophic forgetting and use it as a lower bound on the model performance. We refer to this model as \textbf{Standard}.
+Our method has some similarities with the regularization-based continual learning algorithms, which add quadratic penalty on the weights. The difference is that we use prior, defined as a mixture of the encoded pseudo-inputs, to avoid catastrophic forgetting both for the encoder and the decoder (Eq.~\ref{eq:reqularizers}). In the experiments we compare with such regularization-based approaches as Elastic Weight Consolidation (\textbf{EWC}) \citep{kirkpatrick2017overcoming} and Variational Continual Learning (\textbf{VCL}) \citep{nguyen2017variational}. 
+Our approach uses pseudo-inputs to approximate an optimal prior distribution for each task. This procedure can also be seen as coreset selection \citep{huggins2016coresets, bachem2015coresets}. To validate the quality of the learned coresets, we perform the comparison with \textbf{random coresets}, which was also used in \citep{nguyen2017variational}. We store a random subsample of the training dataset from previous tasks and add them to each batch during training to avoid catastrophic forgetting. 
+Moreover, we can learn the prior distribution components in the latent space instead of the data space as we do with the pseudo-inputs. We have conducted experiments, where the prior is trained as a mixture of Gaussian's (with diagonal covariance) in the latent space. We refer to this approach as \textbf{MoG}. Just as we do in BooVAE, in MoG we learn a new mixture of components for each task and use the regularization from Eq.~\ref{eq:reqularizers} to avoid catastrophic forgetting. 
 % \begin{figure}[h]
 \begin{figure}[t]{}
-		     \vspace*{-\baselineskip}
+		     % \vspace*{-\baselineskip}
 	\centering
 		\includegraphics[width=1.1\textwidth]{pics/1_boovae/kl_mnists.pdf}
  \setfloatalignment{t} 
@@ -257,11 +266,11 @@ We empirically evaluated our algorithm for both disjoint image generation and cl
  
  \begin{figure}[t]
 	\centering
-	\vskip 0.5\baselineskip
+	\vskip \baselineskip
 		\includegraphics[width=1.1\textwidth]{pics/1_boovae/nll_mnists.pdf}
 		 \setfloatalignment{t} 
 	\caption[][1.\baselineskip]{\textbf{NLL} on the full test dataset averaged over 5 runs after continually training on 10 tasks. Lower is better. We observe that BooVAE performance is comparable or better than of other methods.}\label{fig:online:NLL} 
-	     \vspace*{-1.5\baselineskip}
+	     % \vspace*{-1.5\baselineskip}
 \end{figure}
 
 \begin{figure}[t]
@@ -272,25 +281,24 @@ We empirically evaluated our algorithm for both disjoint image generation and cl
 %	\vskip -3mm
 	\label{fig:MNISTSGEN}
 \end{figure}
-\paragraph{Compared methods} As a baseline we consider standard VAE model. We expect it to suffer from catastrophic forgetting and use it as a lower bound on the model performance. We refer to this model as \textbf{Standard}.
-Our method has some similarities with the regularization-based continual learning algorithms, which add quadratic penalty on the weights. The difference is that we use prior, defined as a mixture of the encoded pseudo-inputs, to avoid catastrophic forgetting both for the encoder and the decoder (Eq.~\ref{eq:reqularizers}). In the experiments we compare with such regularization-based approaches as Elastic Weight Consolidation (\textbf{EWC}) \citep{kirkpatrick2017overcoming} and Variational Continual Learning (\textbf{VCL}) \citep{nguyen2017variational}. 
-Our approach uses pseudo-inputs to approximate an optimal prior distribution for each task. This procedure can also be seen as coreset selection \citep{huggins2016coresets, bachem2015coresets}. To validate the quality of the learned coresets, we perform the comparison with \textbf{random coresets}, which was also used in \citep{nguyen2017variational}. We store a random subsample of the training dataset from previous tasks and add them to each batch during training to avoid catastrophic forgetting. 
-Moreover, we can learn the prior distribution components in the latent space instead of the data space as we do with the pseudo-inputs. We have conducted experiments, where the prior is trained as a mixture of Gaussian's (with diagonal covariance) in the latent space. We refer to this approach as \textbf{MoG}. Just as we do in BooVAE, in MoG we learn a new mixture of components for each task and use the regularization from Eq.~\ref{eq:reqularizers} to avoid catastrophic forgetting. 
 
 \begin{table}[t]
-\setfloatalignment{t} 
+% \setfloatalignment{t} 
+% \captionsetup{width=1.3\textwidth, margin={0pt, -.3\textwidth}}
 \caption[][1.1\baselineskip]{FID values for CelebA dataset averaged over 5 runs, the lower is the better. Each row corresponds to the FID for the cumulatively learned tasks of different hair types. BooVAE outperform other approaches, including multihead.}
+% \caption{FID values for CelebA dataset averaged over 5 runs, the lower is the better. Each row corresponds to the FID for the cumulatively learned tasks of different hair types. BooVAE outperform other approaches, including multihead.}
 \label{tab:celeba_fid}
 \begin{center}
-\resizebox{\textwidth}{!}{
+\resizebox{1.\textwidth}{!}{
 \begin{tabular}{l|ccccccc}
     \toprule
-    \#T & \small{EWC} &	\small{Multihead + EWC}	& \small{VCL} & \small{Multihead + VCL}	& \small{Random Coreset} \tiny{(40)}& \small{Random Coreset} \tiny{(80)}& \small{Boo} \tiny{(40 comp.)} \\ \midrule
+   \multirow{2}{*}{\#T} & \multirow{2}{*}{\small{EWC}} &	\small{Multihead}	& \multirow{2}{*}{\small{VCL}} & \small{Multihead }	& \small{Random }& \small{Random } & \small{Boo}  \\ 
+     &  &	\small{+ EWC}	& & \small{ + VCL}	& \small{ Coreset} \small{(40)}& \small{Coreset} \small{(80)}&  \small{(40 comp.)} \\ \midrule
     1 &35.8 \small{(0.8)} &37.7 \small{(1.1)}& 35.8 \small{(0.6)} & 37.93 \small{(1.0)} &36.4 \small{(1.3)}& 38.1 \small{(1.9)}&\textbf{27.5 \small{(0.6)}}       \\
     2 &61.4 \small{(1.7)} &69.2 \small{(1.3)}& 58.7 \small{(0.6)} & 65.54 \small{(0.2)}&59.6 \small{(0.4)}& 59.8 \small{(0.8)}&\textbf{45.7 \small{(2.4)}}             \\
     3 &40.7 \small{(0.6)} &45.2 \small{(0.8)}& 39.3 \small{(0.6)} & 42.18 \small{(0.4)}&39.7 \small{(0.8)}& 41.9 \small{(0.1)}&\textbf{33.4 \small{(1.4)}}             \\
     4 &50.7 \small{(0.6)} &75.7 \small{(0.8)}& 48.7 \small{(0.9)} & 75.16 \small{(2.0)}&48.1 \small{(1.1)}& 47.4 \small{(1.9)}&\textbf{43.1 \small{(0.2)}}             \\
-    \midrule
+    % \midrule
     \bottomrule 
 \end{tabular}
 }
@@ -304,9 +312,9 @@ Moreover, we can learn the prior distribution components in the latent space ins
 		\includegraphics[width=1.\textwidth]{pics/1_boovae/CELEBAGEN.pdf}
 	\caption[][\baselineskip]{Samples from VAE trained on CelebA. For each model rows correspond to cumulatively learned tasks of different hair types.}
 	\label{fig:CELEBAGEN}
-	\vskip -5pt
+	% \vskip -5pt
 \end{figure}
-\paragraph{Metrics} To evaluate the performance of the VAE approach on grey scale images, we a standard metric -- negative log-likelihood (\textbf{NLL}) on the test set. NLL is calculated by importance sampling method, using 5000 samples for each test observation: 
+\paragraph{Metrics} To evaluate the performance of the VAE approach on gray scale images, we a standard metric -- negative log-likelihood (\textbf{NLL}) on the test set. NLL is calculated by importance sampling method, using 5000 samples for each test observation: 
 \begin{equation*}
 \setlength{\abovedisplayskip}{3.5pt}
 \setlength{\belowdisplayskip}{3.5pt}
@@ -322,10 +330,10 @@ NLL measures the quality of the reconstructions that VAE produces. It is also es
 where $ \widehat{p}_t$ is an empirical distribution of the generated classes, $N_t$ --- number of generated images from the class $t$. To estimate $N_t$, we train the classification neural network to achieve high accuracy and use it to classify images generated by the model. We use $10^4$ samples in total to calculate the metric.
 For the CelebA dataset, we used Frechet Inception Distance (\textbf{FID}) \citep{heusel2017gans} over $10^4$ samples, which is supposed to measure both quality and diversity of generated samples. FID rely heavily on the implementation of Inception network \citep{barratt2018note}; we use PyTorch version of the Inception V3 network \citep{paszke2017automatic}.
 \paragraph{Results on MNIST(s)}
-In Fig.~\ref{fig:online:diversity},\ref{fig:online:NLL} we provide results for three MNIST datasets. 
-Both figures depict values averaged over five runs. We report mean values, standard deviations and comparison with the multihead architectures in Appx.~\ref{app:incr}. We evaluate the performance of VAE on the test dataset after each new task is added. The x-axis denotes a total number of tasks seen by the models (and thus, the total number of tasks in the test dataset). The flatter the line is, the less forgetting we observe as a number of tasks increases.  We provide numbers for each task separately in Appx.~\ref{app:pertask}. Notice that BooVAE can be combined with any other weight-regularization method. We have observed that EWC does not improve performance a lot (see Appx.~\ref{app:incr}), therefore we report only results for the combination of BooVAE with VCL, which gives the best performance in terms of NLL.
+In Figures~\ref{fig:online:diversity},\ref{fig:online:NLL} we provide results for three MNIST datasets. 
+Both figures depict values averaged over five runs. We report mean values, standard deviations and comparison with the multihead architectures in Appendix~\ref{app:incr}. We evaluate the performance of VAE on the test dataset after each new task is added. The x-axis denotes a total number of tasks seen by the models (and thus, the total number of tasks in the test dataset). The flatter the line is, the less forgetting we observe as a number of tasks increases.  We provide numbers for each task separately in Appendix~\ref{app:pertask}. Notice that BooVAE can be combined with any other weight-regularization method. We have observed that EWC does not improve performance a lot (see Appendix~\ref{app:incr}), therefore we report only results for the combination of BooVAE with VCL, which gives the best performance in terms of NLL.
 
-We observe that, on the basis of the KL metric, pure BooVAE produces the most diverse samples. We plot several samples from the model after training it on ten tasks in Fig.~\ref{fig:MNISTSGEN}. For MoG, Random Corsets, and BooVAE, we use the same amount of components equal to 15 for each task. It is worth mentioning that the closer the random corset size is to the size of the training data, the better the performance should be. In the limit case, we can store all the data from the previous tasks, guaranteeing the absence of catastrophic forgetting. Our goal is to reduce the amount of information stored. Thus, we used a pretty small number of components. In Appx.~\ref{app:coreset} we explore how large the random corset should be to get the performance comparable to BooVAE. 
+We observe that, on the basis of the KL metric, pure BooVAE produces the most diverse samples. We plot several samples from the model after training it on ten tasks in Figure~\ref{fig:MNISTSGEN}. For MoG, Random Corsets, and BooVAE, we use the same amount of components equal to 15 for each task. It is worth mentioning that the closer the random corset size is to the size of the training data, the better the performance should be. In the limit case, we can store all the data from the previous tasks, guaranteeing the absence of catastrophic forgetting. Our goal is to reduce the amount of information stored. Thus, we used a pretty small number of components. In Appendix~\ref{app:coreset} we explore how large the random corset should be to get the performance comparable to BooVAE. 
 
 % \begin{wrapfigure}{r}{0.62\textwidth}
 %\begin{figure}[t]
@@ -342,13 +350,12 @@ We observe that, on the basis of the KL metric, pure BooVAE produces the most di
 %	\vspace*{\baselineskip}
 %\end{figure}
 
-\begin{figure}[t!]
+\begin{figure}[t]
 	\centering
-	\subfloat[MNIST]{		\includegraphics[width=.5\textwidth]{pics/1_boovae/mnist_gen_replay.pdf}}
-	\subfloat[Fashion MNIST]{	\includegraphics[width=.5\textwidth]{pics/1_boovae/fashion_mnist_gen_replay.pdf}}
+	\subfloat[MNIST]{\includegraphics[width=.49\textwidth]{pics/1_boovae/mnist_gen_replay.pdf}}
+	\subfloat[Fashion MNIST]{	\includegraphics[width=.49\textwidth]{pics/1_boovae/fashion_mnist_gen_replay.pdf}}
 	 \setfloatalignment{t} 
-		\caption{We consider continual learning experiment for MNIST and Fashion MNIST datasets, where we split the dataset in 5 task, containing pairs of disjoint classes, i.e.  '0/1', '2/3', etc. We train both BooVAE and classification DNN in continual setting, using VAE for generative replay to avoid catastrophic forgetting in classification.}
-	%	\vskip -3mm
+		\caption[][\baselineskip]{We consider continual learning experiment for MNIST and Fashion MNIST datasets, where we split the dataset in 5 task, containing pairs of disjoint classes, i.e.  '0/1', '2/3', etc. We train both BooVAE and classification DNN in continual setting, using VAE for generative replay to avoid catastrophic forgetting in classification.}
 		\label{fig:gen_relpay}
 	\vspace*{\baselineskip}
 \end{figure}
@@ -370,14 +377,14 @@ We observe that, on the basis of the KL metric, pure BooVAE produces the most di
 %%	\vskip -3mm
 %	\label{fig:gen_relpay}
 %\end{figure}
-\paragraph{Results on CelebA} We conduct experiments on CelebA dataset for several reasons. Firstly, we want to show that our method works not only on small-scale images, such as MNIST but also on higher-dimensional data. Secondly, since the classes differ only by the hair color in this setting, we may see the advantages of the shared architecture more clearly. In the CelebA dataset there are much fewer faces with grey hair, compared to other colors. Therefore, information from other classes is essential to obtain good results on these images. We compare the FID values as new tasks are added to the models in Table~\ref{tab:celeba_fid}. The BooVAE outperforms other approaches, including model with multihead architecture. Notice that multihead fails on the last task, which has much fewer observations, compared to others. This highlights the benefit of the shared architecture, as  the Multi-heads approach limits the amount of shared information between tasks. Samples from the different VAEs can be found on Fig.~\ref{fig:CELEBAGEN}. We provide more samples in Appx.~\ref{app:samples}.
+\paragraph{Results on CelebA} We conduct experiments on CelebA dataset for several reasons. Firstly, we want to show that our method works not only on small-scale images, such as MNIST but also on higher-dimensional data. Secondly, since the classes differ only by the hair color in this setting, we may see the advantages of the shared architecture more clearly. In the CelebA dataset there are much fewer faces with grey hair, compared to other colors. Therefore, information from other classes is essential to obtain good results on these images. We compare the FID values as new tasks are added to the models in Table~\ref{tab:celeba_fid}. The BooVAE outperforms other approaches, including model with multihead architecture. Notice that multihead fails on the last task, which has much fewer observations, compared to others. This highlights the benefit of the shared architecture, as  the Multi-heads approach limits the amount of shared information between tasks. Samples from the different VAEs can be found on Figure~\ref{fig:CELEBAGEN}. We provide more samples in Appendix~\ref{app:samples}.
 \subsection{Generative Replay for Discriminative Model with continual VAE}
 \paragraph{Motivation} Common approach to mitigate catastrophic forgetting in discriminative models is deep generative replay \citep{shin2017continual}. The method is based on the recollection of the past knowledge, such as the data of past classes, by generating it from the trained generative model. However, since continual learning for generative models was limited, it was proposed to re-train the generative model from scratch when a new task arrives. Since we propose the method for the continual learning of the generative model, we can avoid this. We can continually train VAE along with the discriminative model.
 \paragraph{Setting} We perform the continual learning experiment using the MNIST and Fashion MNIST datasets. We apply splitMNIST setting when the dataset is split into five binary classification tasks. E.g. the first task containing digits ’0’ and ’1’, the second task --- digits ’2’ and ’3’, and so on. We perform similar splitting into the five tasks for the Fashion MNIST. We train MLP  with two hidden layers, LeakyReLU activations and Dropout layers. For each task, we add a new classification head (one fully connected layer) and train for 200 epochs with batch size 500.  
-\paragraph{Results} The mean accuracy across all tasks is reported in Fig.~\ref{fig:gen_relpay}. We provide two models for comparison. Exact replay setting reuses all the training data from the previous task, thus, giving an upper bound on the generative replay's performance. In the baseline method, we do not use any information about the previous task. This gives us a lower bound on the performance, i.e. if replay buffer is not used.
+\paragraph{Results} The mean accuracy across all tasks is reported in Figure~\ref{fig:gen_relpay}. We provide two models for comparison. Exact replay setting reuses all the training data from the previous task, thus, giving an upper bound on the generative replay's performance. In the baseline method, we do not use any information about the previous task. This gives us a lower bound on the performance, i.e. if replay buffer is not used.
 We report two versions of the generative replay with VAE. In the first one, we consider each class as a separate task and train VAE in the continual setting (VAE: 10 tasks) and sample images from the last available model. We use prior components to label the image classes. For example, along with the first classification task on MNIST (with digits '0' and '1') we train VAE  firstly on '0's and then on '1's. As a result, we have separate components in the prior distribution for both tasks. Sampling latent vector from these components decoding them gives us the replay buffer for the next classification task. 
-In the second setting, we combine classes like in splitMNIST setting, i.e. each task contains two classes (VAE: 5 tasks). In this setting, samples from the prior have to be classified in order to be used in classification model. We follow the approach from \cite{shin2017continual}, using classier from the previous step for this purpose.
-Results that we observe are comparable with the MNIST results in \cite{shin2017continual}\footnote{Authors provide only plot (Fig. 2 in their paper), therefore we are not able to report exact numbers for comparison}, while our approach avoids full re-training of the generative model.
+In the second setting, we combine classes like in splitMNIST setting, i.e. each task contains two classes (VAE: 5 tasks). In this setting, samples from the prior have to be classified in order to be used in classification model. We follow the approach from \citet{shin2017continual}, using classier from the previous step for this purpose.
+Results that we observe are comparable with the MNIST results in \citet{shin2017continual}\footnote{Authors provide only plot (Figure 2 in their paper), therefore we are not able to report exact numbers for comparison}, while our approach avoids full re-training of the generative model.
 %\section{Conclusion}
 %prior distribution, parametrized by an additive mixture, to memorize information about the learned tasks. The entropy regularization  allows us to reduce the number of components in the approximation of the optimal prior distribution without the loss of performance. In our experiments, we show that method perform on par with state-of-the-art methods. Moreover, we show that it can be successfully combined with other approaches, such as regularization-based ones. 
 \section{Conclusion}
@@ -392,8 +399,8 @@ Results that we observe are comparable with the MNIST results in \cite{shin2017c
 We propose a novel algorithm for continual learning of VAEs with the static architecture by incorporating the data-driven information about new task into the prior over the latent space.
 We leverage the specific structure of the VAE model and match new data innovation with the additive aggregated posterior expansion. The boosting-like approach allows us to reduce the number of components in the approximation of the optimal prior distribution without the loss of performance. We empirically validate performance of our algorithm and compare with other approaches. That being said, the proposed algorithm is orthogonal to them and could be easily combined. We would like to finalize with additional comments on performance evaluation and approach intuition.
 
-\paragraph{Model perfomance} In the continual learning setting it is important to evaluate the evolution of the metrics for each task while the new task arrives. Hence in Sections~\ref{app:incr} - \ref{app:samples} we provide more detailed overview of models performance and report NLL and diversity metric after each additional task is trained. We discuss how performance changes on the whole test dataset as we keep training in continual learning setting. Moreover, we report and discuss these metrics for each task separately in Section~\ref{app:pertask}. Finally, we visually study the samples from the model on each step in Section~\ref{app:samples}. 
-\paragraph{Approach intuition} We provide a toy-example visualization in Fig.~\ref{fig:2dkek},\ref{fig:mpvi_toy} to illustrate equations in Sec.~\ref{sec:boovae}.
+\paragraph{Model perfomance} In the continual learning setting it is important to evaluate the evolution of the metrics for each task while the new task arrives. Hence in Appendix~\ref{app:incr} - \ref{app:samples} we provide more detailed overview of models performance and report NLL and diversity metric after each additional task is trained. We discuss how performance changes on the whole test dataset as we keep training in continual learning setting. Moreover, we report and discuss these metrics for each task separately in Appendix~\ref{app:pertask}. Finally, we visually study the samples from the model on each step in Appendix~\ref{app:samples}. 
+\paragraph{Approach intuition} We provide a toy example visualization in Figure~\ref{fig:2dkek},\ref{fig:mpvi_toy} to illustrate equations in Section~\ref{sec:boovae}.
 %\begin{figure}[t!]
 %	\begin{subfigure}[b]{0.5\textwidth}
 %	\centering
@@ -408,10 +415,10 @@ We leverage the specific structure of the VAE model and match new data innovatio
 %\end{figure}
 \begin{figure}[t!]
 	\centering
-	\subfloat{\includegraphics[width=0.48\textwidth]{pics/1_boovae/2dKL_std.pdf}} \hfill
-	\subfloat{\includegraphics[width=0.48\textwidth]{pics/1_boovae/2dKL_boo20.pdf}}
+	\subfloat{\includegraphics[width=0.5\textwidth]{pics/1_boovae/2dKL_std.pdf}} \hfill
+	\subfloat{\includegraphics[width=0.5\textwidth]{pics/1_boovae/2dKL_boo20.pdf}}
 	\setfloatalignment{t} 
-		\caption{Visualization of the prior density and aggregate posterior for the VAE with 2-d latent space. In left we present results for the VAE with $\mathcal{N}(\rvz|\vec{0}, I)$ prior and in the right with the proposed Boo prior. By visual inspection and KL-divergence comparison we conclude that the proposed prior matches the aggregated posterior better that a standard normal prior.}\label{fig:2dkek}
+		\caption[][\baselineskip]{Visualization of the prior density and aggregate posterior for the VAE with 2-d latent space. In left we present results for the VAE with $\mathcal{N}(\rvz|\vec{0}, I)$ prior and in the right with the proposed Boo prior. By visual inspection and KL-divergence comparison we conclude that the proposed prior matches the aggregated posterior better that a standard normal prior.}\label{fig:2dkek}
 	\vspace*{\baselineskip}
 \end{figure}
 % \section*{Acknowledgments}

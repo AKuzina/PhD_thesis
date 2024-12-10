@@ -45,7 +45,7 @@ We observe that the histogram has moved to the left after applying the HMC. This
 
 
 \paragraph{Experimental Details}
-For this experiment we construct 500 adversarial attacks with the radius 0.1 on the encoder of the VAE trained on MNIST dataset. We run 500 HMC steps with the same hyperparameters as mentioned in Table \ref{tab:setup} to obtain $\rvz^a_{HMC}$.
+For this experiment we construct 500 adversarial attacks with the radius 0.1 on the encoder of the VAE trained on MNIST dataset. We run 500 HMC steps with the same hyperparameters as mentioned in Table \ref{tab:adv_setup} to obtain $\rvz^a_{HMC}$.
 
 \paragraph{Statistical Analisys}
 We performed a two-sample Kolmagorov-Smirnov test with the null hypothesis that two histograms are drawn from the same distribution. As an alternative hypothesis is that the underlying distributions are different. Choosing the confidence level of 95\% results in the rejection of the null hypothesis (p-value is equal to 0.029) in favour of the alternative: two histograms were not drawn from the same distribution.
@@ -140,7 +140,7 @@ In this section we report extended results for MNIST, FashionMNIST and ColorMNIS
 \subsection{What if the attacker knows the defence strategy?} \label{appendix:attack_mcmc}
 In our experiments we relied on the assumption that attack does not take into account the defence strategy that we use. We believe that it is reasonable, since defence requires access to the decoder part of the model ($p_{\theta}(x|z)$), which is not necessarily available to the attacker. 
 
-However, one may assume that the defence strategy is known to the attacker. In this case, it is reasonable to verify whether the robustness results change. In the conducted experiment we show that it is vastly more complicated to attack the encoder with taking the MCMC defence into account. We train the unsupervised attack (\ref{eq:objective_unsup}). The attack has access to the encoder and MCMC defence:
+However, one may assume that the defence strategy is known to the attacker. In this case, it is reasonable to verify whether the robustness results change. In the conducted experiment we show that it is vastly more complicated to attack the encoder with taking the MCMC defence into account. We train the unsupervised attack (Eq.~\ref{eq:objective_unsup}). The attack has access to the encoder and MCMC defence:
 \begin{equation}
 f(x) = q^{(t)}(\rvz|\rvx) = \int Q^{(t)}(\rvz|\rvz_0) q_{\phi}(\rvz_0|\rvx) d\rvz_0,
 \end{equation}
@@ -180,7 +180,7 @@ The similarity results of these attacks are plotted in Figure \ref{fig:mcmc_atta
 	\vspace*{2\baselineskip}
 \end{figure}
 
-However, if we use the same objective, but omit the MCMC step (e.g $t=0$ in eq. \ref{eq:z_a_mcmc} and \ref{eq:z_r_mcmc}), then, as observed in Figure \ref{fig:no_mcmc_attack}, the attack becomes much more successful (Figure \ref{fig:no_mcmc_attack} (a)), but we can fix it with the proposed defence (Figure \ref{fig:no_mcmc_attack} (b)).
+However, if we use the same objective, but omit the MCMC step (e.g $t=0$ in Eq.~\ref{eq:z_a_mcmc} and Eq.~\ref{eq:z_r_mcmc}), then, as observed in Figure \ref{fig:no_mcmc_attack}, the attack becomes much more successful (Figure \ref{fig:no_mcmc_attack}a), but we can fix it with the proposed defence (Figure \ref{fig:no_mcmc_attack}b).
 
 It is interesting to compare how the attacked points look in both cases, especially as we increase the radius of the attack. In Figure \ref{fig:mcmc_attack_example}, we plot attack on two reference points for radius values in $\{0.1, 0.6, 0.8, 1.0\}$. When the attacker does not use MCMC (left), it just learns to add more and more noise to the image, which eventually makes it meaningless. 
  
@@ -259,7 +259,7 @@ It is interesting to compare how the attacked points look in both cases, especia
 
 \subsection{Which attack radius should be considered?}\label{appendix:attack_radius}
 
-In out experiments, we use attacks with the radius $0.1$ and $0.2$ for all the models except for CelebA dataset, where radii $0.05$ and $0.1$ were considered. Here, we provide additional experiment to justify this choice. In Figure \ref{fig:radius_metrics} (a) we show the similarity between the reference point and the adversarial point. We observe that for CelebA the similarity drops faster than for the MNIST. Further, if we look at the example plotted in Figure \ref{fig:radius_adversarial_examples}, we can clearly notice that with the radius $0.2$ CelebA image is already containing a lot of noise. At the same time, we observe (Figure \ref{fig:radius_metrics} (b)) that reconstruction similarity, which indicates the success of the attack, drops relatively fast when the radius of the attack increases. 
+In out experiments, we use attacks with the radius $0.1$ and $0.2$ for all the models except for CelebA dataset, where radii $0.05$ and $0.1$ were considered. Here, we provide additional experiment to justify this choice. In Figure~\ref{fig:radius_metrics}a we show the similarity between the reference point and the adversarial point. We observe that for CelebA the similarity drops faster than for the MNIST. Further, if we look at the example plotted in Figure~\ref{fig:radius_adversarial_examples}, we can clearly notice that with the radius $0.2$ CelebA image is already containing a lot of noise. At the same time, we observe (Figure~\ref{fig:radius_metrics}b) that reconstruction similarity, which indicates the success of the attack, drops relatively fast when the radius of the attack increases. 
 
 \begin{figure}[ht]
     \centering
@@ -308,7 +308,7 @@ In out experiments, we use attacks with the radius $0.1$ and $0.2$ for all the m
 \newpage
 
 \subsection{How many HMC steps are required for a defence?}\label{appendix:hmc_steps}
-One of the main hyperparameters of the proposed approach is number of steps of MCMC that the defender does. We have conducted experiments with MNIST and Color MNSIT dataset to see how the robustness metrics change when we increase number of HMC steps from 0 to 200. As we can see from the Figure \ref{fig:hmc_step_metrics}, there is always a considerable jump between 0 steps (no defence) and 100 steps (lowest number of steps considered). However, as we continue making steps, we do not observe further improvement of the metrics. 
+One of the main hyperparameters of the proposed approach is number of steps of MCMC that the defender does. We have conducted experiments with MNIST and Color MNSIT dataset to see how the robustness metrics change when we increase number of HMC steps from 0 to 200. As we can see from the Figure~\ref{fig:hmc_step_metrics}, there is always a considerable jump between 0 steps (no defence) and 100 steps (lowest number of steps considered). However, as we continue making steps, we do not observe further improvement of the metrics. 
 \begin{figure}[ht]
     \centering
     \begin{tabular}{cc}
@@ -365,7 +365,7 @@ This section compares different objective functions that can be used to construc
 % % \vskip -10pt
 % \end{figure}
 
-In Figure \ref{fig:objectives}, we measure how successful the attacks are in terms of the proposed metrics. We use arrows in the plot titles to indicate desirable values of the metric for a successful attack. We compare supervised and unsupervised attacks on VAE trained on MNIST and fashion MNIST datasets. We observe that there is no single objective function that consistently outperforms others. 
+In Figure~\ref{fig:objectives}, we measure how successful the attacks are in terms of the proposed metrics. We use arrows in the plot titles to indicate desirable values of the metric for a successful attack. We compare supervised and unsupervised attacks on VAE trained on MNIST and fashion MNIST datasets. We observe that there is no single objective function that consistently outperforms others. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -374,7 +374,7 @@ In Figure \ref{fig:objectives}, we measure how successful the attacks are in ter
 \subsection{Inference Time} \label{appendix:inference_time}
 
 
-Even though our approach does not require changing the training procedure, it has influence on the inference time. In practice, this can be a limiting factor. Therefore, in Table \ref{tab:inferece_time} we report the computational overhead during the inference time. We measure the inference time in seconds per test point without HMC ($T=0$) and for different budgets ($T=\{100, 500, 1000\}$). 
+Even though our approach does not require changing the training procedure, it has influence on the inference time. In practice, this can be a limiting factor. Therefore, in Table~\ref{tab:inferece_time} we report the computational overhead during the inference time. We measure the inference time in seconds per test point without HMC ($T=0$) and for different budgets ($T=\{100, 500, 1000\}$). 
 
 
 % Sampling from the discrete latent spaces
@@ -415,7 +415,7 @@ CelebA & 0.429 & 6.512 & 31.551 & 63.031\\
 \section{Details of the experiments} \label{appendix:experimental_details}
 \subsection{Training VAE models} \label{appendix:beta_vae_param}
 
-\paragraph{Architecture} We use the same fully convolutional architecture with latent dimension 64 for MNIST, FashionMNISt and ColorMNIST datasets. In Table \ref{tab:mnist_arch}, we provide detailed scheme of the architecture. We use $\texttt{Conv(3x3, 1->32)}$ to denote convolution with kernel size $\texttt{3x3}$, $\texttt{1}$ input channel and  $\texttt{32}$ output channels. We denote stride of the convolution with $\texttt{s}$, padding with $\texttt{p}$ and dilation with $\texttt{d}$. The same notation applied for the transposed convolutions ($\texttt{ConvTranspose}$). ColorMNIST has 3 input channels, so the first convolutional layer in the encoder and the last of the decoder are slightly different. In this cases  values for ColorMNIST are report in parenthesis with the red color. 
+\paragraph{Architecture} We use the same fully convolutional architecture with latent dimension 64 for MNIST, FashionMNISt and ColorMNIST datasets. In Table~\ref{tab:mnist_arch}, we provide detailed scheme of the architecture. We use $\texttt{Conv(3x3, 1->32)}$ to denote convolution with kernel size $\texttt{3x3}$, $\texttt{1}$ input channel and  $\texttt{32}$ output channels. We denote stride of the convolution with $\texttt{s}$, padding with $\texttt{p}$ and dilation with $\texttt{d}$. The same notation applied for the transposed convolutions ($\texttt{ConvTranspose}$). ColorMNIST has 3 input channels, so the first convolutional layer in the encoder and the last of the decoder are slightly different. In this cases  values for ColorMNIST are report in parenthesis with the red color. 
 
 \begin{table}[ht]
 \caption[][\baselineskip]{Convolutional architecture for VAE trained on MNIST, Fashion MNIST and ColorMNIST datasets.}
@@ -439,7 +439,7 @@ CelebA & 0.429 & 6.512 & 31.551 & 63.031\\
 \end{tabular}
 }
 \end{center}
-          \vspace*{\baselineskip}
+\vspace*{2\baselineskip}
 \end{table}
 
 \paragraph{Optimization} We use Adam to perform the optimization. We start from the learning rate $5e-4$ and reduce it by the factor of 2 if the validation loss does not decrease for 10 epochs. We train a model for 300 epochs with the batch size 128. In Table \ref{tab:mnist_vae_res}, we report the values of the test metrics for VAEs trained on MNIST, Fashion MNIST and Color MNIST. 
@@ -478,11 +478,11 @@ Negative loglikelihood is estimated with importance sampling ($k = 1000$) as sug
 
 \newpage
 \subsection{Adversarial Attacks and Defence Hyperparameters} \label{appendix:vae_attack}
-In Table \ref{tab:setup}, we report all the hyperparameter values that were used to attack and defend VAE models. 
+In Table~\ref{tab:adv_setup}, we report all the hyperparameter values that were used to attack and defend VAE models. 
 
 In all the experiments we randomly select reference points from the test dataset. We also ensure that the resulting samples are properly stratified --- include an even number of points from each of the classes. For each reference point, we train 10 adversarial inputs with the same objective function but different initialization. 
 
-We use projected gradient descent to learn the adversarial attacks. Optimization parameters were the same for all the datasets and models. They are presented in Table \ref{tab:setup}.
+We use projected gradient descent to learn the adversarial attacks. Optimization parameters were the same for all the datasets and models. They are presented in Table~\ref{tab:adv_setup}.
 
 We choose HMC to defend the model against the trained attack. We perform $T$ steps of HMC with the step size $\eta$ and $L$ leapfrog steps. Where indicated, we adapt the step size after each step of HMC using the following formula:
 \begin{equation}
@@ -492,7 +492,7 @@ where $\alpha_t$ is the acceptance rate at step $t$. This way we increase the st
 
 \begin{table}[ht]
 \caption{Full list of hyperparameters for attack construction and the defence.}
-\label{tab:setup}
+\label{tab:adv_setup}
 \begin{center}
 \resizebox{.99\textwidth}{!}{
 \begin{tabular}{llccc|cc}
