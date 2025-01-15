@@ -325,7 +325,7 @@ The model architecture and parameterization are crucial to the scalability of th
 The starting point for our architecture is the architecture proposed in VDVAE~\citep{Child2020-ze}. However, there are certain differences. We schematically depict our architecture in Figure~\ref{fig:model_schema}. We consider a hierarchical TopDown VAE with $L$ stochastic layers, namely, latent variables $\rvz_1, \dots, \rvz_L$. We assume that each latent variable has the same number of channels, but they differ in spatial dimensions: $\rvz_l \in \mathbb{R}^{c \times h_l \times w_l}$. We refer to different spatial dimensions of the latent space as \textit{scales}.
 
  \subsection{Bottom-up} \label{subsec:arch_encoder}
-The bottom-up part corresponds to calculations of intermediary variables dependent on $\rvx$. We follow the implementation of \citet{Child2020-ze} for it. We start from the bottom-up path depicted in Figure~\ref{fig:model_schema}a (left), which is fully deterministic and consists of several ResNet blocks (see Figure~\ref{fig:model_schema}c). 
+The bottom-up part corresponds to calculations of intermediary variables dependent on $\rvx$. We follow the implementation of \citet{Child2020-ze} for it. We start from the bottom-up path depicted in Figure~\ref{fig:model_schema}a (left), which is fully deterministic and consists of several ResNet blocks (see Figure~\ref{fig:model_schema}c)\citep{he2016deep}. 
 The input is processed by $N_{\text{enc}}$ blocks at each scale, and the output of the last resnet block of each scale is passed to the TopDown path in Figure~\ref{fig:model_schema}a (right). Note that here $N_{\text{enc}}$ is a separate hyperparameter that does not depend on the number of stochastic layers $L$.
   
 

@@ -57,7 +57,7 @@
 \usepackage{natbib}
 \usepackage{longtable}
 \usepackage[symbol]{footmisc}
-
+\usepackage{enumitem}
 % tikz
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, shapes.geometric, positioning}
@@ -97,6 +97,8 @@
 \usetikzlibrary{arrows.meta}
 \usepackage{pifont}
 
+% Intro pckages
+\usepackage{pgfplots}
 %%
 % Prints an asterisk that takes up no horizontal space.
 % Useful in tabular environments.
@@ -157,7 +159,7 @@
 \rector{prof.dr.~J.J.G.~Geurts}
 \phdfaculty{Faculteit der Bètawetenschappen}
 \defensedate{donderdag 17 september 2023 om 13.45 uur}
-\defenselocation{aula}
+\defenselocation{bijeenkomst}
 \birthplace{Moscow, Russia}
 \input{math_commands.tex}
 
@@ -189,7 +191,7 @@ Anna Akhmatova
 \maketitlepage
 \pagestyle{plain}
 \include{text/0_intro/summary}
-\include{text/0_intro/acknowledgments}
+% \include{text/0_intro/acknowledgments}
 \tableofcontents
 
 % \newpage
@@ -199,26 +201,68 @@ Anna Akhmatova
 
 %%%%% Introduction
 \mainmatter
-% \include{text/0_intro/papers}
-% \include{text/0_intro/introduction}
+\include{text/0_intro/papers}
+\include{text/0_intro/introduction}
 % \include{text/fonts_test}
 
 \listoftodos[Notes]
 
 %%%%% Papers
-\part{Improve Density Estimation}
+\part{Improve Density Estimation} \label{part:1}
+
+% Всё повторяю первый стих
+% И всё переправляю слово:
+% — «Я стол накрыл на шестерых»…
+% Ты одного забыл — седьмого.
+    % Марина Ивановна Цветаева
 \include{text/1_boovae/main}
+
+% Я был лишь тем, что ты
+% там, внизу, различала:
+% смутный облик сначала,
+% много позже — черты.
+    % Иосиф Бродский
 \include{text/5_dvp/main}
 
-\part{Latent Space: New properties and Structure}
+\part{Latent Space: New properties and Structure}\label{part:2}
+
+
+% Видишь, августовские любовники пробегают внизу с цветами,
+% голубые струи реклам бесконечно стекают с крыш,
+% вот ты смотришь вниз, никогда не меняйся местами,
+% никогда ни с кем, это ты себе говоришь.
+    % Иосиф Бродский
 \include{text/2_equiv_vae/main}
 
+
+% А может, лучшая победа
+% Над временем и тяготеньем —
+% Пройти, чтоб не оставить следа,
+% Пройти, чтоб не оставить тени
+    % Марина Ивановна Цветаева
+
+% Женский голос, как ветер, несется,
+% Черным кажется, влажным, ночным,
+% И чего на лету ни коснется,
+% Всё становится сразу иным.
+    % Анна Ахматова
 \include{text/3_adv_att/main}
 
 \include{text/4_daed/main}
 
 
+% А вопросы… Вопросы не знают ответа —
+% Налетят, разожгут и умчатся, как корь.
+% Соломон нам оставил два мудрых совета:
+% Убегай от тоски и с глупцами не спорь.
 
+% Саша Черный
+
+% Он думал о том, и он думал о сем, -
+% Теперь из него размышления вынуты.
+% Николай Олейников
+
+\include{text/0_intro/conclusion}
 
 %%%%% Bibliography
 \cleardoublepage

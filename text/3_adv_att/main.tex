@@ -4,11 +4,10 @@
 
 
 \chapter[Alleviating Adversarial Attacks on VAEs with MCMC]{Alleviating Adversarial Attacks\\ on Variational Autoencoders\\ with MCMC}\label{chap:adv_att}
-%\begin{verse}
-%\textit{
-%\hfill This chapter is based on the NeurIPS 2022 paper \citep{kuzina2022alleviating} and ICLR RobustML workshop paper \citep{kuzina2021adv}.
-%} 
-%\end{verse}
+
+
+
+
 \begin{flushright}
 	\small{
 		\textit{
@@ -18,6 +17,7 @@
 		
 	}
 \end{flushright}
+
 \paragraph{Abstract}
 Variational autoencoders (VAEs) are latent variable models that can generate complex objects and provide meaningful latent representations. Moreover, they could be further used in downstream tasks such as classification. As previous work has shown, one can easily fool VAEs to produce unexpected latent representations and reconstructions for a visually slightly modified input. Here, we examine several objective functions for adversarial attack construction proposed previously and present a solution to alleviate the effect of these attacks. Our method utilizes the Markov Chain Monte Carlo (MCMC) technique in the inference step that we motivate with a theoretical analysis. Thus, we do not incorporate any extra costs during training, and the performance on non-attacked inputs is not decreased. We validate our approach on a variety of datasets (MNIST, Fashion MNIST, Color MNIST, CelebA) and VAE configurations ($\beta$-VAE, NVAE, $\beta$-TCVAE), and show that our approach consistently improves the model robustness to adversarial attacks.
 

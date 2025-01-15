@@ -87,7 +87,7 @@ The optimization problem (Eq.~\ref{eq:app_optprior}) is convex over $\pi(\rvz)$ 
 \begin{fullwidth}
 \begin{equation}
     \begin{aligned}
-     \frac{\delta}{\delta\pi} ~\Bigl[&\alpha~\KL{\hat{q}^{a}(\rvz)}{\pi(\rvz)} + (1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}  + \lambda \left(\int d\rvz~\pi(\rvz) - 1 \right)\Bigr]  \\
+     \frac{\delta}{\delta\pi} ~\Bigl[\alpha~\KL{\hat{q}^{a}(\rvz)}{\pi(\rvz)} + &(1-\alpha)~\KL{\hat{q}_{2}(\rvz)}{\pi(\rvz)}  + \lambda \left(\int d\rvz~\pi(\rvz) - 1 \right)\Bigr]  \\
      &= - \left(\alpha \frac{\hat{q}^{a}(\rvz)}{\pi(\rvz)} + (1-\alpha)\frac{\hat{q}_{2}(\rvz)}{\pi(\rvz)}\right) + \lambda \\
      &= 0.
     \end{aligned}

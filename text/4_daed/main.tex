@@ -43,6 +43,7 @@ Here, we focus on analyzing this problem to gain more insight into the behavior 
 \input{text/4_daed/sections/4_experiments}
 
 % = SECTION =
+
 \section{Conclusion}
 In this work, we investigate the generative and denoising capabilities of the Diffusion-based Deep Generative Models. We observe and experimentally validate that it is reasonable to understand DDGMs as a combination of two parts. The first one generates noisy samples from the pure noise by inputting more signal from a learned data distribution, while the second one removes the remaining noise from the signal. Although for standard DDGMs, the exact switching point between those two parts is fluid, we propose a new approach dubbed \ours{} that is explicitly built as a combination of a generative component (a DDGM) and a denoising one (a DAE). 
 In the experiments, we observe that \ours{} simplifies training with a standard VLB loss function that leads to improved performance. On the other hand, with increasing noise processed by DAE, \ours{} smoothens the generations resulting in lower performance when training with the simplified objective. 

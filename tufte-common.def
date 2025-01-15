@@ -980,7 +980,7 @@
 
 % Override footmisc's definition to set the sidenote marks (numbers) inside the
 % sidenote's text block.
-\long\def\@makefntext#1{\@textsuperscript{\@tufte@sidenote@font\tiny\@thefnmark}\,\footnotelayout#1}
+\long\def\@makefntext#1{\noindent\@textsuperscript{\@tufte@sidenote@font\tiny\@thefnmark}\,\footnotelayout#1}
 
 % Set the in-text footnote mark in the same typeface as the body text itself.
 \def\@makefnmark{\hbox{\@textsuperscript{\normalfont\footnotesize\@thefnmark}}}
@@ -1015,40 +1015,41 @@
     \def\baselinestretch {\setspace@singlespace}%
     \reset@font\footnotesize%
     \@tufte@margin@par% use parindent and parskip settings for marginal text
-    \vspace*{-2\baselineskip}\noindent%
-    \protected@edef\@currentlabel{%
-       \csname p@footnote\endcsname\@thefnmark%
-    }%
-    \color@begingroup%
-       \@makefntext{%
-         \ignorespaces#2%
-       }%
-    \color@endgroup%
+    \vspace*{-1\baselineskip}\noindent%
+    \@textsuperscript{\@tufte@sidenote@font\@thefnmark}\,%
+    % \protected@edef\@currentlabel{%
+    %    \csname p@footnote\endcsname\@thefnmark%
+    % }%
+    % % \color@begingroup%
+       % \@makefntext{%
+    \unskip\ignorespaces#2%
+       % }%
+    % \color@endgroup%
   }%
 }%
 
-% Ensure this is run after the bidi package has been loaded
-\def\@tufte@pkghook@post@bidi{}%
-\g@addto@macro{\@tufte@pkghook@post@bidi}{%
-  \renewcommand\@footnotetext[2][0pt]{%
-    \marginpar{%
-      \hbox{}\vspace*{#1}%
-      \def\baselinestretch {\setspace@singlespace}%
-      \if@rl@footnote\@rltrue\else\@rlfalse\fi%
-      \reset@font\footnotesize%
-      \@tufte@margin@par% use parindent and parskip settings for marginal text
-      \vspace*{-1\baselineskip}\noindent%
-      \protected@edef\@currentlabel{%
-         \csname p@footnote\endcsname\@thefnmark%
-      }%
-      \color@begingroup%
-         \@makefntext{%
-           \ignorespaces#2%
-         }%
-      \color@endgroup%
-    }%
-  }%
-}%
+% % Ensure this is run after the bidi package has been loaded
+% \def\@tufte@pkghook@post@bidi{}%
+% \g@addto@macro{\@tufte@pkghook@post@bidi}{%
+%   \renewcommand\@footnotetext[2][0pt]{%
+%     \marginpar{%
+%       \hbox{}\vspace*{#1}%
+%       % \def\baselinestretch {\setspace@singlespace}%
+%       \if@rl@footnote\@rltrue\else\@rlfalse\fi%
+%       \reset@font\footnotesize%
+%       \@tufte@margin@par% use parindent and parskip settings for marginal text
+%       \vspace*{-1\baselineskip}\noindent%
+%       \protected@edef\@currentlabel{%
+%          \csname p@footnote\endcsname\@thefnmark%
+%       }%
+%       \color@begingroup%
+%          \@makefntext{%
+%            \ignorespaces#2%
+%          }%
+%       \color@endgroup%
+%     }%
+%   }%
+% }%
 
 %
 % Define \sidenote command.  Can handle \cite.

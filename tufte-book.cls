@@ -120,6 +120,12 @@
   \setlength{\parindent}{0.0pc}%
   \setlength{\parskip}{10pt}%
 }
+% \renewcommand{\@tufte@margin@par}{%
+%   \setlength{\RaggedRightParindent}{0.0pc}%
+%   \setlength{\JustifyingParindent}{0.0pc}%
+%   \setlength{\parindent}{0.0pc}%
+%   \setlength{\parskip}{10pt}%
+% }
 %%%
 
 %%%%%%%% MAKE TITLE PAGES %%%%%%%%%%%%%%%%
@@ -208,7 +214,6 @@ volgens besluit van de decaan \\
 van de \@phdfaculty{}\\
 in het openbaar te verdedigen\\
 op \@defensedate{}\\
-in het openbaar te verdedigen\\
 in de \@defenselocation{} van de universiteit,\\
 De Boelelaan 1105
 }
@@ -221,55 +226,53 @@ De Boelelaan 1105
 	\makeatletter
 	\setstretch{1.0}
 	\begin{titlepage}
-		% \setcounter{page}{1}
-		\hfill
-		\begin{minipage}{.8\linewidth}
-		\raggedleft
-
-		{\large \sffamily \scshape  \MakeUppercase{\@university}%
-				\bigskip
-				% \MakeLowercase{\@lab}%  <- this percent is mandatory -- without it latex places and awkward space
-		}
-
-		\vskip 80pt
-
-		{\LARGE\@author}
-
-		\vskip 40 pt
-
-		{%
-			\huge \sffamily \scshape 
-			\color{niceRed}
-                % \color{niceBlue}
-			\@title\par
-			}%
-
-		\vskip 8pt
-
-		{\large\@subtitle\par}%
-
-		\vskip 20pt
-
-		% {\Large \@type}%
-
-		\vskip 40pt
-
-		% {\itshape\@date}
-
-		\end{minipage}
-
-		\vfill
-
-		\raggedleft
-
-		% \begin{tabular}{rll}
-			% \people{}
-		% \end{tabular}
-
-		\vskip 40pt
-
-		% \logos{}
-
+		% \hfill
+		% \begin{minipage}{.8\linewidth}
+		% \raggedleft
+		% {\large \sffamily \scshape  \MakeUppercase{\@university}%
+		% 		\bigskip
+		% 		% \MakeLowercase{\@lab}%  <- this percent is mandatory -- without it latex places and awkward space
+		% }
+		% \vskip 80pt
+		% {\LARGE\@author}
+		% \vskip 40 pt
+		% {%
+		% 	\huge \sffamily \scshape 
+		% 	\color{niceRed}
+  %               % \color{niceBlue}
+		% 	\@title\par
+		% 	}%
+		% \vskip 8pt
+		% {\large\@subtitle\par}%
+		% \vskip 20pt
+		% \vskip 40pt
+		% \end{minipage}
+		% \vfill
+		% \raggedleft
+		% \vskip 40pt
+        %%%% compulsory VU part
+        % \cleardoublepage
+        % \thispagestyle{empty}
+        \noindent
+        \begin{center}
+         {\large  \sffamily \scshape \MakeUppercase{\@university}}
+        
+        \vfill
+           {\huge \sffamily \scshape \color{niceRed} \textbf{\@title}}%
+             \if \@subtitle \relax \else \par \Large {\@subtitle} \par \fi
+          \vfill
+        \Large \MakeUppercase{academisch proefschrift}\\
+        \normalsize
+        \vspace{1cm}
+        \@phdtext\\
+        \vspace{1cm}
+        door\\
+        \vspace{1cm}
+        {\LARGE \@author}\\
+        \normalsize
+        \vspace{1cm}
+        geboren te \@birthplace
+        \end{center}
 	\end{titlepage}
 
 		\hypersetup{
@@ -292,31 +295,6 @@ De Boelelaan 1105
         \noindent ISBN: xxxxx\\
 	\makeatother
 
-
-        %%%% compulsory VU part
-        \cleardoublepage
-        \thispagestyle{empty}
-        \noindent
-        \begin{center}
-         {\large  \sffamily \scshape \MakeUppercase{\@university}}
-        
-        \vfill
-           {\huge \sffamily \scshape  \textbf{\@title}}%
-             \if \@subtitle \relax \else \par \Large {\@subtitle} \par \fi
-          \vfill
-        \Large \MakeUppercase{academisch proefschrift}\\
-        \normalsize
-        \vspace{1cm}
-        \@phdtext\\
-        \vspace{1cm}
-        door\\
-        \vspace{1cm}
-        {\LARGE \@author}\\
-        \normalsize
-        \vspace{1cm}
-        geboren te \@birthplace
-        \end{center}
-        
         
         %%%% PhD commitee: to fill in
         \newpage
@@ -373,27 +351,27 @@ De Boelelaan 1105
 	\setstretch{1.12}
 
         % decalaration of authorship
-        \chapter*{Declaration of Authorship}
-        \noindent I, \makeatletter \@author \makeatother, hereby declare that the thesis titled 
-         "\makeatletter \@title \makeatother"  and its content are the result of my own work. 
+ %        \chapter*{Declaration of Authorship}
+ %        \noindent I, \makeatletter \@author \makeatother, hereby declare that the thesis titled 
+ %         "\makeatletter \@title \makeatother"  and its content are the result of my own work. 
         
-        \noindent I confirm that:
+ %        \noindent I confirm that:
         
-        \begin{itemize} 
+ %        \begin{itemize} 
         
-        \item This work was primarily conducted during my pursuit of a research degree at these universities.
-        \item If any portion of this thesis has been previously submitted for an academic degree or any other qualification at these universities or any other educational institution, I have explicitly disclosed this information.
-        \item I have consistently acknowledged the sources of published works by other authors that I consulted.
-        \item In cases where I have included excerpts from the work of others, I have consistently provided proper source attributions. Aside from these quotations, the entirety of this thesis represents my independent effort.
-        \item I have acknowledged all significant sources of assistance.
-        \item In cases where this thesis draws upon collaborative efforts with others, I have provided a clear distinction between the contributions made by collaborators and my own individual contributions.
-        \end{itemize}
+ %        \item This work was primarily conducted during my pursuit of a research degree at these universities.
+ %        \item If any portion of this thesis has been previously submitted for an academic degree or any other qualification at these universities or any other educational institution, I have explicitly disclosed this information.
+ %        \item I have consistently acknowledged the sources of published works by other authors that I consulted.
+ %        \item In cases where I have included excerpts from the work of others, I have consistently provided proper source attributions. Aside from these quotations, the entirety of this thesis represents my independent effort.
+ %        \item I have acknowledged all significant sources of assistance.
+ %        \item In cases where this thesis draws upon collaborative efforts with others, I have provided a clear distinction between the contributions made by collaborators and my own individual contributions.
+ %        \end{itemize}
         
-        \vspace{15pt}
-        \begin{flushright}
-        \makeatletter \today \makeatother
-        \end{flushright}
-	\makeatother
+ %        \vspace{15pt}
+ %        \begin{flushright}
+ %        \makeatletter \today \makeatother
+ %        \end{flushright}
+	% \makeatother
 }
 \renewcommand\maketitlepage{
         \begingroup%
