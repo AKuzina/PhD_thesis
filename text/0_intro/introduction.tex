@@ -83,7 +83,7 @@ arrow/.style={->, thick, >=Stealth}
 
 \node[example, below=0.1cm of tractable, text width=3.5cm] (tractable-x) {Normalizing Flow};
 \node[example, below=0.1cm of norm, text width=3.5cm] (norm-x) {Energy-based Model};
-\node[example, below=0.1cm of aux, text width=3.9cm] (aux-x) {VAE, Diffusion Models};
+\node[example, below=0.1cm of aux, text width=3.9cm] (aux-x) {Variational Autoencoder};
 
 %\node[box, below=of aux, xshift=-2cm, text width=3.5cm] (latent) {Latent \\ $ p(\rvz) $};
 %\node[box, below=of aux, xshift=2cm, text width=3.5cm] (observed) {Non-latent \\ $q(\rvz|\rvx){}$};
@@ -91,7 +91,10 @@ arrow/.style={->, thick, >=Stealth}
 %\draw[arrow] (aux) -- (observed);
 
 \end{tikzpicture}
-\caption{Different types of generative models based on the underlying probabilistic model.}
+\caption{
+Different way to model a probability distribution of the observed random variable $\rvx$.
+% Different types of generative models based on the underlying probabilistic model.
+}
 \label{fig:into_model_types}
 \end{figure}
 
@@ -703,7 +706,7 @@ Note that in this case, we only need to know the PDF of the pixel intensity up t
 
 \begin{equation}
 \begin{aligned}
-    P_{\theta}(\rvx_i = k|\rvz) = \frac{\exp\left(-\frac12 \left(\frac{\mu(\rvz) - k}{\sigma(\rvz)}\right)^2\right)}{\sum_{i=0}^{255} \exp\left(-\frac12 \left(\frac{\mu(\rvz) - i}{\sigma(\rvz)}\right)^2\right)}
+    P_{\theta}(\rvx_i = k|\rvz) = \frac{\exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - k}{\sigma_{\theta}(\rvz)}\right)^2\right)}{\sum_{i=0}^{255} \exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - i}{\sigma_{\theta}(\rvz)}\right)^2\right)}
 \end{aligned}
 \end{equation}
 
@@ -725,11 +728,17 @@ There is one important difference between two approaches. The first discretizati
 
 
 
-\subsection{Learnable Priors}
-Holes in the latent space is a well known problem of Variational Autoencoders. 
-Intuitively, we can think of it as regions in the latent space with high prior probability but which are not covered by any of the variational posterior distributions. It is also known as a mismatch between aggregated posterior and a prior. 
+\subsection{Learnable Prior}
+\marginnote[2\baselineskip]{Note that this way prior does not have any trainable parameters, therefore, $\theta$ subscript is removed.}
+Early VAE works used isotropic Gaussian with zero mean as a prior over the latent variables.
+\begin{equation}
+    p(\rvz) = \mathcal{N}(\rvz | 0, \text{I}).
+\end{equation}
 
-Let us introduce an \textit{ aggregated posterior} which is defined as a variational posterior averaged over the entire dataset: $q_{\phi}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. Consider an illustrative example in Figure~\ref{fig:intro_prior_mismatch}, where we plot a standard Gaussian prior and an aggregated posterior which is a multimodal distribution. We highlight a clear hole in the latent space with the red circle. This motivated the use of more complicated prior distributions, which are capable of \textit{adapting} to the aggragated posterior and are flexible enough to avoid the holes as much as possible. 
+However, this can be too restrictive for a model to have and might cause a problem known in the VAE literature as \textit{holes} in the latent space. Intuitively, we can think of it as regions in the latent space with high prior probability but that are not covered by any of the variational posterior distributions. 
+
+To understand the problem of holes in the latent space, consider a toy example with the 2-dimensional latent space in Figure~\ref{fig:intro_prior_mismatch}. The top plot depicts standard Gaussian prior and darkens of the color represent the probability of the sample. Let us also define the \textit{aggregated posterior} as a variational posterior averaged over the entire dataset: $q_{\phi}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. For example, bottom part of the Figure~\ref{fig:intro_prior_mismatch} present a mixture of several Gaussian distribution which a spread around the same area of the 2-d plane as the prior above it. However, there are several places where aggregated posterior has a very low probability, namely, no real data point $\rvx$ is ever encoded in this part of the latent space. At the same time, the prior distribution assigns high probability to this region. One such region is denoted by a red circle on the Figure. 
+This motivated the use of more complicated prior distributions, which are capable of \textit{adapting} to the aggregated posterior and are flexible enough to avoid the holes. 
 
 \begin{marginfigure}
 \begin{tikzpicture}
@@ -738,7 +747,7 @@ Let us introduce an \textit{ aggregated posterior} which is defined as a variati
     height=5.5cm,
     title={\normalsize Prior},
     axis lines=none,
-    colormap={greenmap}{color(0cm)=(ForestGreen!10); color(1cm)=(ForestGreen!99)},
+    colormap={greenmap}{color(0cm)=(ForestGreen!1); color(1cm)=(ForestGreen!99)},
     point meta min=0, point meta max=1,
     view={0}{90}
 ]
@@ -749,68 +758,182 @@ Let us introduce an \textit{ aggregated posterior} which is defined as a variati
     domain=-2:2,
     domain y=-2:2
 ]
-{exp(-0.6*(x^2 + y^2)};
-\draw[very thick, RedOrange] (-0.4,0) circle (0.3cm); 
+{exp(-0.5*(x^2 + y^2) / 0.9^2) / 0.9 };
+\draw[very thick, RedOrange] (-0.7,0.2) circle (0.3cm); 
 % node[above, yshift=0.3cm, xshift=-0.2cm]  {};
-    
 \end{axis}
+
 \begin{axis}[
     at={(0cm,-4.8cm)},
     width=5.5cm,
     height=5.5cm,
     title={\normalsize Aggregated Posterior},
     axis lines=none,
-    colormap={greenmap}{color(0cm)=(ForestGreen!10); color(1cm)=(ForestGreen!99)},
+    colormap={greenmap}{color(0cm)=(ForestGreen!1); color(1cm)=(ForestGreen!99)},
     point meta min=0, point meta max=1,
     view={0}{90}
 ]
+% \addplot3[
+%     surf,
+%     shader=interp,
+%     samples=50,
+%     domain=-2:2,
+%     domain y=-2:2
+% ]
+% {
+% 0.5 * (exp(-0.2*(x^2 + y^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) +
+% 0.5 * (exp(-0.5*((x-0.5)^2 + (y+0.5)^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) 
+% - 1 * (exp(-5*((x+0.4)^2 + (y)^2))
+% };
 \addplot3[
     surf,
     shader=interp,
-    samples=50,
-    domain=-2:2,
-    domain y=-2:2
+    samples=30,
+    domain=-1.5:1.5,
+    domain y=-1.5:1.5
 ]
 {
-0.5 * (exp(-0.2*(x^2 + y^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) +
-0.5 * (exp(-0.5*((x-0.5)^2 + (y+0.5)^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) 
-- 1 * (exp(-5*((x+0.4)^2 + (y)^2))
+(1/6 * exp(-0.5*((x-1)^2 + y^2) / 0.35^2) / 0.35 
++ 1/6 * exp(-0.5*(x^2 + (y-1)^2) / 0.3^2) / 0.3 
++ 1/6 * exp(-0.5*((x-0.9)^2 + (y-1.1)^2) / 0.28^2) / 0.28 
++ 1/6 * exp(-0.5*((x)^2 + y^2) / 0.4^2) / 0.4 
++ 1/6 * exp(-0.5*((x-0.5)^2 + (y+0.8)^2) / 0.21^2) / 0.15
++ 1/6 * exp(-0.5*((x+0.75)^2 + (y-0.8)^2) / 0.21^2) / 0.25
++ 1/6 * exp(-0.5*((x+0.5)^2 + (y+0.5)^2) / 0.25^2) / 0.25 ) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))
 };
-\draw[very thick, RedOrange] (-0.4,0) circle (0.3cm); 
+\draw[very thick, RedOrange] (-0.7,0.2) circle (0.3cm); 
 \end{axis}
 \end{tikzpicture}
 \caption{Example of the mismatch between the prior (top plot) and aggregated posterior (bottom)}\label{fig:intro_prior_mismatch}
 \end{marginfigure}
-\todo[inline]{Flow prior and Maybe other ones}
 
-Following \citet{hoffman2016elbo} we can use the aggregated posterior to further study the average KL:
+A prior flexibility can be achieved if we use a deep generative model for $p_{\theta}(\rvz)$. 
+Note that we need to choose models with fully tractable densities, to ensure the tractability of the ELBO objective.
+% However, we need to have access the density to keel the ELBO objective tractable. 
+\citet{chen2016variational} proposed to employ Autoregressive Normalizing Flows as a learnable prior in the VAEs. As we discussed in Section~\ref{sec:gen_zoo}, this class of models employs a change of variable formula to explicitly compute the model density. 
 
-\begin{equation}\label{eq:intro_elbo_vamp}
-\begin{aligned}
-&\E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} \\
-&\; = \E_{p_e(\rvx)} \int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz \\
-&\; = \E_{p_e(\rvx)} \int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz
-+ \E_{p_e(\rvx)} \int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz\\
-&\; =  \int\underbrace{\left( \int p_{e}(\rvx) q_{\phi}(\rvz|\rvx)d\rvx\right)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz
-+ \E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)} \\
-&\; =  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
-+ \E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)} \\
-\end{aligned}
+Even with a deep generative model as prior, we might still ask ourselves, what is the optimal prior that would maximize the Evidence Lower bound. 
+To answer this question, we will follow \citet{hoffman2016elbo} and decompose the KL-term of the ELBO:
+\marginnote[2\baselineskip]{We first apply definition of the KL-divergence and multiply the integrand by $1$. Then using the property of the logarithm, we split equation into two terms. We notice the second term is equal to the Mutual Information between observation and latent code. Mutual information is a quantity defined as a KL divergence between the joint distirbution and a product of marginal distrbutions: $\text{MI}\left[\rvx, \rvy \right] = \KL{p(\rvx, \rvy)}{p(\rvx)p(\rvy)}$.}
+% \begin{equation}\label{eq:intro_elbo_vamp}
+% \begin{aligned}
+% &\E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} \\
+% &\; = \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz d\rvx \\
+% &\; =\iint p_e(\rvx)  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  d\rvx
+% + \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz  d\rvx\\
+% &\; =  \int\underbrace{\left( \int p_{e}(\rvx) q_{\phi}(\rvz|\rvx)d\rvx\right)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz
+% + \underbrace{\iint q_{\phi}(\rvz, \rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz)p_{e}(\rvx)}d\rvz  d\rvx}_{\text{Mutual Information}} \\
+% &\; =  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
+% + \text{MI}\left[\rvz; \rvx\right].
+% \end{aligned}
+% \end{equation}
+
+% \begin{equation}\label{eq:intro_elbo_vamp}
+% \begin{aligned}
+\begin{align}
+\E_{p_e(\rvx)} &\KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} \\
+=& \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz d\rvx \\
+ =&\iint p_e(\rvx)  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  d\rvx \notag\\
+&\quad\quad + \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz  d\rvx \\
+ =&  \int\underbrace{\left( \int p_{e}(\rvx) q_{\phi}(\rvz|\rvx)d\rvx\right)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz \notag\\
+&\quad\quad+ \underbrace{\iint q_{\phi}(\rvz, \rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz)p_{e}(\rvx)}d\rvz  d\rvx}_{\text{Mutual Information}} \\
+ =&  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
++ \text{MI}\left[\rvz; \rvx\right].
+\end{align}
+
+% \marginnote{It is very common to use Gaussian distribution for $q_{\phi}(\rvz|\rvx)$. In this case, aggregated posterior is a Gaussian mixture.}
+Note that the prior distribution is only present in the first term: KL-divergence between the aggregated posterior and prior. Therefore, the prior that minimizes the ELBO is equal to the aggregated posterior, the \textit{mixture} of encoders. Therefore, this decomposition highlights the importance of multimodal priors. 
+
+Motivated by this observation, \citet{tomczak2018vae} proposed a VampPrior, as trainable prior for VAEs, which is defined as a mixture of variational posterior. In order to avoid overfitting and make the model computationally tractable, this mixture is parameterized by $K$ pseudoinputs instead of the whole training dataset:
+\begin{equation}
+    p_{\theta}(\rvz) = \frac1K \sum_k q_{\phi}(\rvz|u_k).
 \end{equation}
-
-\marginnote{It is very common to use Gaussian distribution for $q_{\phi}(\rvz|\rvx)$. In this case, aggregated posterior is a Gaussian mixture.}
-This decomposition highlights the importance of multimodal priors. Note that the prior distribution is only present in the first term: KL-divergence between the aggregated posterior and prior. Therefore, the prior that minimizes the ELBO is equal to the aggregated posterior. The later is the \textit{mixture} of encoders
+In this case, the pseudoinputs themselves are the trainable part of the prior. 
 
 
-\todo[inline]{If prior is data-dependent it can be used to store information and avoid catastrophic forgetting in continual learning.}
+\begin{marginfigure}
+\begin{tikzpicture}[>=Stealth, every node/.style={scale=1.0}, line width=1.2pt]
+    % Task 1 x=0, label = 1    
+    \foreach \y in {-1, 0, 1} {
+        \node[circle, draw, fill=white, minimum size=0.3cm] (input0\y) at (-0.25, 0.5*\y+0.5) {};
+        \node[circle, draw, fill=ForestGreen!50, minimum size=0.3cm] (output0\y) at (.25, 0.4*\y+0.5) {};
+    }
+    \foreach \y in {-1, 0, 1} {
+        \foreach \z in {-1, 0, 1} {
+            \draw[thick] (input0\y) -- (output0\z);
+        }
+    }
+    \node[] (train0) at (0, -.9)  {\normalsize\color{ForestGreen}\(\mathcal{D}^{(1)}_{\text{train}}\)};
+    
+    % Task 1 x=1.5, label = 2    
+    \foreach \y in {-1, 0} {
+        \node[circle, draw, fill=white, minimum size=0.3cm] (input1\y) at (1.25, 0.5*\y+0.5) {};
+        \node[circle, draw, fill=RoyalBlue!50, minimum size=0.3cm] (output1\y) at (1.75, 0.4*\y+0.5) {};
+    }
+    \node[circle, draw, fill=white, minimum size=0.3cm] (input11) at (1.25, 0.5*1+0.5) {};
+    \node[circle, draw, fill=ForestGreen!50, minimum size=0.3cm] (output11) at (1.75, 0.4*1+0.5) {};
+    
+    \foreach \y in {-1, 0, 1} {
+        \foreach \z in {-1, 0, 1} {
+            \draw[thick] (input1\y) -- (output1\z);
+        }
+    }
+    \node[] (train1) at (1.5, -.9)  {\normalsize \color{RoyalBlue}\(\mathcal{D}^{(2)}_{\text{train}}\)};
 
+    % Task 1 x=3, label = 2    
+    \node[circle, draw, fill=white, minimum size=0.3cm] (input2-1) at (2.75, -0.5*1+0.5) {};
+    \node[circle, draw, fill=RedOrange!50, minimum size=0.3cm] (output2-1) at (3.25, -0.4*1+0.5) {};
+    \node[circle, draw, fill=white, minimum size=0.3cm] (input20) at (2.75, 0.5) {};
+    \node[circle, draw, fill=RoyalBlue!50, minimum size=0.3cm] (output20) at (3.25, 0.5) {};
+
+    \node[circle, draw, fill=white, minimum size=0.3cm] (input21) at (2.75, 0.5*1+0.5) {};
+    \node[circle, draw, fill=ForestGreen!50, minimum size=0.3cm] (output21) at (3.25, 0.4*1+0.5) {};
+    \foreach \y in {-1, 0, 1} {
+        \foreach \z in {-1, 0, 1} {
+            \draw[thick] (input2\y) -- (output2\z);
+        }
+    }
+    \node[] (train2) at (3, -.9)  {\normalsize \color{RedOrange}\(\mathcal{D}^{(3)}_{\text{train}}\)};
+    
+    % Timeline
+    \draw[->, very thick] (-0.5, -1.5) -- (4, -1.5) node[above right] {\(t\)};
+    \foreach \x/\label in {0/1, 1.5/2, 3/3} {
+        \draw[very thick] (\x, -1.7) -- (\x, -1.3) node[below=0.3cm] {\(\label\)};
+    }
+
+    % Arrows between NNs
+    % \draw[->, thick] (output01.east) -- ++(0.8, 0) -- ++(2.2, 0) -- (input41.west);
+    % \draw[->, thick] (output41.east) -- ++(0.8, 0) -- ++(2.2, 0) -- (input81.west);
+
+\end{tikzpicture}
+\caption{Illustration of the continual learning, where a model is trained on three different tasks sequentially and is expected to generalize on the data from all the tasks. }
+\end{marginfigure}
+
+ % Not only does the VampPrior introduces a more flexible prior, but also it is implicitly forces to "memorize" training data. 
+In addition to being a flexible prior distribution, VampPrior also learns a compact representation of the training dataset. If the model is well trained, VampPrior approximates the full dataset, using $K$ pseudoinputs. 
+Furthermore, it is straightforward to expand the expressivity of the mixture distribution by adding a new component.
+% Furthermore, mixture distributions can be expanded 
+This motivates the use of this mixture prior in a continuous learning setting and raises the first research question in this thesis:
 
 \begin{quote}
-	How \marginnote[-0\baselineskip]{Research Question 1} to adjust optimal prior to train VAEs in continual learning?
+        \marginnote[-0\baselineskip]{Research Question 1}
+	\textit{How to use Variational Mixture of Posteriors Prior to improve density estimation in continual learning?}
 \end{quote}
-This research question is addressed in Chapter~\ref{chap:boovae}.
+This research question is addressed in Chapter~\ref{chap:boovae}, where we derive an optimal prior objective for the continual learning setting and propose a greedy algorithm to add components to the mixture when new data arrive. 
+
 
 \subsection{Hierarchical VAEs}
+In the previous section, we have discussed how to improve the VAE model by using more flexible and trainable priors.
+
+A similar idea can be developed if we present the distribution in the latent space using a product rule of probability, similarly to autoregressive models discussed in Section~\ref{sec:into_deep_generative_models}"
+\begin{equation}
+    p_{\theta}(\rvz) = \prod_i p_{\theta}(\rvz_i|\rvz_{>i}).
+\end{equation}
+We will call each group of latent variables $\rvz_i$ a \textit{stochastic layer}. This decomposition imposes a certain structure on the latent space, which is often referred to as hierarchy and the correpoding generative model is called \textit{Hierarchical VAE}. 
+
+% This imposes a certain structure on the latent space. 
+% For example, assume that we split the latent space into two groups of latent variables $p_{\theta}(\rvz) = p_{\theta}(\rvz_1|\rvz_2)p_{\theta}(\rvz_2)$. Therefore, we assume that 
+
 
 \todo[inline]{Here we say that we can decompose latent variables into groups or stochastic layers and define a prior in the autoregressive way. This allows to get a very expressive latent distribution. However, they \textbf{can be hard to train} and \textbf{tend to have a lot of inactive units}.
 }
