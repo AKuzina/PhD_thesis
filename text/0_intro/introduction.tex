@@ -41,8 +41,6 @@ The choice of architecture depends on the type of data and should respect any co
 Finally, one has to choose how to tune unknown parameters $\theta$. The goal is to make sure that $p_{\theta}(\rvx)$ approximates a true data distribution for which only a finite number of samples is observed. For this purpose, we will formulate learning as an optimization problem and solve it using gradient-based methods. 
 \end{itemize}
 
-
-% This thesis focuses on the first component. \todo{Elaborate what exactly or move somewhere}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 % Types of generative models
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
@@ -167,10 +165,10 @@ For instance, consider a conditional distribution $p_{\theta}(\rvx|\rvz)$. Here,
 \end{equation}
 where both $\mu_{\theta}(\cdot)$ and $\sigma^2_{\theta}(\cdot)$ are Neural Networks (NNs) and $\theta$ are the trainable parameters of these NNs. 
 % Other conditional distributions that are commonly used are Bernoulli, Discretized Logistic and Categorical. 
-\todo{Mation exponential family here}
+\anna{Mention exponential family here}
 
 The specific application and type of generative model determines the required inductive biases and, consequently, the appropriate model architecture.
-Convolutional neural networks (CNNs)~\citep{krizhevsky2012imagenet}, such as ResNet~\citep{he2016deep} and U-Net~\citep{ronneberger2015u}, were initially developed for discriminative computer vision tasks like classification. These CNNs have now been widely used to parametrize deep generative models. For text-based tasks, the transformer architecture~\citep{vaswani2017attention} is the most popular choice. Molecules are often represented as point clouds embedded in 3D Euclidean space. To process these molecular representations, Equivariant Graph Neural Networks (GNNs)~\citep{satorras2021n} are commonly used. \todo{Comment more on specific inductive biases these architecture impose?}
+Convolutional neural networks (CNNs)~\citep{krizhevsky2012imagenet}, such as ResNet~\citep{he2016deep} and U-Net~\citep{ronneberger2015u}, were initially developed for discriminative computer vision tasks like classification. These CNNs have now been widely used to parametrize deep generative models. For text-based tasks, the transformer architecture~\citep{vaswani2017attention} is the most popular choice. Molecules are often represented as point clouds embedded in 3D Euclidean space. To process these molecular representations, Equivariant Graph Neural Networks (GNNs)~\citep{satorras2021n} are commonly used. \anna{Comment more on specific inductive biases these architecture impose?}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 % Inference methods
@@ -495,7 +493,7 @@ However, this term is more common in Bayesian inference rather than in Deep Gene
 %- Amortization and voila, we have variational posterior $$q(z|x)$$
 
 
-This thesis contributes to the field of Variational Autoencoders (VAE) and Diffusion Models. These are deep generative models with auxiliary variables and are trained with the Amortized Variational Inference. We consider the application of these models to the problem of modeling the distribution of images in different scenarios. The thesis is split into two parts, part~\ref{part:1} focuses on the improved density estimation. Part~\ref{part:2}. on the other hand, takes a closer look at the properties of learned data representations.\todo{Maybe this should go to the end of the introduction}
+This thesis contributes to the field of Variational Autoencoders (VAE) and Diffusion Models. These are deep generative models with auxiliary variables and are trained with the Amortized Variational Inference. We consider the application of these models to the problem of modeling the distribution of images in different scenarios. The thesis is split into two parts, part~\ref{part:1} focuses on the improved density estimation. Part~\ref{part:2}. on the other hand, takes a closer look at the properties of learned data representations.\anna{Maybe this should go to the end of the introduction}
 
 % First, we discuss the training objective
 
@@ -551,7 +549,7 @@ As we have already mentioned, estimating likelihood exactly is hard for latent v
 This is known as an \textit{importance weighted} log-likelihood estimate. Notice that for $K=1$ it is equal to the ELBO. Furthermore, as we increase the $K$ the bound on the loglikelihood becomes a tighter and apporoaches $\log p_{\theta}(\rvx)$ as $K \rightarrow \infty$ \citep{burda2015importance}. In practice $K=500$ or $K=1000$ is commonly used to report the test log-likelihood results and compare performance of different models. \citet{burda2015importance} proposed to use this as a training objective, a model known as \textit{Importance Weighted Autoencoder} (IWAE). 
 
 \paragraph{Information Theoretic Point of View}
-\todo[inline]{fixing the broken ELBO}
+\addpart{fixing the broken ELBO}
 
 \paragraph{VAE limitations}
 \begin{itemize}
@@ -741,11 +739,12 @@ To understand the problem of holes in the latent space, consider a toy example w
 This motivated the use of more complicated prior distributions, which are capable of \textit{adapting} to the aggregated posterior and are flexible enough to avoid the holes. 
 
 \begin{marginfigure}
+\subfloat[Prior \label{subfig:intro_prior}]{
 \begin{tikzpicture}
 \begin{axis}[
     width=5.5cm,
     height=5.5cm,
-    title={\normalsize Prior},
+    % title={\normalsize Prior},
     axis lines=none,
     colormap={greenmap}{color(0cm)=(ForestGreen!1); color(1cm)=(ForestGreen!99)},
     point meta min=0, point meta max=1,
@@ -757,34 +756,25 @@ This motivated the use of more complicated prior distributions, which are capabl
     samples=30,
     domain=-2:2,
     domain y=-2:2
-]
-{exp(-0.5*(x^2 + y^2) / 0.9^2) / 0.9 };
+]{exp(-0.5*(x^2 + y^2) / 0.9^2) / 0.9};
 \draw[very thick, RedOrange] (-0.7,0.2) circle (0.3cm); 
 % node[above, yshift=0.3cm, xshift=-0.2cm]  {};
 \end{axis}
-
+\end{tikzpicture}
+}
+\vskip 5pt
+\subfloat[Aggregated Posterior \label{subfig:intro_agg_posterior}]{%\subfigure{
+\begin{tikzpicture}
 \begin{axis}[
-    at={(0cm,-4.8cm)},
+    % at={(0cm,-4.8cm)},
     width=5.5cm,
     height=5.5cm,
-    title={\normalsize Aggregated Posterior},
+    % title={\normalsize Aggregated Posterior},
     axis lines=none,
     colormap={greenmap}{color(0cm)=(ForestGreen!1); color(1cm)=(ForestGreen!99)},
     point meta min=0, point meta max=1,
     view={0}{90}
 ]
-% \addplot3[
-%     surf,
-%     shader=interp,
-%     samples=50,
-%     domain=-2:2,
-%     domain y=-2:2
-% ]
-% {
-% 0.5 * (exp(-0.2*(x^2 + y^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) +
-% 0.5 * (exp(-0.5*((x-0.5)^2 + (y+0.5)^2)) * (0.8 + 0.4*sin(100*x)*cos(100*y) + 0.5*cos(90*x*y))) 
-% - 1 * (exp(-5*((x+0.4)^2 + (y)^2))
-% };
 \addplot3[
     surf,
     shader=interp,
@@ -804,6 +794,7 @@ This motivated the use of more complicated prior distributions, which are capabl
 \draw[very thick, RedOrange] (-0.7,0.2) circle (0.3cm); 
 \end{axis}
 \end{tikzpicture}
+}
 \caption{Example of the mismatch between the prior (top plot) and aggregated posterior (bottom)}\label{fig:intro_prior_mismatch}
 \end{marginfigure}
 
@@ -814,42 +805,36 @@ Note that we need to choose models with fully tractable densities, to ensure the
 
 Even with a deep generative model as prior, we might still ask ourselves, what is the optimal prior that would maximize the Evidence Lower bound. 
 To answer this question, we will follow \citet{hoffman2016elbo} and decompose the KL-term of the ELBO:
-\marginnote[2\baselineskip]{We first apply definition of the KL-divergence and multiply the integrand by $1$. Then using the property of the logarithm, we split equation into two terms. We notice the second term is equal to the Mutual Information between observation and latent code. Mutual information is a quantity defined as a KL divergence between the joint distirbution and a product of marginal distrbutions: $\text{MI}\left[\rvx, \rvy \right] = \KL{p(\rvx, \rvy)}{p(\rvx)p(\rvy)}$.}
-% \begin{equation}\label{eq:intro_elbo_vamp}
-% \begin{aligned}
-% &\E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} \\
-% &\; = \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz d\rvx \\
-% &\; =\iint p_e(\rvx)  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  d\rvx
-% + \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz  d\rvx\\
-% &\; =  \int\underbrace{\left( \int p_{e}(\rvx) q_{\phi}(\rvz|\rvx)d\rvx\right)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz
-% + \underbrace{\iint q_{\phi}(\rvz, \rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz)p_{e}(\rvx)}d\rvz  d\rvx}_{\text{Mutual Information}} \\
-% &\; =  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
-% + \text{MI}\left[\rvz; \rvx\right].
-% \end{aligned}
-% \end{equation}
-
-% \begin{equation}\label{eq:intro_elbo_vamp}
-% \begin{aligned}
+\marginnote[2\baselineskip]{We first apply definition of the KL-divergence and multiply the integrand by $1$. Then using the property of the logarithm, we split equation into two terms. We notice the second term is equal to the Mutual Information between observation and latent code.}
+\marginnote[2\baselineskip]{Mutual information is defined as a KL divergence between the joint distribution and a product of marginal distributions: $\text{MI}\left[\rvx, \rvy \right] = \KL{p(\rvx, \rvy)}{p(\rvx)p(\rvy)}$.}\anna{This formula is very ugly}
 \begin{align}
 \E_{p_e(\rvx)} &\KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} \\
 =& \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz d\rvx \\
  =&\iint p_e(\rvx)  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  d\rvx \notag\\
 &\quad\quad + \iint p_e(\rvx) q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz  d\rvx \\
  =&  \int\underbrace{\left( \int p_{e}(\rvx) q_{\phi}(\rvz|\rvx)d\rvx\right)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz \notag\\
-&\quad\quad+ \underbrace{\iint q_{\phi}(\rvz, \rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz)p_{e}(\rvx)}d\rvz  d\rvx}_{\text{Mutual Information}} \\
- =&  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
-+ \text{MI}\left[\rvz; \rvx\right].
+&\quad\quad+ \underbrace{\iint q_{\phi}(\rvz, \rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz)p_{e}(\rvx)}d\rvz  d\rvx}_{\text{Mutual Information}}. 
 \end{align}
 
-% \marginnote{It is very common to use Gaussian distribution for $q_{\phi}(\rvz|\rvx)$. In this case, aggregated posterior is a Gaussian mixture.}
-Note that the prior distribution is only present in the first term: KL-divergence between the aggregated posterior and prior. Therefore, the prior that minimizes the ELBO is equal to the aggregated posterior, the \textit{mixture} of encoders. Therefore, this decomposition highlights the importance of multimodal priors. 
-
-Motivated by this observation, \citet{tomczak2018vae} proposed a VampPrior, as trainable prior for VAEs, which is defined as a mixture of variational posterior. In order to avoid overfitting and make the model computationally tractable, this mixture is parameterized by $K$ pseudoinputs instead of the whole training dataset:
-\begin{equation}
-    p_{\theta}(\rvz) = \frac1K \sum_k q_{\phi}(\rvz|u_k).
+To sum up we get the following decomposition of the KL-term:
+\begin{equation}\label{eq:intro_kl_to_vamp}
+    \E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} =  \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
++ \text{MI}\left[\rvz; \rvx\right].
 \end{equation}
-In this case, the pseudoinputs themselves are the trainable part of the prior. 
 
+% \marginnote{It is very common to use Gaussian distribution for $q_{\phi}(\rvz|\rvx)$. In this case, aggregated posterior is a Gaussian mixture.}
+Note that the prior distribution is only present in the first term: KL-divergence between the aggregated posterior and prior. Therefore, the prior that minimizes the ELBO is equal to the aggregated posterior, the \textit{mixture} of encoders:
+\begin{equation}
+    p^*(\rvz) = \arg\max_{p(\rvz)}\mathcal{L}(\theta, \phi) = \E_{p_e(\rvx)}q_{\phi}(\rvz|\rvx).
+\end{equation}
+Therefore, this decomposition highlights the importance of multimodal priors. 
+Motivated by this observation, \citet{tomczak2018vae} proposed a VampPrior, a trainable prior for VAEs which is defined as a mixture of variational posteriors. In order to avoid overfitting and make the model computationally tractable, this mixture is parameterized by $K$ pseudoinputs instead of the whole training dataset:
+\begin{equation}
+    p_{\theta}(\rvz) = \frac1K \sum_k q_{\phi}(\rvz|u_k) \approx p_{\theta}^*(\rvz).
+\end{equation}
+In this case, the pseudoinputs themselves are the trainable part of the prior. In this thesis, we explore how VampPrior can used to improve the density estimation in a dynamic \textit{continual learning} setting. 
+
+ % Not only does the VampPrior introduces a more flexible prior, but also it is implicitly forces to "memorize" training data. 
 
 \begin{marginfigure}
 \begin{tikzpicture}[>=Stealth, every node/.style={scale=1.0}, line width=1.2pt]
@@ -900,23 +885,22 @@ In this case, the pseudoinputs themselves are the trainable part of the prior.
     \foreach \x/\label in {0/1, 1.5/2, 3/3} {
         \draw[very thick] (\x, -1.7) -- (\x, -1.3) node[below=0.3cm] {\(\label\)};
     }
-
-    % Arrows between NNs
-    % \draw[->, thick] (output01.east) -- ++(0.8, 0) -- ++(2.2, 0) -- (input41.west);
-    % \draw[->, thick] (output41.east) -- ++(0.8, 0) -- ++(2.2, 0) -- (input81.west);
-
 \end{tikzpicture}
-\caption{Illustration of the continual learning, where a model is trained on three different tasks sequentially and is expected to generalize on the data from all the tasks. }
+\caption{Illustration of the continual learning, where a model is trained on three different tasks sequentially and is expected to generalize on the data from all the tasks. }\label{fig:intro_cl_plot}
 \end{marginfigure}
 
- % Not only does the VampPrior introduces a more flexible prior, but also it is implicitly forces to "memorize" training data. 
+% \addpart{Explain More on Continual Learning}
+Cnotinual learning is a challangin problem of training deep neural networks in an adaptive manner. We assume a sequence of tasks $t=1,\dots,T$ which have to be solved by a single model.
+Subsets of the data for each task $\train^1, \dots ,\train^T$ arrive sequentially, and we have access to only one chunk of data at a time (e.g. $\train^t$ at time $t$). In Figure \ref{fig:intro_cl_plot}, we schematically show this setup for the 3 tasks. At each timestamp we train our model on a new chunk of data (\textcolor{ForestGreen}{Task1}, \textcolor{RoyalBlue}{Task2} and \textcolor{OrangeRed}{Task3}). We expect it to generalize well on the data from all three tasks in the end. Or, in other words, we expect to obtain a generative model that is approximating the data distribution spanning data from all the three tasks.   
+
+DNNs are known to reduce their quality on previously learned tasks when trained on data from a new one \citep{kirkpatrick2017overcoming}. This phenomenon was called \textit{catastrophic forgetting} \citep{mccloskey1989catastrophic} in the literature. Since both inference $\Enc{\rvz}{\rvx}$ and generative $\Dec{\rvx}{\rvz}$ models are parameterized by neural networks, the problem is also relevant for VAEs.  
+
 In addition to being a flexible prior distribution, VampPrior also learns a compact representation of the training dataset. If the model is well trained, VampPrior approximates the full dataset, using $K$ pseudoinputs. 
 Furthermore, it is straightforward to expand the expressivity of the mixture distribution by adding a new component.
-% Furthermore, mixture distributions can be expanded 
-This motivates the use of this mixture prior in a continuous learning setting and raises the first research question in this thesis:
+This motivates the use of this mixture prior in continual learning and raises the first research question in this thesis:
 
 \begin{quote}
-        \marginnote[-0\baselineskip]{Research Question 1}
+        \marginnote[-0\baselineskip]{\normalsize Research Question 1}
 	\textit{How to use Variational Mixture of Posteriors Prior to improve density estimation in continual learning?}
 \end{quote}
 This research question is addressed in Chapter~\ref{chap:boovae}, where we derive an optimal prior objective for the continual learning setting and propose a greedy algorithm to add components to the mixture when new data arrive. 
@@ -924,52 +908,135 @@ This research question is addressed in Chapter~\ref{chap:boovae}, where we deriv
 
 \subsection{Hierarchical VAEs}
 In the previous section, we have discussed how to improve the VAE model by using more flexible and trainable priors.
-
-A similar idea can be developed if we present the distribution in the latent space using a product rule of probability, similarly to autoregressive models discussed in Section~\ref{sec:into_deep_generative_models}"
+A similar idea can be developed if we present the distribution in the latent space using a product rule of probability, similarly to autoregressive models discussed in Section~\ref{sec:into_deep_generative_models}. Let us split the latent space into $L$ groups and assume the the prior distribution has the following autoregressive structure:
 \begin{equation}
-    p_{\theta}(\rvz) = \prod_i p_{\theta}(\rvz_i|\rvz_{>i}).
+    p_{\theta}(\rvz) = \prod_{l=1}^L p_{\theta}(\rvz_l|\rvz_{>l}),
 \end{equation}
-We will call each group of latent variables $\rvz_i$ a \textit{stochastic layer}. This decomposition imposes a certain structure on the latent space, which is often referred to as hierarchy and the correpoding generative model is called \textit{Hierarchical VAE}. 
+where $\rvz_{<l} = (\rvz_1, \dots, \rvz_{l-1})$ and assume $\rvz_{<1} = \varnothing$. We will call each group of latent variables $\rvz_l$ a \textit{stochastic layer}. This decomposition imposes a structure on the latent space, which is often referred to as hierarchy, and the corresponding generative model is called \textit{Hierarchical VAE}. 
 
-% This imposes a certain structure on the latent space. 
-% For example, assume that we split the latent space into two groups of latent variables $p_{\theta}(\rvz) = p_{\theta}(\rvz_1|\rvz_2)p_{\theta}(\rvz_2)$. Therefore, we assume that 
+\paragraph{Bottom Up Inference}
 
+\begin{equation}
+    q_{\phi}(\rvz|\rvx) = \prod_{l=1}^L q_{\phi}(\rvz_l|\rvz_{<l}, \rvx)
+\end{equation}
+\addpart{Why this decomposition is annoying, that we cannot get the separate KL terms.}
 
-\todo[inline]{Here we say that we can decompose latent variables into groups or stochastic layers and define a prior in the autoregressive way. This allows to get a very expressive latent distribution. However, they \textbf{can be hard to train} and \textbf{tend to have a lot of inactive units}.
-}
+\begin{marginfigure}
+\subfloat[Bottom Up VAE
+ \label{subfig:introbottom_up_vae}]{
+     \begin{tikzpicture}[node distance=.4cm]
+    \node[obs, minimum size=0.75cm] (X) {$\rvx$};
+  \node[latent, minimum size=0.75cm, above=0.2cm of X] (z1) {$\rvz_1$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z1] (z2) {$\rvz_2$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z2] (z3) {$\rvz_3$};
+  
+  \node[inner sep=0,minimum size=0.5cm, left=0.05cm of z1] (k1) {}; % invisible node
+  \node[inner sep=0,minimum size=0.5cm, right=0.1cm of X] (k2) {}; % invisible node
+  \node[inner sep=0,minimum size=0.5cm, left=0.05cm of z3] (k3) {}; % invisible node
+  % ENCODER:ALL ARROWS 
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z3);
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z2);
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z1);
+  \draw[-Latex, black] (z1) -- (k1.center) |- node[above]{} (z3);
+  \edge[-Latex, black] {z2} {z3};
+  \edge[-Latex, black] {z1} {z2};
+  \end{tikzpicture}
+  \quad
+  \begin{tikzpicture}[node distance=.4cm]
+   \node[obs, minimum size=0.75cm] (X_gen) {$\rvx$};
+  \node[latent, minimum size=0.75cm, above=0.2cm of X_gen] (z1_gen) {$\rvz_1$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z1_gen] (z2_gen) {$\rvz_2$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z2_gen] (z3_gen) {$\rvz_3$};
+  
+    \node[inner sep=0,minimum size=0.5cm, left=0.05cm of z3_gen] (k4) {}; % invisible node
 
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z3_gen] (k5) {}; % invisible node
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z2_gen] (k6) {}; % invisible node
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z1_gen] (k7) {}; % invisible node
+    
+    % \node[inner sep=0,minimum size=0.5cm, left=0.2cm of zL_gen] (k8) {}; % invisible node
+    
+    % shared path
+    \edge[-Latex, black] {z3_gen} {z2_gen};
+    \edge[-Latex, black] {z2_gen} {z1_gen};
+    \draw[-Latex, black] (z3_gen) -- (k4.center) |- node[above]{} (z1_gen);
 
+    % conditional likelihood
+    \draw[-Latex, black] (z3_gen) -- (k5.center) |- (X_gen);
+    \draw[-Latex, black] (z2_gen) -- (k6.center) |- (X_gen);
+    \draw[-Latex, black] (z1_gen) -- (k7.center) |- (X_gen);
+\end{tikzpicture}}
+\vskip 5pt
+\centering
+\subfloat[Top Down VAE \label{subfig:intro_top_down}]{%\subfigure{
+    \begin{tikzpicture}[node distance=.4cm]
+  % ENCODER: ALL RV
+  \node[obs, minimum size=0.75cm] (X) {$\rvx$};
+  \node[latent, minimum size=0.75cm, above=0.2cm of X] (z1) {$\rvz_1$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z1] (z2) {$\rvz_2$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z2] (z3) {$\rvz_3$};
+  
+  \node[inner sep=0,minimum size=0.5cm, right=0.1cm of X] (k2) {}; % invisible node
+  \node[inner sep=0,minimum size=0.5cm, left=0.05cm of z3] (k3) {}; % invisible node
+  % ENCODER:ALL ARROWS 
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z3);
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z2);
+  \draw[-Latex, black] (X) -- (k2.center) |- node[above]{} (z1);
+  \draw[-Latex, RoyalBlue, thick] (z3) -- (k3.center) |- node[above]{} (z1);
+  \edge[-Latex, RoyalBlue, thick] {z3} {z2};
+  \edge[-Latex, RoyalBlue, thick] {z2} {z1};
+  \end{tikzpicture}
+  \quad
+  \begin{tikzpicture}[node distance=.4cm]
+   \node[obs, minimum size=0.75cm] (X_gen) {$\rvx$};
+  \node[latent, minimum size=0.75cm, above=0.2cm of X_gen] (z1_gen) {$\rvz_1$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z1_gen] (z2_gen) {$\rvz_2$};
+  \node[latent, minimum size=0.75cm, above=0.4cm of z2_gen] (z3_gen) {$\rvz_3$};
+  
+    \node[inner sep=0,minimum size=0.5cm, left=0.05cm of z3_gen] (k4) {}; % invisible node
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z3_gen] (k5) {}; % invisible node
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z2_gen] (k6) {}; % invisible node
+    \node[inner sep=0,minimum size=0.5cm, right=0.05cm of z1_gen] (k7) {}; % invisible node
+        
+    % shared path
+    \edge[-Latex, RoyalBlue, thick] {z3_gen} {z2_gen};
+    \edge[-Latex, RoyalBlue, thick] {z2_gen} {z1_gen};
+    \draw[-Latex, RoyalBlue, thick] (z3_gen) -- (k4.center) |- node[above]{} (z1_gen);
+
+    % conditional likelihood
+    \draw[-Latex, black] (z3_gen) -- (k5.center) |- (X_gen);
+    \draw[-Latex, black] (z2_gen) -- (k6.center) |- (X_gen);
+    \draw[-Latex, black] (z1_gen) -- (k7.center) |- (X_gen);
+\end{tikzpicture}}
+\caption{A graphical model for hierarchical VAEs with three stochastic levels. (a)Bottom Up VAE has different traversal order for the variational posterior (left) and for the generative model (right). (b) Top Down VAE has the same traversal order for the variational posterior (left) and for the generative model (right), which allows for parameter shring (blue arrows).}
+\end{marginfigure}
+
+\paragraph{Top Down Inference}
+A different decomposition, which allows for a more efficient implementation, was proposed by \citet{sonderby2016ladder}.  The idea is to choose the same traversal order as in the prior:
+
+\begin{equation}
+    q_{\phi}(\rvz|\rvx) = \prod_{l=1}^L q_{\phi}(\rvz_l|\rvz_{>l}, \rvx)
+\end{equation}
+
+\addpart{Derive ELBO as reconstruction plus the sum of the KL distributions}
+
+There is still plenty of room to choose different types of parametrization in this type of probabilistic models. 
+\citet{sonderby2016ladder} choose to have Gaussian distributions with Neural Network parametrization. 
+\citet{kingma2016improved} proposed using the normalization flow as each stochastic layer. 
+More large-scale experiments conducted by \citet{vahdat2020nvae} and \citet{Child2020-ze}, demonstrated the scalability of deep hierarchical VAEs and their ability to model density of high dimensional and complex objects.
+However, they can still exhibit training instabilities and tend to have a problem of posterior collapse, where some parts of the latent space do not carry information about the data. 
+
+Another advantage of the TopDown structure is that it allows one to straightforwardly obtain the decomposition similar to Eq.~\ref{eq:intro_kl_to_vamp} for deep hierarchical VAEs and, thus, formulate the optimal prior for each stochastic layer as a corresponding mixture of variational posteriors. 
+\addpart{Kl term decomposition for a single stochastic layer}
+However, directly applying the VampPrior approximation with $K$ pseudoinputs becomes a very expensive approach, especially for the high-dimensional data on which these models are trained. This brings us to the next research question.
 \begin{quote}
-	How \marginnote[-0.75\baselineskip]{Research Question 2} to approximate the optimal prior for hierarchical VAEs in a scalable way and improve latent space utilization?
+        \marginnote[0\baselineskip]{\normalsize Research Question 2}
+	\textit{How to approximate VampPrior for hierarchical VAEs in a scalable way and improve latent space utilization?}
 \end{quote}
-This research question is addressed in Chapter~\ref{chap:dvp}.
+This research question is addressed in Chapter~\ref{chap:dvp}, where we use the idea of amortization from variational inference literature to obtain a scalable approximation of the VampPrior. 
 
-\subsection{Is Variational Posterior Distribution an Encoder?}
-
-\todo[inline]{
-How can VAEs be used to learn latent representation. If we do, then we want some properties of those latent representations. 
-}
-
-\paragraph{Adversarial Robustness}
-\begin{quote}
-	How \marginnote[-0.75\baselineskip]{Research Question 3} to make latent representations robust to adversarial attacks?
-\end{quote}
-This research question is addressed in Chapter~\ref{chap:adv_att}.
-
-\paragraph{Equivariant Latent Representation}
-\todo[inline]{
-Furthermore, we want to be able to impose properties that downstream tasks require. 
-For example, one may need to preserve the symmetries of the data when obtaining its latent representation. 
-}
-
-\begin{quote}
-	How \marginnote[-0.75\baselineskip]{Research Question 4} to train VAE with the equivariant latent space and use it as a prior for compressed sensing with unknown rotation.
-\end{quote}
-This research question is addressed in Chapter~\ref{chap:eqvae}.
-
-
-\subsection{Hierarchical VAEs and Diffusion Model}
-Up to this moment, we consideredt latent variable models, where we had to infer posterior disitribution from the data. Another option could be when auxillary variables are observed or we know their conditional distribution $\rvz|\rvx$. For example, diffusion based generative models introduce $T$ auxillary variables which constitute noisy versions of the input $\rvx$ with different level of noise. We then apply maximum likelihood over the joint model:
+\subsection{Diffusion Models}
+Up to this moment, we considered latent variable models, where we had to infer posterior disitribution from the data. Another option could be when auxillary variables are observed or we know their conditional distribution $\rvz|\rvx$. For example, diffusion based generative models introduce $T$ auxillary variables which constitute noisy versions of the input $\rvx$ with different level of noise. We then apply maximum likelihood over the joint model:
 \begin{equation}
 p_{\theta}(\rvx, \rvz_1, \dots, \rvz_T)
 \end{equation}
@@ -978,15 +1045,48 @@ Interestingly, the MLE objective above is nothing more than a special case of th
 
 The most popular way to define such non-latent auxilary variable is by using diffusion process, which gradually destroys the initial signal by adding more and mode noise to it. Then, generative model is essentially is trained to "undo" the harm. Such generative models are called Denoising Diffusion Generative Model.
 
+
+\subsection{Is Variational Posterior Distribution an Encoder?}
+As a probabilistic version of the Autoencoder model, which aims to learn a lower dimensional representation of the data, we may be interested in learning useful data representations with the VAEs. However, there is nothing in the training objective function which enforces the learned latent representation to be, for example, useful for downstream application. This does not mean that learned representations are useless, but rather that we cannot argue that they are necessarily useful. Furthermore, usefulness is a very vague term. In this section, we discuss several directions in which representation can be useful. 
+
+\addpart{
+What it has to do with the encoder 
+}
+
+\paragraph{Adversarial Robustness}
+The first property that we will cover is robustness to adversarial attacks. 
+
 \begin{quote}
-	How \marginnote[-0.75\baselineskip]{Research Question 5} to decouple denoising and generative abilities of the diffusion generative models
+\marginnote[0\baselineskip]{\normalsize Research Question 3}
+	How  to make latent representations robust to adversarial attacks?
+\end{quote}
+This research question is addressed in Chapter~\ref{chap:adv_att}.
+
+\paragraph{Equivariant Latent Representation}
+\addpart{
+Furthermore, we want to be able to impose properties that downstream tasks require. 
+For example, one may need to preserve the symmetries of the data when obtaining its latent representation. 
+}
+
+\begin{quote}
+\marginnote[0\baselineskip]{\normalsize Research Question 4}
+	How to train VAE with the equivariant latent space and use it as a prior for compressed sensing with unknown rotation.
+\end{quote}
+This research question is addressed in Chapter~\ref{chap:eqvae}.
+
+
+% \subsection{Hierarchical VAEs and Diffusion Model}
+\paragraph{Denoising}
+\begin{quote}
+\marginnote[0\baselineskip]{\normalsize Research Question 5}
+	How to decouple denoising and generative abilities of the diffusion generative models
 \end{quote}
 This research question is addressed in Chapter~\ref{chap:daed}.
 
 
 % \newpage
 \section{Dissertation Structure and Contributions}
-In the process of answering the research questions above, we have contributed to different aspects of generative modeling. In Table \ref{tab:papers_and_contributions} we provide the matrix of conrtibutions, so that the reader interested in a particular aspect can refer to the 
+In the process of answering the research questions above, we have contributed to different aspects of generative modeling. In Table \ref{tab:papers_and_contributions} we provide the matrix of contributions, so that the reader interested in a particular aspect can refer to the 
 \begin{table}[!ht]
 	\caption[][\baselineskip]{Contributions to Different Aspects of Generative Modeling .}
 	\label{tab:papers_and_contributions}

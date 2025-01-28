@@ -130,6 +130,11 @@
 \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
 \newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
 
+% \newcommandx{\anna}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+
+\newcommand{\anna}[1]{\todo[color=RoyalBlue!40, size=\small]{[AK] #1}}
+\newcommand{\jakub}[1]{\todo[color=ForestGreen!40, size=\normalsize]{[JT] #1}}
+\newcommand{\addpart}[1]{\todo[inline, color=RedOrange!40, size=\normalsize]{[Add] #1}}
 
 
 
@@ -225,7 +230,7 @@ Anna Akhmatova
 % смутный облик сначала,
 % много позже — черты.
     % Иосиф Бродский
-% \include{text/5_dvp/main}
+\include{text/5_dvp/main}
 
 \part{Latent Space: New properties and Structure}\label{part:2}
 
@@ -251,7 +256,7 @@ Anna Akhmatova
     % Анна Ахматова
 % \include{text/3_adv_att/main}
 
-% \include{text/4_daed/main}
+\include{text/4_daed/main}
 
 
 % А вопросы… Вопросы не знают ответа —
@@ -281,13 +286,13 @@ Anna Akhmatova
 %%%%% Appendix
 \appendix
 \newpage
-\todo{Make sure that appendix order is the same as chapter order}
+\anna{Make sure that appendix order is the same as chapter order}
 \include{text/1_boovae/appendix}
-% \include{text/5_dvp/appendix}
+\include{text/5_dvp/appendix}
 
 % \include{text/2_equiv_vae/sections/6_appendix}
 % \include{text/3_adv_att/appendix}
-% \include{text/4_daed/sections/5_appendix}
+\include{text/4_daed/sections/5_appendix}
 
 \clearpage
 
