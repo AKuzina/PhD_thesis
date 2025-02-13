@@ -324,20 +324,16 @@ De Boelelaan 1105
                  & \@rector{}  & The Netherlands \\
             \medskip \\ 
             \mbox{\emph{Committee:}} 
-            &dr.~Yingzhen Li & Uni \\
-            && Location \\
-            &prof.dr.~Mark Hoogendoorn & Uni \\
-            && Location \\
-            &dr.~Jes Frellsen & Uni \\
-            && Location \\
-            &prof.dr.~Stefan Mandt & Uni \\
-            && Location \\
-            &dr.~Efstration Gavves & Uni \\
-            && Location \\
-            % & Prof.~dr.~ & Vrije Universiteit Amsterdam, \\ 
-            % & & The Netherlands \\
-            % & Prof.~dr.~ & Vrije Universiteit Amsterdam, \\ 
-            % & & The Netherlands \\
+            % &dr.~Yingzhen Li & Uni \\
+            % && Location \\
+            % &prof.dr.~Mark Hoogendoorn & Uni \\
+            % && Location \\
+            % &dr.~Jes Frellsen & Uni \\
+            % && Location \\
+            % &prof.dr.~Stefan Mandt & Uni \\
+            % && Location \\
+            % &dr.~Efstration Gavves & Uni \\
+            % && Location \\
         \end{tabular}
         
 	% dedication
