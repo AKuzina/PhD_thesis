@@ -559,18 +559,20 @@ One can also consider the objective ELBO from the constrained optimization point
 \citet{klushyn2019learning} proposes a different rule for updating $\lambda$, which ensures that the model optimizes ELBO once the reconstruction constraint is met. 
 
 \paragraph{Approximating Likelihood with Importance Sampling}
-As we have already mentioned, estimating likelihood exactly is hard for the latent variable model, due to the intractability of the integral. However, we can still approximate it using important sampling (IS). For each datapoint $\rvx$ we use the variational posterior distribution as a proposal. IS likelihood estimate is obtained by sampling $K$ times from the proposal and computing the weighted average:
+As we have already mentioned, estimating the likelihood exactly is difficult for the latent variable model, due to the intractability of the integral. However, we can still approximate it using important sampling (IS). For each datapoint $\rvx$, we use the variational posterior distribution as a proposal. IS likelihood estimate is obtained by sampling $K$ times from the proposal and computing the weighted average:
 \begin{equation}
 \begin{aligned}
     \log p_{\theta}(\rvx) = \int p_{\theta}(\rvx|\rvz)p_{\theta}(\rvz)d\rvz \approx &\log \frac1K \sum_k\frac{p_{\theta}(\rvx|\tilde{z}_k)p_{\theta}(\tilde{z}_k)}{q_{\phi}(\tilde{z}_k|\rvx)},\\
     &\tilde{z}_k \sim q_{\phi}(\rvz|\rvx).
 \end{aligned}
 \end{equation}
-This is known as an \textit{importance weighted} log likelihood estimate. Notice that for $K=1$ it is equal to the ELBO. Furthermore, as we increase $K$ the bound on the log likelihood becomes tighter and approaches $\log p_{\theta}(\rvx)$ as $K \rightarrow \infty$ \citep{burda2015importance}. In practice $K=500$ or $K=1000$ is commonly used to report the test log-likelihood results and compare performance of different models. \citet{burda2015importance} proposed to use this as a training objective, a model known as \textit{Importance Weighted Autoencoder} (IWAE). 
+This is known as an \textit{importance weighted} log likelihood estimate. Notice that for $K=1$ it is equal to the ELBO. Furthermore, as we increase $K$ the bound on the log likelihood becomes tighter, and it approaches $\log p_{\theta}(\rvx)$ as $K \rightarrow \infty$~\citep{burda2015importance}. In practice $K=500$ or $K=1000$ is commonly used to report the test log-likelihood results and to compare the performance of different models. \citet{burda2015importance} proposed to use this as a training objective, a model known as \textit{Importance Weighted Autoencoder} (IWAE). 
 
+\paragraph{Model Components}
+Latent Variable model, including a VAE, consists of three main components. The conditional likelihood $p_{\theta}(\rvx|\rvz)$, which models the distribution of the data given its latent representation. The prior $p_{\theta}(\rvz)$, which is the marginal distribution over the latent space. And finally, the variational posterior $q_{\phi}(\rvz|\rvx)$, which models a conditional distribution of the latent variable given the data. We will now discuss each of these three components.
 % \paragraph{Information Theoretic Point of View}
 % \addpart{fixing the broken ELBO}
-
+% Auxiliary Deep Generative Models \cite{maaloe2016auxiliary}
 % \paragraph{VAE limitations}
 % \begin{itemize}
 %     \item Blurry samples \cite{Rybkin2020-je}
@@ -579,22 +581,20 @@ This is known as an \textit{importance weighted} log likelihood estimate. Notice
 %     \item Holes in the latent space\\
 %     A more flexible prior to cover the aggregated posterior better
 % \end{itemize}
- 
-
-% Auxiliary Deep Generative Models \cite{maaloe2016auxiliary}
-
-% In this section, we focus in more details on the deep Latent Variable model (Eq.~\ref{eq:intro_lvm_def}). We assume continuous random variable $\rvz$ corresponding to each datapoint. 
 
 \subsection{Conditional Likelihood}
-\paragraph{Modeling pixel values}
-Images are usually considered as continuous objects, where each pixel is assigned with the corresponding intensity $\nu$. 
-However, the observed value $\rvx$ is usually discretized (e.g. intensity rounded to the nearest 8-bit representation). 
-Therefore, using continuous distribution might be suboptimal.
-One option in this case would be to use the categorical distribution with 256 possible values for each pixel (in the case of the 8-bit representation). However, this will ignore the fact that the nearby pixel values are correlated. 
-Instead, a common approach is to model the pixel intensity as a continuous random variable and then discretize its distribution to calculate the actual likelihood. 
-% Generally, there are two ways to implement this discretization which we will consider now. 
+The choice of conditional likelihood is usually determined by the type of data. For example, we may use the Gaussian distribution for continuous data with infinite support. Another common option is the Bernoulli distribution for discrete binary-valued data. 
 
-We will assume that all pixel across spacial and channel dimensions are conditionally independent:
+\paragraph{Modeling pixel values}
+In this thesis we mainly conduct experiments in the computer vision domain, modeling distribution of images.
+Each pixel of an image can be seen as a continuous random variable representing the intensity $\nu$. 
+However, the observed value $\rvx$ is usually discretized (e.g. intensity rounded to the nearest 8-bit representation). 
+Therefore, using a continuous distribution might be suboptimal.
+An option in this case would be to use the categorical distribution with 256 possible values for each pixel (in the case of the 8-bit representation). However, this will ignore the fact that the nearby pixel values are correlated. 
+Instead, a common approach is to model the pixel intensity as a continuous random variable and then discretize its distribution to calculate the actual likelihood. 
+
+
+We will assume that all pixels across spacial and channel dimensions are conditionally independent:
 \begin{align}
     p_{\theta}(\rvx|\rvz) &= \prod_i p_{\theta}(\rvx_i|\rvz),\\
     p_{\theta}(\rvx_i|\rvz) &= \sum_{k} P_{\theta}(\rvx_i = k|\rvz).
@@ -618,7 +618,7 @@ The first option is to split the support of the intensity random variable into b
     \end{cases}.
 \end{aligned}
 \end{equation}
-Assuming that we know the CDF of the intensity, we ca compute the value of the integral:
+Assuming that we know the CDF of the intensity, we can compute the value of the integral as follows:
 \begin{equation}
     P_{\theta}(\rvx_i = k|\rvz) =\begin{cases}
     F_{\nu}(\rvx_i + \frac{1}{2}) - F_{\nu}(\rvx_i - \frac{1}{2}),\quad &\text{if } k \in (1, \dots, 254) \\
@@ -710,7 +710,7 @@ It is convenient to use logistic distribution~\cite{kingma2016improved}, as it's
 \end{tikzpicture}
 \caption{Probability Density Function for the pixel intensity (top) and discretized probabilities (bottom)}
 \end{marginfigure}
-\citet{salimans2016improved} proposed to use a mixture of discretized logistic distributions to improve the flexibility of the distribution. Later, it was used in deep hierarchical VAEs \citep{vahdat2020nvae, Child2020-ze}.
+\citet{salimans2016improved} proposed to use a mixture of discretized logistic distributions to improve the flexibility of the distribution.
 
 The second option is to re-normalize the probability of each bin:
 \begin{equation}\label{eq:intro_softmax_discr}
@@ -718,28 +718,18 @@ The second option is to re-normalize the probability of each bin:
     P_{\theta}(\rvx_i = k|\rvz) = \frac{f_{\nu}(k|\rvz)}{\sum_{i=0}^K f_{\nu}(i|\rvz)}.
 \end{aligned}
 \end{equation}
-Note that in this case, we only need to know the PDF of the pixel intensity up to a normalization constant. For example, we can assume Gaussian distribution of the pixel intensity and re-normalize using softmax:
+Note that in this case, we only need to know the PDF of the pixel intensity up to a normalization constant. Thus, it is convenient when we want to use the Gaussian distribution:
+% For example, we can assume Gaussian distribution of the pixel intensity and re-normalize using softmax:
 \begin{equation}
 \begin{aligned}
     P_{\theta}(\rvx_i = k|\rvz) = \frac{\exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - k}{\sigma_{\theta}(\rvz)}\right)^2\right)}{\sum_{i=0}^{255} \exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - i}{\sigma_{\theta}(\rvz)}\right)^2\right)}.
 \end{aligned}
 \end{equation}
-There is an important difference between the two approaches. The first discretization option assigns a higher probability to pixels 0 and 255. \citet{salimans2016improved} motivated this by the empirical observation that these values have a higher frequency in real data. However, this has an effect that in order to learn confident prediction of the pixel values that are close to 0 or 255, the model has to learn a smaller variance of the intensity. Re-normalization, on the other hand, divides all bins by the same normalization constant.
 
-% So the experiments
-% Make the variance separatele learned parameter, initilize at zero. 
-
-% Likelihood Options:
-    % Gaussian tail CDF
-    % Logistic tail CDF
-    % Gaussian softmax
-
-% Variance Otions:
-    % No Limit
-    % Clip 1/sigma at 1000
-    % Clip 1/sigma at 500
-
-
+There is one more difference between the two approaches. The first discretization option tends to assign a higher probability to pixels 0 and 255. \citet{salimans2016improved} motivated this by the empirical observation that these values have a higher frequency in real data. Renormalization, on the other hand, divides all bins by the same normalization constant. This is illustrated in Figure~\ref{eq:intro_int_discr}.
+In practice, both discretizations are used. 
+For example, logistic distribution~\citep{vahdat2020nvae, Child2020-ze} discretized with CDF, Gaussian distribution~\citep{ho2020denoising} discretized with CDF, and renormalized Gaussian distribution~\citep{kingma2021variational}. 
+In our experiments, we found all three options to perform similarly. 
 
 
 \subsection{Learnable Prior}
@@ -748,10 +738,9 @@ Early VAE works used isotropic Gaussian with zero mean as a prior over the laten
 \begin{equation}
     p(\rvz) = \mathcal{N}(\rvz | 0, \text{I}).
 \end{equation}
-
 However, this can be too restrictive for a model to have and might cause a problem known in the VAE literature as \textit{holes} in the latent space. Intuitively, we can think of it as regions in the latent space with high prior probability that are not covered by any of the variational posterior distributions. 
 
-To understand the problem of holes in the latent space, consider a toy example with the 2-dimensional latent space in Figure~\ref{fig:intro_prior_mismatch}. The top plot depicts standard Gaussian prior and darkens of the color represent the probability of the sample. Let us also define the \textit{aggregated posterior} as a variational posterior averaged over the entire dataset: $q_{\phi}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. For example, the bottom part of Figure~\ref{fig:intro_prior_mismatch} presents a mixture of several Gaussian distributions that spread around the same area of the 2-d plane as the prior above it. However, there are several places where the aggregated posterior has a very low probability, namely, no real data point $\rvx$ is ever encoded in this part of the latent space. At the same time, the prior distribution assigns a high probability to this region. One such region is denoted by a red circle in the figure. 
+To better understand the problem of holes in the latent space, consider a toy example with the 2-dimensional latent space in Figure~\ref{fig:intro_prior_mismatch}. The top plot depicts standard Gaussian prior and darkens of the color represent the probability of the sample. Let us also define the \textit{aggregated posterior} as a variational posterior averaged over the entire dataset: $q_{\phi}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. For example, the bottom part of Figure~\ref{fig:intro_prior_mismatch} presents a mixture of several Gaussian distributions that spread around the same area of the 2-d plane as the prior above it. However, there are several places where the aggregated posterior has a very low probability, namely, no real data point $\rvx$ is ever encoded in this part of the latent space. At the same time, the prior distribution assigns a high probability to this region. One such region is denoted by a red circle in the figure. 
 This motivated the use of more complicated prior distributions, which are capable of \textit{adapting} to the aggregated posterior and are flexible enough to avoid the holes. 
 
 \begin{marginfigure}
@@ -822,24 +811,21 @@ Note that we need to choose models with fully tractable densities to ensure the 
 
 Even with a deep generative model as prior, we might still ask ourselves, what is the optimal prior that would maximize the Evidence Lower bound. 
 To answer this question, we will follow \citet{hoffman2016elbo} and decompose the KL-term of the ELBO:
-\marginnote[2\baselineskip]{We first apply definition of the KL divergence and multiply the integrand by $1$. Then using the property of the logarithm, we split the equation into two terms. }
 \begin{align}
 &\KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} = \int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}\frac{q_{\phi}(\rvz)}{q_{\phi}(\rvz)}d\rvz\\
  &\quad=\int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  + \int  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz|\rvx)}{q_{\phi}(\rvz)}d\rvz  \\
  &\quad=\int q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  + \int  q_{\phi}(\rvz|\rvx) \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz) p_e(\rvx)}d\rvz. 
 \end{align}
+\marginnote[-8\baselineskip]{First, we apply the definition of the KL divergence and multiply the integrand by $1$. Then, using the property of the logarithm, we split the equation into two terms. }
 Now, we can take an expectation with respect to the data distribution.
-% to  get the sum up we get the following decomposition of the KL-term:
-
-\marginnote[2\baselineskip]{We notice that both terms can be defined as a KL divergences. Furthermore, the second term is equal to the Mutual Information between observation and latent code, since it is defined as a KL divergence between the joint distribution and a product of marginal distributions: $\text{MI}\left[\rvx, \rvy \right] = \KL{p(\rvx, \rvy)}{p(\rvx)p(\rvy)}$.}
 \begin{align}\label{eq:intro_kl_to_vamp}
-\E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)} = &\int \underbrace{\E_{p_e(\rvx)} q_{\phi}(\rvz|\rvx)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  \\
-&\quad\quad+ \iint  \underbrace{q_{\phi}(\rvz|\rvx)p_e(\rvx)}_{q_{\phi}(\rvz, \rvx)} \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz) p_e(\rvx)}d\rvz d\rvx \notag\\
-= &\KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
+&\E_{p_e(\rvx)} \KL{q_{\phi}(\rvz|\rvx)}{p_{\theta}(\rvz)}  \\
+&\quad\quad=\int \underbrace{\E_{p_e(\rvx)} q_{\phi}(\rvz|\rvx)}_{q_{\phi}(\rvz)} \log \frac{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}d\rvz  
++ \iint  \underbrace{q_{\phi}(\rvz|\rvx)p_e(\rvx)}_{q_{\phi}(\rvz, \rvx)} \log \frac{q_{\phi}(\rvz, \rvx)}{q_{\phi}(\rvz) p_e(\rvx)}d\rvz d\rvx \notag\\
+&\quad\quad= \KL{q_{\phi}(\rvz)}{p_{\theta}(\rvz)}
 + \text{MI}\left[\rvz; \rvx\right].
 \end{align}
-
-% \marginnote{It is very common to use Gaussian distribution for $q_{\phi}(\rvz|\rvx)$. In this case, aggregated posterior is a Gaussian mixture.}
+\marginnote[-7\baselineskip]{We notice that both terms can be defined as a KL divergences. Furthermore, the second term is equal to Mutual Information between observation and latent code, since it is defined as a KL divergence between the joint distribution and a product of marginal distributions: $$\text{MI}\left[\rvx, \rvy \right] = \KL{p(\rvx, \rvy)}{p(\rvx)p(\rvy)}.$$}
 Note that the prior distribution is only present in the first term: KL divergence between the aggregated posterior and prior. Therefore, the prior that minimizes the ELBO is equal to the aggregated posterior, the \textit{mixture} of encoders:
 \begin{equation}
     p^*(\rvz) = \arg\max_{p(\rvz)}\mathcal{L}(\theta, \phi) = \E_{p_e(\rvx)}q_{\phi}(\rvz|\rvx).
@@ -1180,7 +1166,7 @@ Usually, all the conditional distributions are parametrized by the shared Neural
 \rqs{3}
 This research question is addressed in Chapter~\ref{chap:daed}. We empirically study how the generative diffusion model behaves at different stages of the denoising process and propose to decouple two functions. We show that the proposed changes improve model performance as well as out-of-distribution denoising abilities. 
 
-\subsection{Is Variational Posterior Distribution an Encoder?}
+\subsection{Variational Posterior or Encoder}
 Apart from being generative models with the ability to estimate the density and sample from the learned distribution, latent variable generative models may be interesting in their ability to learn representations of data. 
 In this regard, it is common to think of the variational posterior as an \textit{encoder}. The mean of the variational posterior or sample from it is then treated as a (usually lower dimensional) representation of the corresponding datapoint. 
 However, there is nothing in the training objective function which enforces the learned latent representation to be useful, for example, for downstream application. 
@@ -1202,6 +1188,8 @@ This research question is addressed in Chapter~\ref{chap:adv_att}. Previous work
 Apart from generally useful properties such as robustness discussed above, there are properties that might be useful for specific downstream tasks. 
 For example, downstream tasks can benefit from utilizing symmetries presented in the data. 
 
+One such downstream task is compressed sensing. Here, we are interested in reconstructing a signal (e.g. an image) from a limited set of measurements which can be converted into an optimization problem. In this case, latent variable generative model can be used as a prior over all possible signals and we can solve the optimization problem in the lower dimensional latent space instead. 
+The task may have additional complexity if we add rotation ambiguity. That is, we can assume that the object could have been measured in an unknown orientation. In that case, we can benefit from learning the latent representations that are \textit{equivariant} to rotation. 
 \begin{marginfigure}
 \begin{tikzpicture}
 
@@ -1232,8 +1220,6 @@ For example, downstream tasks can benefit from utilizing symmetries presented in
 \end{tikzpicture}
 \caption{Example of a function $f$ equivariant to transformation $T$. The application of a transformation and then a function yields the same result as first applying the function and then the transformation.}\label{fig:intro_equiv}
 \end{marginfigure}
-One such downstream task is compressed sensing. Here, we are interested in reconstructing a signal (e.g. an image) from a limited set of measurements which can be converted into an optimization problem. In this case, latent variable generative model can be used as a prior over all possible signals and we can solve the optimization problem in the lower dimensional latent space instead. 
-The task may have additional complexity if we add rotation ambiguity. That is, we can assume that the object could have been measured in an unknown orientation. In that case, we can benefit from learning the latent representations that are \textit{equivariant} to rotation. 
 
 We provide a toy example to illustrate a rotation equivariant function in Figure \ref{fig:intro_equiv}. We can first rotate an object and then evaluate the function, or we can first evaluate the function and then rotate the output. If we get the same result in both cases, the function is called equivariant to rotation. 
 
