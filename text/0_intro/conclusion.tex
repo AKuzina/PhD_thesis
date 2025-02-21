@@ -1,14 +1,63 @@
 \chapter{Conclusion}
 
-\section{Summary of the research questions}
+In this thesis, we have suggested the improvement of latent variable generative models in different scenarios and aspects. In the first part, we focused on the improved density estimation, while in the second part we explored properties of the latent representations. 
+We will now give a summary of the contributions to each of the research questions outlined in Chapter~\ref{chap:intro}.
+
+\rqs{1}
+In Chapter~\ref{chap:boovae}, we address the problem of continual learning for Variational Autoencoders. 
+The choice of the prior distribution is crucial for VAE performance and, as we have shown in the work, may help to avoid catastrophic forgetting in continual learning. 
+Following VampPrior, we use the approximation of the optimal prior, which is parameterized as an additive mixture of distributions induced by the encoder evaluated at trainable pseudoinputs. 
+However, we propose a greedy boosting-like approach with entropy regularization to learn the mixture components. 
+The objective ensures that the approximation improves with every component added, while encouraging the diversity among the components. 
+Diversity is essential in continual learning, as we aim to memorize the current task using as few components as possible. 
+Based on the learnable prior, we introduce an end-to-end approach for continual learning of VAEs. 
+We provide empirical studies on commonly used benchmarks (MNIST, Fashion MNIST, NotMNIST) and the CelebA dataset, demonstrating that our proposed method avoids catastrophic forgetting in a fully automatic way.
+
+
+\rqs{2}
+In Chapter~\ref{chap:dvp}, we address the issue of scalability of the VampPrior for Deep Hierarchical VAEs. 
+This is a powerful class of deep generative models.
+However, the standard VampPrior parameterization with trainable pseudoinput limits it's scalability. 
+Therefore, prior works were usually using Gaussian distribution and avoided the mixture parametrization.
+We apply amortization to allow scaling the VampPrior to models with many stochastic layers. 
+This is achieved by substituting the pseudoinput with the simple non-trainable input transformation and learning a diffusion model prior over the space of pseudoinput to allow unconditional sampling.
+This proposed approach achieves better performance compared to the original VampPrior work and other deep hierarchical VAEs, while using fewer parameters. 
+We empirically validate our method on standard benchmark datasets (MNIST, OMNIGLOT, CIFAR10) and demonstrate improved training stability and latent space utilization.
+
+\rqs{3}
+In Chapter~\ref{chap:daed}, we turn to the diffusion model, which is a different class of deep latent variable models. 
+We analyze its denoising and generative capabilities and observe a transition point at which the generative model switches between generating a corrupted image from noise and denoising this corrupted image to obtain a final sample. 
+Based on this observation, we propose a novel parameterization, where these functions are fulfilled by different neural networks: a generator and a denoiser.
+The denoiser could be parameterized by a denoising autoencoder, while the generator is a diffusion-based model with its own set of parameters. 
+We experimentally validate this proposition, discussing its advantages and disadvantages.
+
+
+\rqs{4}
+In Chapter \ref{chap:adv_att}, examine the adversarial robustness of the latent representation in VAEs.
+We examine several previously proposed objective functions for adversarial attack construction and present a solution to mitigate the effect of these attacks. 
+Our method utilizes the Markov Chain Monte Carlo (MCMC) technique during the inference step, which we justify through the theoretical analysis. 
+The proposed approach does not incur any additional costs during training, and the performance on non-attacked inputs is not diminished. 
+We validate our approach on a variety of datasets (MNIST, Fashion MNIST, Color MNIST, CelebA) and VAE configurations ($\beta$-VAE, NVAE, $\beta$-TCVAE).
+Our experiments demonstrate that our method consistently improves the model's robustness to adversarial attacks.
+
+
+\rqs{5}
+In Chapter~\ref{chap:eqvae}, we propose an equivariant Variational Autoencoder (VAE) and use it as a prior for compressed sensing with unknown signal orientation. 
+Compressed sensing aims to reconstruct a signal from an underdetermined system of linear measurements, which requires prior knowledge of the signal structure. 
+If the signal might have been rotated by an unknown angle before the measurement took place, the prior is required to assign equal probabilities to the same signal in different orientations. 
+This can be achieved by making the prior and the latent space that is used in compressed sensing equivariant to the rotation. 
+To ensure equivariance, we formulate constraints on neural networks that parameterize the variational posterior and conditional likelihood distributions. 
+We demonstrate that signals with unknown orientations can be recovered using iterative gradient descent on the latent space of these models, and provide theoretical recovery guarantees.
 
 
 
+% \section{Limitations and Future work}
 
-\section{Limitations and Future work}
+% \paragraph{Metrics for samples}
+% Measuring the quality of the generated images poses several challenges. First, visual perception is subjective, and what one person considers high quality, another might find lacking. 
 
-\paragraph{Metrics for samples}
+% Additionally, traditional metrics such as pixel similarity do not always align with human aesthetic judgments. The context and purpose of the image add further complexity, requiring specialized evaluation metrics for different use cases. In addition, the diversity and distribution of the generated images can have an impact on quality assessments, making it difficult to establish a universal measurement standard. 
 
-\paragraph{Performance GAP between diffusion models and hierarchical VAEs}
+% \paragraph{Performance GAP between diffusion models and hierarchical VAEs}
 
-% \paragraph{Performance GAp between deiffusion models and hierarchical VAEs}
+

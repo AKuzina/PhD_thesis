@@ -22,11 +22,7 @@ In the case of $K>1$, we consider a hierarchical latent structure with the gener
 \begin{equation}
     p_{\theta}(\rvx, \rvz_1, \ldots, \rvz_K) = \Dec{\rvx}{\rvz_1, \ldots, \rvz_K} \prod_{k=1}^{K}\Dec{\rvz_{k}}{\rvz_{>k}}.
 \end{equation}
-There are various possible formulations of the family of variational posteriors. However, here we follow the proposition of \citet{So_nderby2016-en} with the autoregressive inference model, namely, $$\Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}$$. 
-% where the inference model with skip-connections was proposed \mw{maybe just say autoregressive model?}, namely:
-% \begin{equation}
-%     \Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}.
-% \end{equation}
+There are various possible formulations of the family of variational posteriors. However, here we follow the proposition of \citet{So_nderby2016-en} with the autoregressive inference model, namely, $$\Enc{\rvz_1, \ldots, \rvz_K}{\rvx} = \Enc{\rvz_K}{\rvx}\prod_{k=1}^{K-1}\HEnc{\rvz_k}{\rvz_{>k}, \rvx}.$$
 This formulation was used, among others, in NVAE \citep{vahdat2020nvae}. Because of the top-down structure, it allows sharing data-dependent information between the inference model and the generative model.
 
 
@@ -43,32 +39,48 @@ This formulation was used, among others, in NVAE \citep{vahdat2020nvae}. Because
 			\begin{tabular}{llcccc}
 				\toprule
 				& \sc{Reference}  &$f(x)$ & $\Delta\left[A, B\right]$  &  $\|\cdot\|_p$ &  \sc{Type}\\ \midrule
-				\multirow{3}{*}{Latent Space Attack}
+				\multirow{3}{3cm}{Latent Space Attack}
 				& \multirow{3}{2cm}{\cite{barrett2021certifiably, Gondim-Ribeiro2018-cu, Willetts2019-mu}}
 				& \multirow{3}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{3}{*}{$\KL{A}{B}$}   & \multirow{3}{*}{2} & \multirow{3}{*}{Supervised}\\
 				&&&&&\\
 				&&&&&\\
-				\multirow{2}{3cm}{Unsupervised Encoder Attack}
-				& \multirow{2}{2cm}{\cite{kuzina2021adv}}
-				& \multirow{2}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{2}{*}{$\mathrm{SKL}\left[A\|B\right]$}   & \multirow{2}{*}{2} & \multirow{2}{*}{Unsupervised}\\
+				\multirow{3}{3cm}{Unsupervised Encoder Attack}
+				& \multirow{3}{2cm}{\cite{kuzina2021adv}}
+				& \multirow{3}{*}{$q_{\phi}(\cdot|x)$} 
+                    & \multirow{3}{*}{$\mathrm{SKL}\left[A\|B\right]$}   
+                    & \multirow{3}{*}{2} 
+                    & \multirow{3}{*}{Unsupervised}\\
 				&&&&&\\
-				\multirow{2}{*}{Targeted Output Attack}
-				& \multirow{2}{*}{\cite{Gondim-Ribeiro2018-cu}}
-				& \multirow{2}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   & 
-				\multirow{2}{*}{$\|A - B\|_2^2$}  & 
-				\multirow{2}{*}{2} & \multirow{2}{*}{Supervised}\\
+                    &&&&&\\
+				\multirow{3}{3cm}{Targeted Output Attack}
+				& \multirow{3}{*}{\cite{Gondim-Ribeiro2018-cu}}
+				& \multirow{3}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   
+                    & \multirow{3}{*}{$\|A - B\|_2^2$}  
+                    & \multirow{3}{*}{2} & \multirow{2}{*}{Supervised}\\
 				&&&&&\\
-				\multirow{2}{*}{Maximum Damage Attack}
-				& \multirow{2}{2cm}{\cite{barrett2021certifiably, camuto2021towards}}
-				& \multirow{2}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   & \multirow{2}{*}{$\|A - B\|_2^2$}  & \multirow{2}{*}{2} & \multirow{2}{*}{Unsupervised}\\
+                    &&&&&\\
+				\multirow{3}{3cm}{Maximum Damage Attack}
+				& \multirow{3}{2cm}{\cite{barrett2021certifiably, camuto2021towards}}
+				& \multirow{3}{*}{$g_{\theta}(\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}   
+                    & \multirow{3}{*}{$\|A - B\|_2^2$}  
+                    & \multirow{3}{*}{2} 
+                    & \multirow{3}{*}{Unsupervised}\\
 				&&&&&\\
-				\multirow{2}{3cm}{Projected Gradient Descent Attack\textsuperscript{*}}
-				& \multirow{2}{*}{\cite{Cemgil2019-vn}}
-				& \multirow{2}{*}{$q_{\phi}(\cdot|x)$} &  \multirow{2}{*}{$\mathcal{WD}\left[A, B\right]$}   & \multirow{2}{*}{$\inf$} & \multirow{2}{*}{Unsupervised}\\
+                    &&&&&\\
+				\multirow{4}{3cm}{Projected Gradient Descent Attack\textsuperscript{*}}
+				& \multirow{3}{*}{\cite{Cemgil2019-vn}}
+				& \multirow{3}{*}{$q_{\phi}(\cdot|x)$} 
+                    & \multirow{3}{*}{$\mathcal{WD}\left[A, B\right]$}   
+                    & \multirow{3}{*}{$\inf$} 
+                    & \multirow{3}{*}{Unsupervised}\\
 				&&&&&\\
-				\multirow{2}{*}{Adversarial Accuracy}
+                    &&&&&\\
+				\multirow{2}{3cm}{Adversarial Accuracy}
 				& \multirow{2}{*}{\cite{cemgil2020autoencoding, Cemgil2019-vn}}
-				& \multirow{2}{*}{$p_{\psi}(y|\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}  & \multirow{2}{*}{\sc{Cross Entropy}} & \multirow{2}{*}{$\inf$} & \multirow{2}{*}{Unsupervised}\\
+				& \multirow{2}{*}{$p_{\psi}(y|\tilde{z}), \tilde{z} \sim q_{\phi}(\cdot|x)$}  
+                    & \multirow{2}{*}{\sc{Cross Entropy}} 
+                    & \multirow{2}{*}{$\inf$} 
+                    & \multirow{2}{*}{Unsupervised}\\
 				&&&&&\\
 				\bottomrule
 		\end{tabular}}

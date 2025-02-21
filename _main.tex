@@ -140,7 +140,8 @@
 
 % INFO : used in the titlepage, copyright and stuff.
 \author[Anna Kuzina]{Anna Kuzina}
-\title{Latent Matters: The title that I will change}
+\title{Mapping the Invisible}
+\subtitle{Insights into Deep Latent Variable Generative Models}
 % Mining Hidden Gems
 % Mapping the Invisible
 % Under the Hood 
@@ -162,11 +163,11 @@
 % Something hidden (aka latent)
 % Maybe as if somthing important hidden in the deep forest e.g. 
 % Or it should be more on a patter side of things rather than specific object is hidden
-% прям как светка прятала хуи в узорах, только что-то приличное и возможно спрятано в листве \ цветочках \ что-нить зеленое ))
+% что-то возможно спрятано в листве \ цветочках \ что-нить зеленое ))
 
 
 
-\subtitle{Deep Latent Variable Generative Models}
+
 \university{Vrije Universiteit Amsterdam}
 
 \rector{prof.dr.~J.J.G.~Geurts}
@@ -184,11 +185,41 @@
 If you could know what gibberish empowers\\
 The verse that grows, from all abashment freed...\\
 Anna Akhmatova
-% \foreignlanguage{russian}{Когда б вы знали, из какого сора\\
-% Растут стихи, не ведая стыда}
 }
 
 \newcommand\ours{{DAED}}
+
+% Research questions
+\newcommand{\rqs}[1]{
+\begin{quote}
+% \begin{verse}
+\normalsize\itshape \noindent 
+\marginnote[-0.25\baselineskip]{\normalsize Research Question #1}
+\ifthenelse{\equal{#1}{1}}
+    {
+    How to use Variational Mixture of Posteriors Prior to improve density estimation in continual learning?
+    }{}
+\ifthenelse{\equal{#1}{2}}
+    {
+    \textit{How to approximate VampPrior for hierarchical VAEs in a scalable way and improve latent space utilization?}
+    }{}
+\ifthenelse{\equal{#1}{3}}
+    {
+    \textit{How to decouple denoising and generative abilities of the diffusion generative models?}
+    }{}
+\ifthenelse{\equal{#1}{4}}
+    {
+    \textit{How  to make latent representations robust to adversarial attacks?}
+    }{} 
+\ifthenelse{\equal{#1}{5}}
+    {
+    \textit{How to learn equivariant latent representations using VAE?}
+    }{} 
+\end{quote}
+}
+% \newcommand{\rq1}{\defrq{1}{How to use Variational Mixture of Posteriors Prior to improve density estimation in continual learning?}}
+
+
 
 
 
@@ -218,10 +249,10 @@ Anna Akhmatova
 \include{text/0_intro/introduction}
 % \include{text/fonts_test}
 
-\listoftodos[Notes]
+% \listoftodos[Notes]
 
 %%%%% Papers
-\part{Latent Variable Models for Density Estimation} \label{part:1}
+\part{Density Estimation with Latent Variable Models} \label{part:1}
 
 % Всё повторяю первый стих
 % И всё переправляю слово:
@@ -291,8 +322,22 @@ Anna Akhmatova
 
 %%%%% Appendix
 \appendix
+
+\cleardoublepage
+\thispagestyle{empty}
+\begin{fullwidth}
+\begin{singlespace}
+\vspace*{\fill}
+\LARGE\rmfamily 
+\centering\color{niceRed}\scshape \allcaps
+\hfil Appendix \hfil
+\vspace*{\fill}
+\end{singlespace}
+\end{fullwidth}
+
+% \part*{Appendix}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{0}}
 \newpage
-\anna{Make sure that appendix order is the same as chapter order}
 \include{text/1_boovae/appendix}
 \include{text/5_dvp/appendix}
 \include{text/4_daed/sections/5_appendix}

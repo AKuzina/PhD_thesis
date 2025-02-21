@@ -11,13 +11,13 @@ An adversarial attack on a VAE is usually formulated as an additive perturbation
 \begin{figure}[t]
 	% \vskip -100pt
 	\begin{center}
-		\includegraphics[width=0.6\linewidth]{pics/3_adv_att/Figure_1_upd.pdf}
+		\includegraphics[width=0.7\linewidth]{pics/3_adv_att/Figure_1_upd.pdf}
 		\caption{An example of an unsupervised encoder attack on VAE with 2D latent space and the proposed defense. 
 			Given a single reference point $\rvx^r$ we learn additive perturbation $\varepsilon$, s.t. perturbed input $\rvx^a$ has the most different latent code and therefore the reconstruction $\widetilde{\rvx}^a$. 
 			We observe that a single reference point can be mapped to extremely different regions of the latent space but using MCMC we are able to move them closer to the initial position so that the reconstruction $\widetilde{\rvx}^a_{\text{\tiny{HMC}}}$ is similar to the initial one $\widetilde{\rvx}^r$.}
 		\label{fig:toy_exaple}
 	\end{center}
-    \vspace{\baselineskip}
+    % \vspace{\baselineskip}
 \end{figure}
 % \end{wrapfigure}
 
@@ -32,7 +32,7 @@ The contribution of this work is the following:
     \item We propose to use an MCMC technique during inference to correct adversarial attacks on VAEs.
     \item We show theoretically that the application of an MCMC technique could indeed help to counteract adversarial attacks (Theorem \ref{theorem:main}).
     \item We indicate empirically that the previously proposed strategies to counteract adversarial attacks do not generalize well across various datasets.
-    \item We show empirically that the proposed approach (i.e., a VAE with an MCMC during inference) outperforms all baselines by a significant margin.
+    \item We show empirically that the proposed approach (i.e., a VAE with MCMC during inference) outperforms all baselines by a significant margin.
 \end{itemize}
 
 % In Figure \ref{fig:toy_exaple} we show an example of the \textit{supervised} attack on VAE with the 2D latent space. We show that we can add noise $\epsilon$ to a reference image so that the resulting adversarial input (second column) is encoded to a new point in the latent space. This new point is defined by the target image (first column). In \textit{unsupervised} attacks, on the other hand, we assume that the target image is not given. We show that it is still possible to construct an effective attack in this setting. The research goals of this work are the following:

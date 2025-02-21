@@ -10,7 +10,7 @@ Following~\citet{nichol2021improved} we evaluate the quality of generations with
 \label{sect:reasonable_to_use_denoiser}
 
 
-In Section \ref{sec:analysis}, we investigate how the signal-to-noise ratio and the reconstruction error of a DDGM change with the increasing number of diffusion steps (see Figure \ref{fig:mae_cifar_celeba}). Based on this analysis, we postulate that DDGMs can be divided into two parts: a \emph{denoiser} and a \emph{generator}. To determine the switching point, we propose an experiment that answers the following question:
+In Section \ref{sec:analysis}, we investigate how the signal-to-noise ratio and the reconstruction error of a DDGM change with the increasing number of diffusion steps (see Figure \ref{fig:mae_cifar_celeba}). Based on this analysis, we postulate that DDGMs can be divided into two parts: a \emph{denoiser} and a \emph{generator}. To determine the switching point, we propose an experiment that answers the following question: \\
 %\begin{wrapfigure}{r}{0.46\textwidth}
 %\vskip  -12pt
 %    \begin{adjustbox}{center}
@@ -22,15 +22,15 @@ In Section \ref{sec:analysis}, we investigate how the signal-to-noise ratio and 
 %    \vskip  -20pt
 %    % \end{figure}
 %\end{wrapfigure}
+\textit{Is there a denoising part of a DDGM that is agnostic to the signal from the data?}
 \begin{marginfigure}
-%	\vspace*{10\baselineskip}
+	\vspace*{2\baselineskip}
 	\includegraphics[width=\linewidth]{pics/4_daed/experiments/MAE_step_cifar_celeba.pdf}
 	\caption{The MAE for a DDGM trained on CIFAR10 and evaluated on CIFAR10 \& CelebA, with a 0.95 confidence interval.}
 	\label{fig:mae_cifar_celeba}
 \end{marginfigure}
-\textit{Is there a denoising part of a DDGM that is agnostic to the signal from the data?}
-
 To that end, we refer once more to the analysis of the reconstruction error (e.g., MAE) from different diffusion steps. This time, however, we compare the quality of reconstructions with a single DDGM model trained on the CIFAR10 dataset and then evaluated on CIFAR10 and CelebA. The result of this experiment is presented in Figure \ref{fig:mae_cifar_celeba}. Interestingly, we notice that for approximately $10\%$ of the initial steps of the DDGM, there is a negligible difference in the reconstruction error between these two datasets. This fact may suggest that, indeed, the model does not require any information about the background data signal in the first steps, and it is capable of denoising corrupted images. However, after this point (about $10\%$ of steps), the reconstruction error starts growing faster for the dataset the model was not trained on. This indicates that information about the domain becomes important and affects performance.
+
 
 \subsection{How does splitting DDGMs into generative and denoising parts affect the performance?}
 
@@ -60,10 +60,9 @@ First, we consider a situation in which we train a DDGM using the simplified obj
     \begin{adjustbox}{center}
     \includegraphics[width=0.8\linewidth]{pics/4_daed/experiments/daed_generations.png}
     \end{adjustbox}
-    % \vskip -5pt
     \caption{Examples of generations from \ours{} with the same noise value and different switching points.}
     \label{fig:daed_generations} 
-\vspace*{\baselineskip}
+% \vspace*{\baselineskip}
     \end{figure}
 % \end{wrapfigure}
 
@@ -92,7 +91,7 @@ To get further insight into the qualitative performance, in Figure~\ref{fig:daed
     \ours{} $\beta_1=0.001$ &Simple & 499 & \textbf{5.7} & 69 & 64 & 999 & 14.8 & \textbf{65} & 53 & 999 & 7.4 & \textbf{67} & 54 \\
     \bottomrule
   \end{tabular}}
-\vspace*{\baselineskip}
+% \vspace*{\baselineskip}
 \end{table*}
 
 In Table \ref{tab:results_fmnist_cifar_celeba}, we compare the performance of \ours{} against the DDGM on FashionMNIST, CIFAR10, and CelebA in terms of FID, Precision and Recall scores. We want to highlight that our goal is not to achieve SOTA results on the before-mentioned datasets but to verify whether we can gain some further understanding and, potentially, some improvement by splitting the denoising and generative parts. We consider two scenarios, namely, learning a DDGM and \ours{}s using either the variational lower bound (VBL) or the simplified objective (Simple) with various lengths of the diffusion. Interestingly, \ours{} outperforms the DDGM when these models are trained using the VBL loss. For the simplified objective, \ours{} trained with the same number of diffusion steps yields slightly lower performance than standard DDGMs. As indicated by the Precision/Recall, generations from \ours{} are as precise as those from DDGM. However, they lack certain diversity, probably due to the smoothing effect of the DAE part. Detailed results for other setups are presented in Appendix~\ref{appendix:extra_results}.\footnote{In Appendix~\ref{appx:large_models} we show that increasing the number of parameters of DDGMs to be comparable to \ours{} does not lead to significant performance improvements.}

@@ -332,7 +332,7 @@ De Boelelaan 1105
             % && Location \\
             % &prof.dr.~Stefan Mandt & Uni \\
             % && Location \\
-            % &dr.~Efstration Gavves & Uni \\
+            % &dr.~Efstratios Gavves & Uni \\
             % && Location \\
         \end{tabular}
         

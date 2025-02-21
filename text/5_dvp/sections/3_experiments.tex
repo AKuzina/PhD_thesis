@@ -284,6 +284,7 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
 
 
 \begin{figure}[t]
+\vskip 10pt
     \begin{tabular}{cc}
         \includegraphics[width=0.43\linewidth]{pics/5_dvp/mnist_ctx_ablaions_line.pdf} &
         \includegraphics[width=0.43\linewidth]{pics/5_dvp/omniglot_ctx_ablaions_line.pdf} \\
@@ -292,7 +293,7 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
     \end{tabular}
     \caption{Ablation study of for the pseudoinputs type (DCT and Downsampled image), pseudoinputs prior (Diffusion model and Mixture of Gaussians) and pseudoinputs size (ranging from $3\times 3$ to $11\times 11$). Each configuration is trained with four different random seeds.}
     \label{fig:mnist_ctx_ablations}
-    \vskip 10pt
+    \vskip 20pt
 \end{figure}
 
 \begin{figure}[t]
@@ -302,9 +303,9 @@ We report results in Table~\ref{tab:ablation_active_units} and observe that the 
         (a) Learnable pseudoinputs &
         (b) DCT pseudoinputs \\
     \end{tabular}
-    \caption[][\baselineskip]{Samples from the pseudoinputs prior $\Tilde{\rvu} \sim \hat{r}(\rvu)$ (top row) and corresponding samples from the model $\Tilde{\rvx} \sim p_{\theta}(\rvx|\rvz_{1:L}, \rvu=\Tilde{\rvu})$ (other rows). Columns corresponds to models trained with different random seeds.}
+    \caption{Samples from the pseudoinputs prior $\Tilde{\rvu} \sim \hat{r}(\rvu)$ (top row) and corresponding samples from the model $\Tilde{\rvx} \sim p_{\theta}(\rvx|\rvz_{1:L}, \rvu=\Tilde{\rvu})$ (other rows). Columns corresponds to models trained with different random seeds.}
     \label{fig:linear_context_sampels}
-    \vskip 10pt
+    \vskip 20pt
 \end{figure}
 
 

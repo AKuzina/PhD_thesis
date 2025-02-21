@@ -244,7 +244,6 @@ Finally, the Evidence Lower BOund for our model takes the following form:
      &- \E_{q_{\phi}(\rvu|\rvx)}\KL{q_{\phi}(\rvz_{1:L}|\rvx)}{p_{\theta}(\rvz_{1:L}|\rvu)} \\
      &- \KL{r(\rvu|\rvx)}{r(\rvu)}  . 
 \end{align}
-
 The ELBO for our model gives a straightforward objective for training an approximate prior by minimizing the Kullback-Leibler between $r(\rvu|\rvx)$ and the amortized VampPrior $r(\rvu) = \mathbb{E}_{\rvx}[r(\rvu|\rvx)]$. However, calculating the KL-term with $r(\rvu)$ is computationally demanding and, in fact, using $r(\rvu)$ as the prior does not help us solve the original problem of using the VampPrior. Therefore, in the following section, we propose to use an approximation $\hat{r}_{\gamma}(\rvu)$ instead.
 
 % The diffusion-based model provides a lower bound on the log density of the prior distribution $\mathcal{L}(\gamma, \rvz_L) \leq \ln p_{\gamma}(\rvz_L)$, which together with VAE objective~\ref{eq:vae_elbo} results in the following objective:
@@ -265,8 +264,6 @@ Diffusion models are flexible generative models and, in addition, can be seen as
     - \KL{q(\rvy_1 |\rvu)}{r(\rvy_1)}  \\
     & - \sum_{i=1}^T \E_{q(\rvy_{i/T}|\rvu)} \KL{q(\rvy_{(i-1)/T}|\rvy_{i/T}, \rvu)}{r_{\gamma}(\rvy_{(i-1)/T}|\rvy_{i/T})}. \notag
 \end{align}
-% The context prior is trained simultaneously with the whole VAE model via the ELBO objective $\mathcal{L}(\gamma, \rvu)$. 
-
 We provide more details on diffusion models and the derivation of the ELBO in Appendix \ref{appendix:ddgm_theory}. We refer to this prior as \textit{Diffusion-based VampPrior} (DVP). This prior allows us to sample infinitely many pseudoinputs, unlike the original VampPrior that uses a fixed set of $K$ pseudoinputs.
 
 Now, we can plug this lower bound into the objective (Eq.~\ref{eq:our_elbo}) and obtain the final objective of our Ladder VAE with pseudoinputs and the Diffusion-based VampPrior (dubbed DVP-VAE):
@@ -280,9 +277,6 @@ Now, we can plug this lower bound into the objective (Eq.~\ref{eq:our_elbo}) and
      - \E_{r(\rvu|\rvx)} L_{vlb}(\rvu, \gamma)\Bigr].
 \end{aligned}
 \end{equation}
-
-% Note that $\mathbb{H}[r(\rvu|\rvx)] = const$ since we assume $\sigma$ to be known \textit{a priori} (see Eq. \ref{eq:amortized_vampprior_posterior}).
-
 Note that $\mathbb{H}[r(\rvu|\rvx)] = \frac{P}{2}\log(2\pi \exp \sigma^2)$ where $\sigma$ is a learnable parameter (see Eq. \ref{eq:amortized_vampprior_posterior}) and $P$ is the dimensionality of the pseudoinput.
 %----SECTION----
 
