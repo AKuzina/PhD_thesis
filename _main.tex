@@ -165,6 +165,9 @@
 % Or it should be more on a patter side of things rather than specific object is hidden
 % что-то возможно спрятано в листве \ цветочках \ что-нить зеленое ))
 
+% A Map of moscow and Amsterdam: circles
+% A gaussian mixture model
+% A diffusion process
 
 
 
@@ -194,7 +197,7 @@ Anna Akhmatova
 \begin{quote}
 % \begin{verse}
 \normalsize\itshape \noindent 
-\marginnote[-0.25\baselineskip]{\normalsize Research Question #1}
+\marginnote[-0.25\baselineskip]{\large\itshape Research Question #1}
 \ifthenelse{\equal{#1}{1}}
     {
     How to use Variational Mixture of Posteriors Prior to improve density estimation in continual learning?
@@ -234,9 +237,9 @@ Anna Akhmatova
 \frontmatter
 \maketitlepage
 \pagestyle{plain}
-\include{text/0_intro/summary}
-% \include{text/0_intro/acknowledgments}
 \tableofcontents
+\include{text/0_intro/summary}
+\include{text/0_intro/acknowledgments}
 
 % \newpage
 % \listoffigures
@@ -245,8 +248,9 @@ Anna Akhmatova
 
 %%%%% Introduction
 \mainmatter
-\include{text/0_intro/papers}
+% \include{text/0_intro/papers}
 \include{text/0_intro/introduction}
+\include{text/0_intro/background}
 % \include{text/fonts_test}
 
 % \listoftodos[Notes]
@@ -348,7 +352,8 @@ Anna Akhmatova
 
 \include{text/3_adv_att/appendix}
 \include{text/2_equiv_vae/sections/6_appendix}
-\include{text/0_intro/app_bio}
+% Uncommen this if needed
+% \include{text/0_intro/app_bio}
 
 \clearpage
 

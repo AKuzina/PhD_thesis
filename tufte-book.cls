@@ -443,8 +443,10 @@ De Boelelaan 1105
 
 % \def\abstract{\subsection*{Abstract}\small\def\baselinestretch{1}\@normalsize}
 % \def\endabstract{\par}
-\def\abstract{\chapter
-    *{Summary}\small\def\baselinestretch{1}\@normalsize}
+\def\abstract{
+    \chapter*{Summary}\small\def\baselinestretch{1}\@normalsize
+    \addcontentsline{toc}{chapter}{Summary}
+    }
 \def\endabstract{\par}
 
 % You may want to change "Abstract" for the translated version in your local language (e.g. Résumé in French).
