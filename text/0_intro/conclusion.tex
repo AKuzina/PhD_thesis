@@ -17,7 +17,7 @@
 \end{quote}
 
 In this thesis, we have suggested the improvement of latent variable generative models in different scenarios and aspects. In the first part, we focused on the improved density estimation, while in the second part, we explored properties of the latent representations. 
-We will now give a summary of the contributions to each of the research questions outlined in Chapter~\ref{chap:intro} and suggest future research directions.
+We will now give a summary of the contributions to each of the research questions outlined in Chapter~\ref{ch:background} and suggest future research directions.
 
 \section{Research Questions}
 \rqs{1}
@@ -50,7 +50,7 @@ We experimentally validate this proposition, discussing its advantages and disad
 
 
 \rqs{4}
-In Chapter \ref{chap:adv_att}, examine the adversarial robustness of the latent representation in VAEs.
+In Chapter \ref{chap:adv_att}, we examine the adversarial robustness of the latent representation in VAEs.
 We examine several previously proposed objective functions for adversarial attack construction and present a solution to mitigate the effect of these attacks. 
 Our method utilizes the Markov Chain Monte Carlo (MCMC) technique during the inference step, which we justify through the theoretical analysis. 
 The proposed approach does not incur any additional costs during training, and the performance on non-attacked inputs is not diminished. 
@@ -69,12 +69,11 @@ We demonstrate that signals with unknown orientations can be recovered using ite
 % \jakub{After Conclusion, it is expected to add Future Directions. I know you a bit, and I know that you won't like to write it, but once you are finished with writing and correcting everything, think for a while, sit down and write how you see GenAI, VAEs, and so on. Think of it as a way of being a doctor of philosopy.}
 
 \section{Future Work}
+Latent Variable Models are extremely popular and a fast-developing field. However, there are still some directions for future research.
+\paragraph{Performance GAP between diffusion models and hierarchical VAEs}
+We discussed the strong connection between the deep hierarchical VAE and the diffusion model. However, some of the most powerful hierarchical VAE are still not able to achieve the same sampling quality as diffusion models. A very interesting research direction would be to find out how to bridge this performance gap. 
 
-% \paragraph{Metrics for samples}
-% Measuring the quality of the generated images poses several challenges. First, visual perception is subjective, and what one person considers high quality, another might find lacking. 
-
-% Additionally, traditional metrics such as pixel similarity do not always align with human aesthetic judgments. The context and purpose of the image add further complexity, requiring specialized evaluation metrics for different use cases. In addition, the diversity and distribution of the generated images can have an impact on quality assessments, making it difficult to establish a universal measurement standard. 
-
-% \paragraph{Performance GAP between diffusion models and hierarchical VAEs}
-
+\paragraph{Metrics}
+Measurement of the quality of the generated images poses several challenges. First, visual perception is subjective, and what one person considers high quality, another might find lacking. 
+Additionally, traditional metrics such as pixel similarity do not always align with human aesthetic judgments. The context and purpose of the image add further complexity, requiring specialized evaluation metrics for different use cases. In addition, the diversity and distribution of the generated images can have an impact on quality assessments, making it difficult to establish a universal measurement standard. 
 

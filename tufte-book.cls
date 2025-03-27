@@ -285,17 +285,26 @@ De Boelelaan 1105
 
 	%%%% copyright page
 	\thispagestyle{empty}
-        \noindent This thesis was typeset by the author using \LaTeX and the \texttt{tufte-latex-thesis} class.\\
+        \noindent This thesis was typeset by the author using \LaTeX \, and the \texttt{tufte-latex-thesis} class.\\
         The cover was designed by \\
         % Printing: www.proefschriftmaken.nl.
 	\hfill
+        % \vfill
+        \begin{table}
+            \centering
+            \begin{tabular}{cc}
+                 \includegraphics[width=0.5\textwidth]{pics/0_intro/VU-logo-RGB.png} & 
+                 \includegraphics[width=0.4\textwidth]{pics/0_intro/hi_logo.pdf}\\
+            \end{tabular}
+            % \caption{Caption}
+            % \label{tab:my_label}
+        \end{table}
 	\vfill
 	\makeatletter
-	\noindent Copyright \copyright\ 2024 \@author \\
+	\noindent Copyright \copyright\ 2025 \@author \\
         \noindent ISBN: xxxxx\\
 	\makeatother
 
-        
         %%%% PhD commitee: to fill in
         \newpage
         % \thispagestyle{empty}
@@ -304,10 +313,10 @@ De Boelelaan 1105
         %% List the promotors (supervisors).
         \medskip\noindent
         \begin{tabular}{p{3cm}p{5cm}l}
-            \mbox{\emph{Promoter:}} & 
+            \mbox{\emph{promoter:}} & 
             prof.dr.~A.E. Eiben & Vrije Universiteit Amsterdam, \\ 
                                & & The Netherlands \\
-            \mbox{\emph{Copromoters:}} & 
+            \mbox{\emph{co-promoters:}} & 
             dr.~J.M.Tomczak & Eindhoven University of Technology, \\ 
                           & & The Netherlands \\
             & prof.dr.~M.Welling & Universiteit van Amsterdam, \\ 
@@ -319,11 +328,11 @@ De Boelelaan 1105
         
         \medskip\noindent
         \begin{tabular}{p{3cm}p{5cm}l}
-            \mbox{\emph{Chairman:}} & 
+            \mbox{\emph{chairman:}} & 
             Rector Magnificus, &   Vrije Universiteit Amsterdam, \\
                  & \@rector{}  & The Netherlands \\
             \medskip \\ 
-            \mbox{\emph{Committee:}} 
+            \mbox{\emph{committee:}} 
             % &dr.~Yingzhen Li & Uni \\
             % && Location \\
             % &prof.dr.~Mark Hoogendoorn & Uni \\

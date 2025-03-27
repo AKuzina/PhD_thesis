@@ -60,7 +60,9 @@
 \usepackage{enumitem}
 % tikz
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, shapes.geometric, calc, positioning}
+\usetikzlibrary{arrows.meta, shapes.geometric, calc, positioning, decorations.pathreplacing, calc, 3d}
+% \usetikzlibrary{decorations.pathreplacing, positioning, calc, 3d}
+% \usetikzlibrary{decorations.pathreplacing, positioning, shapes.geometric}
 % modification to natbib citations
 \setcitestyle{numbers,square,citesep={;},aysep={,},yysep={;}}
 % \setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
@@ -318,7 +320,7 @@ Anna Akhmatova
 \include{text/0_intro/conclusion}
 
 %%%%% Bibliography
-\cleardoublepage
+% \cleardoublepage
 \begin{fullwidth}
 \begin{singlespace}
 	\bibliography{main}

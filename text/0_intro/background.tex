@@ -7,7 +7,7 @@
 \begin{flushright}
 \foreignlanguage{russian}{А вопросы… Вопросы не знают ответа —}\\
 \foreignlanguage{russian}{Налетят, разожгут и умчатся, как корь.} \\
-\foreignlanguage{russian}{Саша Черный} \\ \vskip 10pt
+\foreignlanguage{russian}{Саша Черный} \\ \vskip 20pt
  % And the questions...  The questions lack answers, still missing:\\
  % They'll come and they'll burn, fade like measles, unkind.\\
  % Sasha Chorny
@@ -15,19 +15,18 @@
 \end{quote}
 
 
-In this chapter, we discuss all the background crucial for understanding the contributions of the thesis and present the research questions. We formalize the generative modeling task and discuss the variety of model types based on the different probabilistic assumptions in Section~\ref{sec:intro_generative_models_types}, talk about neural network parametrization of probabilistic models in Section~\ref{sec:intro_parametrization} and discuss learning algorithms used to fit unknown parameters to the data in Section~\ref{sec:intro_learning_algo}. Finally, we take a closer look at the Latent Variable Generative models in Section~\ref{sec:into_latent_variable_models}, where we cover open question and challenges and formulate the research questions addressed in this thesis.
+In this chapter, we discuss all the background crucial for understanding the contributions of the thesis and present the research questions in a broad and detailed context. We formalize the generative modeling task and discuss the variety of model types based on the different probabilistic assumptions in Section~\ref{sec:intro_generative_models_types}, talk about neural network parametrization of probabilistic models in Section~\ref{sec:intro_parametrization} and discuss learning algorithms used to fit unknown parameters to the data in Section~\ref{sec:intro_learning_algo}. Finally, we take a closer look at the Latent Variable Generative models in Section~\ref{sec:into_latent_variable_models}, where we cover open questions and challenges and formulate the research questions addressed in this thesis.
 
 \section{Deep Generative Modeling}\label{sec:intro_generative_models_types}
-We formulate Deep Generative Modeling as a problem of density estimation and deep neural network parametrization. 
+We formulate Deep Generative Modeling as a problem of density estimation and deep neural network parameterization. 
 The task is to model a distribution of the random variable $\rvx$ given a finite set of \textit{independent and identically distributed} (iid) random samples $\{x_n\}_{n=1}^N$. 
-We will denote this finite set of samples as an empirical data distribution $p_e(\rvx) = \frac1N \sum_n \delta\left(\rvx - x_n\right)$. 
+We will denote this finite set of samples as an empirical data distribution $p_e(\rvx) = \frac1N \sum_n \delta\left(\rvx - x_n\right)$\footnote{We write $p(\rvx)$ as shorthand for $\text{Pr}(X = \rvx)$.}. 
 There are three components of the model that need to be specified:
 \begin{itemize}
-\item Probabilistic model. \newline 
-\marginnote{We use $p_{\theta}(\rvx)$ to denote probability density function of random variable $\rvx$, which is defined by (possibly unknown) parameters $\theta$.}
+\item Probabilistic model. 
+\marginnote{We use $p_{\theta}(\rvx)$ to denote probability density function of random variable $\rvx$, which is defined by (possibly unknown) parameters $\theta$.}\\
 The probabilistic model $p_{\theta}(\rvx)$ formalizes the assumption about the generative process of the observed data. 
-We seek to have flexible and expressive model to capture complex dependencies in the observed data, while as the same time keeping the method scalable.
-
+We seek to have flexible and expressive model to capture complex dependencies in the observed data, while at the same time keeping the method scalable.
 
 \item Parametrization.\\
 In deep generative models, the probabilistic model from above is parameterized by the deep neural network. 
@@ -40,7 +39,7 @@ Finally, one has to choose how to tune unknown parameters $\theta$. The goal is 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 % Types of generative models
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-\subsection{Generative Models Zoo}\label{subsec:intro_gen_zoo}
+\section{Generative Models Zoo}\label{subsec:intro_gen_zoo}
 Deep generative models are usually differentiated by the probabilistic model. 
 There are multiple ways in which these models can be grouped. In this chapter, we chose to distinguish the models with prescribed and implicit density \citep{diggle1984monte}. In the former case, the density function can be evaluated at least up to a normalization constant, while in the latter case only the sampling procedure from the distribution is defined. 
 In Figure \ref{fig:into_model_types} we schematically present the dichotomy with the examples of modern deep generative models given for each type.
@@ -51,26 +50,22 @@ This thesis contributes to the field of prescribed density models with latent va
 \begin{tikzpicture}[
 node distance=1.5cm and 2cm,
 box/.style={rectangle, draw, rounded corners, text centered, text width=4cm, minimum height=1cm, fill=RoyalBlue!10},
-example/.style={rectangle, draw=none, text centered, rounded corners, text width=4cm, minimum height=0.5cm,fill=ForestGreen!10},
+example/.style={rectangle, draw=none, text centered, rounded corners, text width=4cm, minimum height=0.3cm, fill=ForestGreen!10},
 arrow/.style={->, thick, >=Stealth}
 ]
-
 % Main block at the top center
 \node[box, fill=RedOrange!20] (dgms) {Generative Model};
 
 % Subcategories in one horizontal line below the main block
-\node[box, below=of dgms, xshift=-3cm, text width=3.5cm] (full) {Prescribed density};
-\node[box, below=of dgms, xshift=3cm, text width=3.5cm] (implicit) {Implicit density\\ $\tilde{\rvx} \sim p_{\theta}(\rvx)$};
+\node[box, below=0.7cm of dgms, xshift=-3cm, text width=3.5cm] (full) {Prescribed density};
+\node[box, below=0.7cm of dgms, xshift=3cm, text width=3.5cm] (implicit) {Implicit density\\ $\tilde{\rvx} \sim p_{\theta}(\rvx)$};
 \node[example, below=0.1cm of implicit, text width=3.5cm] (impl-x) {GAN};
 %% Arrows connecting main block to subcategories
 \draw[arrow] (dgms) -- (implicit);
 \draw[arrow] (dgms) -- (full);
-
-
-%\node[example, below=0cm of full, text width=4cm] (full-x) {Normalizing Flows};
-\node[box, below=of full, xshift=-2cm, text width=3.5cm] (tractable) {Fully Tractable \\ $p_{\theta}(\rvx)$};
-\node[box, below=of full, xshift=2cm, text width=3.5cm] (norm) {Unnormalized \\ $ p_{\theta}(\rvx) \propto f_{\theta}(\rvx) $};
-\node[box, below=of full, xshift=6.2cm, text width=3.9cm] (aux) {Latent Variables \\ $p_{\theta}(\rvx) = \int p_{\theta}(\rvx| \rvz)p_{\theta}(\rvz)d\rvz$};
+\node[box, below=1cm of full, xshift=-2cm, text width=3.5cm] (tractable) {Fully Tractable \\ $p_{\theta}(\rvx)$};
+\node[box, below=1cm of full, xshift=2cm, text width=3.5cm] (norm) {Unnormalized \\ $ p_{\theta}(\rvx) \propto f_{\theta}(\rvx) $};
+\node[box, below=1cm of full, xshift=6.2cm, text width=3.9cm] (aux) {Latent Variables \\ $p_{\theta}(\rvx) = \int p_{\theta}(\rvx| \rvz)p_{\theta}(\rvz)d\rvz$};
 \draw[arrow] (full) -- (tractable);
 \draw[arrow] (full) -- (norm);
 \draw[arrow] (full) -- (aux);
@@ -78,16 +73,10 @@ arrow/.style={->, thick, >=Stealth}
 \node[example, below=0.1cm of tractable, text width=3.5cm] (tractable-x) {Normalizing Flow};
 \node[example, below=0.1cm of norm, text width=3.5cm] (norm-x) {Energy-based Model};
 \node[example, below=0.1cm of aux, text width=3.9cm] (aux-x) {Variational Autoencoder};
-
-%\node[box, below=of aux, xshift=-2cm, text width=3.5cm] (latent) {Latent \\ $ p(\rvz) $};
-%\node[box, below=of aux, xshift=2cm, text width=3.5cm] (observed) {Non-latent \\ $q(\rvz|\rvx){}$};
-%\draw[arrow] (aux) -- (latent);
-%\draw[arrow] (aux) -- (observed);
-
 \end{tikzpicture}
+% \vskip -5pt
 \caption{
 Different ways to model a probability distribution of the observed random variable $\rvx$ with examples of generative models.
-% Different types of generative models based on the underlying probabilistic model.
 }
 \label{fig:into_model_types}
 \end{figure}
@@ -134,8 +123,8 @@ There are fewer restrictions on the parameterization of the model compared to, e
 \end{equation}
 When the auxiliary variables are treated as fully unobserved, we call them \textit{latent} and refer to the corresponding generative model as \textit{latent variable model}. 
 Variational Autoencoder (VAE) \citep{kingma2014autoencoding, rezende2014stochastic} is a popular latent variable model parameterized by neural networks. 
-\marginnote[-10pt]{Some generative models are hard to assign to a single category. For example, score-base diffusion models \cite{song2020score} introduce \textit{auxiliary} "noisy" random variables indexed by time and use the \textit{score} function to parameterize their distributions.}
 In some cases, more assumptions about $\rvz$'s are made. For example, in Diffusion-based Generative Models (DGMs)~\citep{sohl2015deep, ho2020denoising} latent variables are defined as noisy versions of the input $\rvx$. 
+\marginnote[-\baselineskip]{Note that some generative models are hard to assign to a single category. For example, score-base diffusion models \cite{song2020score} introduce \textit{auxiliary} "noisy" random variables indexed by time and use the \textit{score} function to parameterize their distributions.}
 
 In Section \ref{sec:into_latent_variable_models}, we discuss all components of latent variable generative models in more detail, as well as the research questions addressed in this thesis.
 
@@ -158,8 +147,7 @@ For example, consider a conditional distribution $p_{\theta}(\rvx|\rvz)$. Here, 
 \begin{equation}
     p_{\theta}(\rvx|\rvz) = \mathcal{N}\left(\rvx| \mu_{\theta}(\rvz), \sigma^2_{\theta}(\rvz) \text{I}\right),
 \end{equation}
-\marginnote[-2\baselineskip]{Both $\mu_{\theta}(\cdot)$ and $\sigma^2_{\theta}(\cdot)$ are Neural Networks and $\theta$ denotes all the trainable parameters of these NNs. }
-
+\marginnote[-2\baselineskip]{Both $\mu_{\theta}(\cdot)$ and $\sigma^2_{\theta}(\cdot)$ are Neural Networks and $\theta$ denotes all the trainable parameters of these NNs. }\\
 The specific application and type of generative model determine the required inductive biases and, consequently, the appropriate model architecture.
 In this thesis, we focus on computer vision applications. We often use convolutional neural networks (CNNs)~\citep{krizhevsky2012imagenet}, such as ResNet~\citep{he2016deep} and U-Net~\citep{ronneberger2015u} in this domain. 
 These architectures were initially developed for discriminative computer vision tasks such as classification, but have since been widely used to parameterize deep generative models. An alternative approach is to treat images as a sequence of patches and use transformer architecture~\citep{dosovitskiy2021an} as the backbone.
@@ -170,17 +158,33 @@ In scientific applications, such as molecule generation, graph neural networks~\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
 % Inference methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+\begin{algorithm}[t]
+	\caption{Stochastic Gradient Descent}
+	\label{alg:sgd_train}
+	\begin{algorithmic}
+  \\\hrulefill
+\State \hskip-3mm  {\bfseries Input:} { Dataset $\mathcal{D}: \,\{x_n\}_{n=1}^N$}
+\State \hskip-3mm  {\bfseries Input:} { Loss function $\mathcal{L}(\rvx, \theta)$}
+		\While{not converged}
+            \State Sample a mini-batch $\mathcal{M} \subset \mathcal{D}$
+            \State Compute loss: $ \tilde{\mathcal{L}} = \frac1M \sum_{\rvx_i \in \mathcal{M}} \mathcal{L}(\rvx_i, \theta)$
+		\State Compute gradient: $\hat{g}_t = \frac1M \sum_{\rvx_i \in \mathcal{M}} \nabla_{\theta} \mathcal{L}(\rvx_i, \theta^t)$
+		\State Update parameters: $\theta^{t+1} = \theta^{t} - \eta_t \hat{g}_t $
+		\EndWhile
+            \State \hskip-3mm  {\bfseries Output:} $\theta^*$
+	\end{algorithmic}
+\end{algorithm}
 \section{Learning Algorithm}\label{sec:intro_learning_algo}
+\marginnote[-13\baselineskip]{Algorithm~\ref{alg:sgd_train} presents the standard SGD update rule. Other first-order optimization methods (e.g. Adam~\citep{kingma2015adam}) substitute noisy gradient with its moving average and scale the learning rate for each parameter using the second moments.}
 The learning algorithm is the final component of the deep generative model formulation. 
 It involves setting up a loss function that measures how well a given model fits the data.
 We use first-order gradient-based optimization methods to minimize the loss function. 
-Therefore, we require the loss function to be differentiable with respect to the unknown parameters, allowing us to use backpropagation~\citep{rumelhart1986learning} to compute the gradients.
+Therefore, we require that the loss function be differentiable with respect to the unknown parameters, allowing us to use backpropagation~\citep{rumelhart1986learning} to compute the gradients.
 
 In this section, we first discuss the gradient-based optimization method used in deep learning and throughout this thesis. 
-Next, we derive the objective functions used to train the generative models.
+Next, we derive the objective functions that are used to train the generative models.
 
 \subsection{Stochastic Gradient Descent}
-
 \marginnote[1\baselineskip]{A function that should be minimized with respect to model parameters will be called \textit{loss function}, \textit{cost function} and \textit{objective} interchangeably.}
 Consider a loss function $\mathcal{L}(\rvx, \theta)$ and assume that we can compute its gradient $\nabla_\theta \mathcal{L}(\rvx, \theta)$. Note that this objective is defined for a single datapoint, while we observe the dataset that contains $N$ independent points. 
 The total loss we want to minimize is the expected loss over the dataset:
@@ -197,25 +201,6 @@ Therefore, we can use \textit{stochastic} gradient descent (SGD), which computes
 \E_{p_e(\rvx)} \mathcal{L}(\rvx, \theta) \approx \frac1M \sum_m \mathcal{L}(\rvx_, \theta), \quad M << N.
 \end{equation}
 In other words, at each iteration, we use a small subset of the dataset (\textit{mini-batch}). Then, we compute a noisy gradient using only this mini-batch and use it to update the model parameters. The resulting algorithm, called \textit{stochastic gradient descent} (SGD), is presented in Algorithm~\ref{alg:sgd_train}. It is guaranteed to converge to a local minima for a certain learning rate schedule~\citep{robbins1951stochastic}.
-
-\marginnote[2\baselineskip]{We present standard SGD update rule. Other first-order optimization methods (e.g. Adam~\citep{kingma2015adam}) substitute noisy gradient with its moving average and scale the learning rate for each parameter using second moments.}
-\begin{algorithm}
-	\caption{Stochastic Gradient Descent}
-	\label{alg:sgd_train}
-	\begin{algorithmic}
-  \\\hrulefill
-\State \hskip-3mm  {\bfseries Input:} { Dataset $\mathcal{D}: \,\{x_n\}_{n=1}^N$}
-\State \hskip-3mm  {\bfseries Input:} { Loss function $\mathcal{L}(\rvx, \theta)$}
-		\While{not converged}
-            \State Sample a mini-batch $\mathcal{M} \subset \mathcal{D}$
-            \State Compute loss: $ \tilde{\mathcal{L}} = \frac1M \sum_{\rvx_i \in \mathcal{M}} \mathcal{L}(\rvx_i, \theta)$
-		\State Compute gradient: $\hat{g}_t = \frac1M \sum_{\rvx_i \in \mathcal{M}} \nabla_{\theta} \mathcal{L}(\rvx_i, \theta^t)$
-		\State Update parameters: $\theta^{t+1} = \theta^{t} - \eta_t \hat{g}_t $
-		\EndWhile
-            \State \hskip-3mm  {\bfseries Output:} $\theta^*$
-	\end{algorithmic}
-\end{algorithm}
-
 
 \subsection{Maximum Likelihood}
 We will now derive the objective functions that are used to train deep generative models. 
@@ -234,8 +219,8 @@ A very common divergence used in generative modeling is the Kulbak-Leibler diver
 \end{aligned}
 \end{equation}
 \marginnote[-4\baselineskip]{KL divergence is an example of $f$-divergence that measures the distance between two distributions. Examples of other $f$-divergences are Jensen-Shannon Divergence and Total Variation distance. Other types of distance are integral probability metric, of which a popular one is the Wasserstein distance.}\newline
-Since KL divergence is not symmetric, it is convenient to distinguish the forward and reverse version. In forward KL divergence the expectation in Eq.~\ref{eq:into_kl_def} is taken with respect to the \textit{target} distribution (empirical data distribution in our case). Minimizing forward KL divergence between empirical distribution and a generative model is the same as maximizing the log likelihood objective:
-\marginnote[2\baselineskip]{Here we use definition of KL divergence and the fact that entropy of the empirical data distribution does not depend on the parameters $\theta$.}
+Since KL divergence is not symmetric, it is convenient to distinguish the forward and reverse version. In forward KL divergence the expectation in Eq.~\ref{eq:into_kl_def} is taken with respect to the \textit{target} distribution (empirical data distribution in our case). Minimizing forward KL divergence between empirical distribution and a generative model is the same as maximizing the log-likelihood objective:
+\marginnote[1.5\baselineskip]{Here we use the definition of KL divergence and the fact that entropy of the empirical data distribution does not depend on the parameters $\theta$.}
 \begin{equation}
 \begin{aligned}
 \KL{p_{e}(\rvx)}{p_{\theta}(\rvx)} & =  \E_{p_{e}(\rvx)}\left[ \log p_{e}(\rvx) - \log p_{\theta}(\rvx)\right] \\
@@ -319,12 +304,12 @@ We can use it to obtain a lower bound on the log-likelihood objective function:
 \end{align}
 This is a variational lower bound with \textit{variational} parameter $q$. It is also known as Evidence Lower BOund (ELBO), as it constitutes a bound on the loglikelihood (evidence) of the model. 
 We visualize ELBO in Figure~\ref{fig:intro_bound}. Different variational distributions $q$ will correspond to different lower bounds (e.g. green and red dashed lines in Figure~\ref{fig:intro_bound}), while different values of parameters $\theta$, will correspond to different points on the curve. 
-\begin{marginfigure}[1\baselineskip]
+\begin{marginfigure}[-0.1\baselineskip]
 \begin{tikzpicture}
   % Plot settings
   \begin{axis}[
     xlabel=$\theta$, 
-    % ylabel={Log likelihood}, 
+    % ylabel={log-likelihood}, 
     axis lines=left, 
     enlargelimits, 
     height=4.5cm, 
@@ -338,7 +323,7 @@ We visualize ELBO in Figure~\ref{fig:intro_bound}. Different variational distrib
     % title={Variational Lower Bound Visualization}
   ]
     
-    % True log likelihood (log p(x|theta))
+    % True log-likelihood (log p(x|theta))
       \addplot[domain=-3:3, samples=100, very thick, RoyalBlue] {ln(2*exp(-(x-1)^2) + 0.1*exp(-(x+1.75)^2))};
     \addlegendentry{$\log p_{\theta}(\rvx)$}
 
@@ -350,7 +335,7 @@ We visualize ELBO in Figure~\ref{fig:intro_bound}. Different variational distrib
     \addlegendentry{$\mathcal{F}(\rvx, q^{(2)}, \theta)$}
   \end{axis}
 \end{tikzpicture}
-\caption{Illustration of the log likelihood (solid line) and two variational lower bounds (dashed lines) corresponding to different variational distributions $q$.}\label{fig:intro_bound}
+\caption{Loglikelihood (solid line) and two variational lower bounds (dashed lines) corresponding to different variational distributions $q$.}\label{fig:intro_bound}
 \end{marginfigure}
 
 To see how ELBO relates to maximum likelihood and posterior approximation,  consider the following decomposition:
@@ -364,7 +349,7 @@ To see how ELBO relates to maximum likelihood and posterior approximation,  cons
 \end{equation}
 This shows that ELBO is equal to the sum of marginal likelihood and the negative KL divergence between the introduced distribution $q(\rvz)$ and the true posterior.
 % and makes it clear that the bound is tight when $q(\rvz) = p(\rvz|\rvx)$. 
-Thus,  maximizing ELBO with respect to the distribution $q$ is identical to minimizing this KL divergence. When $q(\rvz) = p(\rvz|\rvx)$ the divergence is zero and the ELBO matches the log likelihood.
+Thus,  maximizing ELBO with respect to the distribution $q$ is identical to minimizing this KL divergence. When $q(\rvz) = p(\rvz|\rvx)$ the divergence is zero and the ELBO matches the log-likelihood.
 Moreover, \citet{neal1998view} showed that if $\mathcal{F}(\rvx, q, \theta) $ has a maximum at $q^*, \, \theta^*$, then $\log p_{\theta}(\rvx)$ has a maximum at $\theta^*$. That is, ELBO has the same optimum as the maximum likelihood objective. 
 
 \paragraph{Expectation Maximization}
@@ -391,7 +376,7 @@ Note that we assume that each of $q_{\phi_n}(\rvz)$ is independent of each other
 \end{equation}
 Optimizing this objective function yields $q_{\phi_n}$ from a chosen family of distributions, which is closest to the true posterior in terms of KL divergence (see Figure~\ref{fig:intro_vi} for illustration). Similarly to the stochastic version of the gradient descent, stochastic Variational Inference (SVI) was proposed~\citep{hoffman2013stochastic}, where at each iteration only a subset of data is used and thus only a subset of local variational parameters $\phi_n$ is updated. 
 However, there are still multiple aspects that hinder the scalability of the VI objective. We will now address each of these in detail. 
-\begin{marginfigure}
+\begin{marginfigure}[-8\baselineskip]
 \begin{tikzpicture}
     % Draw the circle representing the variational family
     \draw[very thick, ForestGreen, rotate=35] (0,0) ellipse (1.8cm and 0.87cm) node[above, yshift=0.3cm, xshift=-0.2cm]  {\large$\mathcal{Q}$};
@@ -413,7 +398,7 @@ However, there are still multiple aspects that hinder the scalability of the VI 
     % Arrow from variational family to true posterior
     \draw[-, dashed, thick] (varfamily) -- (trueposterior) node[midway, above, sloped] {$\KL{q}{p}$};
 \end{tikzpicture}
-\caption{When posterior distribution $ p_{\theta}(z \mid x) $ lies outside of variational family $\mathcal{Q}$, variational inference seeks to find the approximation $q^*_{\phi_n}(z) $ which is closest to the true posterior in terms on KL divergence} \label{fig:intro_vi}
+\caption{Posterior distribution $ p_{\theta}(z \mid x) $ lies outside of variational family $\mathcal{Q}$. Variational inference seeks to find the approximation $q^*_{\phi_n}(z) $ which is closest to the true posterior in terms of KL divergence} \label{fig:intro_vi}
 \end{marginfigure}
 
 
@@ -452,7 +437,7 @@ It can be computed using the method called REINFORCE~\citep{williams1992simple} 
 
 REINFORCE uses the log-derivative trick to convert the gradient of the expectation into the expectation of the gradient, of the form similar to Eq.~\ref{eq:avi_grad_theta}. 
 However, it tends to have a high variance and is not often used in generative modeling. 
-\marginnote[-3\baselineskip]{Log derivative uses the definition of the gradient of the logarithm which gives: $$\nabla_{\phi}q_{\phi}(\rvz) = q_{\phi}(\rvz)\nabla_{\phi}\log q_{\phi}(\rvz)$$.}
+\marginnote[-3\baselineskip]{Log-derivative uses the definition of the gradient of the logarithm which gives: $$\nabla_{\phi}q_{\phi}(\rvz) = q_{\phi}(\rvz)\nabla_{\phi}\log q_{\phi}(\rvz)$$.}
 
 A more commonly used method, the reparameterization trick, was independently proposed for latent variable generative models~\cite{kingma2014autoencoding, rezende2014stochastic} and for Bayesian inference~\citep{titsias2014doubly}. 
 Consider a random variable $\varepsilon \sim p(\varepsilon)$ and a deterministic transformation $g_{\phi}(\varepsilon, \rvx)$, such that:
@@ -502,14 +487,14 @@ First, let us take a closer look at the Evidence Lower Bound (Eq.~\ref{eq:intro_
 % This generative model can be interpreted as an infinite mixture model \cite{mattei2018leveraging}. 
 % Here \cite{mattei2018leveraging}, this interpretation allowed to obtain an upper bound on the likelihood. 
 \paragraph{Reconstruction}
-\marginnote[4\baselineskip]{Variational posterior $q_{\phi}(\rvz|\rvx)$ is commonly called \textit{encoder} and the conditional likelihood $p_{\theta}(\rvx|\rvz)$ \textit{decoder}. Thus, when both distributions are learned together, the resulting model can be seen as a probabilistic \textit{autoencoder}, hence the model's name.} 
 The first part of the ELBO in Eq.~\ref{eq:intro_elbo_again} ensures that the model is able to reconstruct the input $\rvx$. If we consider it's Monte Carlo estimator for a single datapoint, it is computed by first sampling $\tilde{\rvz}_n$ for a given datapoint from the variational posterior
-and then computing the conditional log-likelihood using this sample:
+and then computing the conditional log-likelihood using this sample: 
 \begin{align}
     \tilde{\rvz}_n &\sim q_{\phi}(\cdot|\rvx_n), \label{eq:intro_encode}\\
     \text{Re}(\rvx_n) &= \log p_{\theta}(\rvx_n|\tilde{\rvz}_n).\label{eq:intro_decode}
 \end{align}
-In other words, we \textit{encode} data into the latent space in Eq.~\ref{eq:intro_encode} and then \textit{reconstruct} it (or in other words get parameters of the conditional likelihood given the latent variable) to compute the reconstruction term in Eq.~\ref{eq:intro_decode}.
+\marginnote[-4\baselineskip]{Variational posterior $q_{\phi}(\rvz|\rvx)$ is commonly called \textit{encoder} and the conditional likelihood $p_{\theta}(\rvx|\rvz)$ \textit{decoder}. Thus, when both distributions are learned together, the resulting model can be seen as a probabilistic \textit{autoencoder}, hence the model's name.}
+In other words, we \textit{encode} data into the latent space in Eq.~\ref{eq:intro_encode} and then \textit{reconstruct} it (or in other words, we obtain parameters of the conditional likelihood given the latent variable) to compute the reconstruction term in Eq.~\ref{eq:intro_decode}.
 
 \paragraph{KL term}
 The second term in Eq.~\ref{eq:intro_elbo_again} can be seen as a regularizer. It ensures that the variational posterior is close to the distribution $p_{\theta}(\rvz)$, which is usually called \textit{prior}.
@@ -530,7 +515,7 @@ As we have already mentioned, estimating the likelihood exactly is difficult for
     &\tilde{z}_k \sim q_{\phi}(\rvz|\rvx).
 \end{aligned}
 \end{equation}
-This is known as an \textit{importance weighted} log likelihood estimate. Notice that for $K=1$ it is equal to the ELBO. Furthermore, as we increase $K$ the bound on the log likelihood becomes tighter, and it approaches $\log p_{\theta}(\rvx)$ as $K \rightarrow \infty$~\citep{burda2015importance}. In practice $K=500$ or $K=1000$ is commonly used to report the test log-likelihood results and to compare the performance of different models. \citet{burda2015importance} proposed to use this as a training objective, a model known as \textit{Importance Weighted Autoencoder} (IWAE). 
+This is known as an \textit{importance weighted} log-likelihood estimate. Notice that for $K=1$ it is equal to the ELBO. Furthermore, as we increase $K$ the bound on the log-likelihood becomes tighter, and it approaches $\log p_{\theta}(\rvx)$ as $K \rightarrow \infty$~\citep{burda2015importance}. In practice $K=500$ or $K=1000$ is commonly used to report the test log-likelihood results and to compare the performance of different models. \citet{burda2015importance} proposed to use this as a training objective, a model known as \textit{Importance Weighted Autoencoder} (IWAE). 
 
 \paragraph{Model Components}
 Latent Variable model, including a VAE, consists of three main components. The conditional likelihood $p_{\theta}(\rvx|\rvz)$, which models the distribution of the data given its latent representation. The prior $p_{\theta}(\rvz)$, which is the marginal distribution over the latent space. And finally, the variational posterior $q_{\phi}(\rvz|\rvx)$, which models a conditional distribution of the latent variable given the data. We will now discuss each of these three components.
@@ -564,8 +549,8 @@ We will assume that all pixels across spacial and channel dimensions are conditi
     p_{\theta}(\rvx_i|\rvz) &= \sum_{k} P_{\theta}(\rvx_i = k|\rvz).
 \end{align}
 Here $\rvx_i$ is a single pixel of an image in an 8-bit representation and $k$ is a particular pixel value. 
-Assume that the intensity of the pixels has a continuous distribution with the probability density function $f_{\nu}$ and the cumulative distribution function (CDF) $F_{\nu}$. We can discretize it in two ways. 
-
+Assume that the intensity of the pixels has a continuous distribution with the probability density function (PDF) $f_{\nu}$ and the cumulative distribution function (CDF) $F_{\nu}$. We can discretize it in two ways, which we will refer to as CDF-based and PDF-based. 
+\paragraph{CDF-based discretization}
 The first option is to split the support of the intensity random variable into bins and compute probability of each bin via integration:
 \begin{equation}\label{eq:intro_int_discr}
 \begin{aligned}
@@ -594,6 +579,7 @@ It is convenient to use logistic distribution~\cite{kingma2016improved}, as it's
 \begin{equation}
     F^{\text{logistic}}(x; \mu, \sigma) = \frac{1}{1 + \exp (- \frac{x - \mu}{\sigma})}.
 \end{equation}
+\citet{salimans2016improved} proposed to use a mixture of discretized logistic distributions to improve the flexibility of the distribution.
 \begin{marginfigure}
 \begin{tikzpicture}
   \begin{axis}[
@@ -673,9 +659,9 @@ It is convenient to use logistic distribution~\cite{kingma2016improved}, as it's
 
 \end{tikzpicture}
 \caption{Probability Density Function for the pixel intensity (top) and discretized probabilities (bottom)}
+\label{fig:discretizetion_examples}
 \end{marginfigure}
-\citet{salimans2016improved} proposed to use a mixture of discretized logistic distributions to improve the flexibility of the distribution.
-
+\paragraph{PDF-based discretization}
 The second option is to re-normalize the probability of each bin:
 \begin{equation}\label{eq:intro_softmax_discr}
 \begin{aligned}
@@ -689,7 +675,7 @@ Thus, it is convenient when we want to use the Gaussian distribution:
     P_{\theta}(\rvx_i = k|\rvz) = \frac{\exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - k}{\sigma_{\theta}(\rvz)}\right)^2\right)}{\sum_{i=0}^{255} \exp\left(-\frac12 \left(\frac{\mu_{\theta}(\rvz) - i}{\sigma_{\theta}(\rvz)}\right)^2\right)}.
 \end{aligned}
 \end{equation}
-There is one more difference between the two approaches. The first tends to assign a higher probability to the pixel values 0 and 255. \citet{salimans2016improved} motivated this by the observation that these values have a higher frequency in real data. Renormalization, on the other hand, divides all bins by the same normalization constant. This is illustrated in Figure~\ref{eq:intro_int_discr}.
+There is one more difference between the two approaches. The first tends to assign a higher probability to the pixel values 0 and 255. \citet{salimans2016improved} motivated this by the observation that these values have a higher frequency in real data. Renormalization, on the other hand, divides all bins by the same normalization constant. This is illustrated in Figure~\ref{fig:discretizetion_examples}.
 In practice, both discretizations are used. 
 For example, logistic distribution~\citep{vahdat2020nvae, Child2020-ze} discretized with CDF, Gaussian distribution~\citep{ho2020denoising} discretized with CDF, and renormalized Gaussian distribution~\citep{kingma2021variational}. 
 In our experiments, we found all three options to perform similarly. 
@@ -701,18 +687,18 @@ Early VAE works used the most uninformative version of the prior, an isotropic G
 \begin{equation}
     p(\rvz) = \mathcal{N}(\rvz | 0, \text{I}).
 \end{equation}
-\marginnote[-2\baselineskip]{Note that this way prior does not have any trainable parameters; therefore, the $\theta$ subscript is removed.}\newline
+\marginnote[-3\baselineskip]{Note that this way prior does not have any trainable parameters; therefore, the $\theta$ subscript is removed.}\newline
 However, this prior can be too restrictive and can cause a problem known in the VAE literature as \textit{holes} in the latent space. Intuitively, we can think of a hole as regions in the latent space with high prior probability, which is not covered by any of the variational posterior distributions. 
 
 To better understand the problem of holes in the latent space, consider a toy example with the 2-dimensional latent space in Figure~\ref{fig:intro_prior_mismatch}. 
-The top plot depicts a standard Gaussian prior and the darkness of the color represents the probability of the sample. 
+The top plot depicts a standard Gaussian prior, and the darkness of the color represents the probability of the sample. 
 Let us also define the \textit{aggregated posterior} as a variational posterior averaged over the entire dataset: $q_{\phi}(\rvz) = \E_{p_{e}(\rvx)}q_{\phi}(\rvz|\rvx)$. 
 The bottom plot of Figure~\ref{fig:intro_prior_mismatch} presents a mixture of Gaussian distributions that is spread around the same area of the 2-d plane as the prior above it. 
 However, there are several places where the aggregated posterior has a very low probability, namely, no real data point $\rvx$ is ever encoded in this part of the latent space. 
 At the same time, the prior distribution assigns a high probability to this region. One such area is denoted by a red circle in the figure. 
 This motivates the use of more complicated prior distributions, which are capable of \textit{adapting} to the aggregated posterior and are flexible enough to avoid holes. 
 \begin{marginfigure}
-\vspace*{-10\baselineskip}
+\vspace*{-4\baselineskip}
 \subfloat[Prior \label{subfig:intro_prior}]{
 \begin{tikzpicture}
 \begin{axis}[
@@ -767,7 +753,6 @@ This motivates the use of more complicated prior distributions, which are capabl
 }
 \caption{Example of the mismatch between the prior (top plot) and aggregated posterior (bottom)}\label{fig:intro_prior_mismatch}
 \end{marginfigure}
-
 A flexible prior with trainable parameters can be viewed as a generative model in itself. 
 Note that we need to choose a model with fully tractable likelihood to ensure the tractability of the ELBO.
 For example, \citet{chen2016variational} proposed to employ Autoregressive Normalizing Flows as a learnable prior in the VAEs. This class of models employs a change-of-variable formula to compute the model density, as we discussed in Section~\ref{subsec:intro_gen_zoo}. 
@@ -952,7 +937,7 @@ For instance, consider the example in Figure~\ref{fig:intro_top_down}.
 Here, both the prior and the variational posterior for $\rvz_2$ depend on $\rvz_3$, but not on $\rvz_1$. 
 Thus, the same neural network can be used in the generative and inference part of the model to extract the features of $\rvz_3$ relevant for the next stochastic layer. 
 These shared paths are denoted by \textcolor{RoyalBlue}{blue arrows}.
-\begin{marginfigure}
+\begin{marginfigure}[-15\baselineskip]
     \begin{tikzpicture}[node distance=.4cm]
   % ENCODER: ALL RV
   \node[obs, minimum size=0.75cm] (X) {$\rvx$};
@@ -1078,12 +1063,12 @@ Figure~\ref{fig:intro_diff_schema} depicts the graphical model of this Markov Hi
 \marginnote[-2\baselineskip]{From here on, we will remove the subscript $\phi$ from the variational posterior distribution to emphasize that it is not trained.}
 This assumption allows us to marginalize out any latent variables. For example, it allows us to compute $q(\rvz_l|\rvx)$ in a closed form, which will also be a Gaussian with a linear mean function. Namely, each latent variable is a linear transformation of the input $\rvx$ with the added noise.
  Furthermore, we can use the linearity assumption to "reverse" the variational posterior, which will again be a Gaussian distribution:
+ \marginnote[2\baselineskip]{Note that this is analogous to computing the posterior in the linear Gaussian model with the likelihood $q(\rvz_l|\rvz_{l-1})$ and a prior $q(\rvz_{l-1}|\rvx)$ and can be computed in a closed form~\citep{bishop2006pattern}.}
 \begin{align}
 q(\rvz_{l-1} |\rvz_l, \rvx) &= \frac{q(\rvz_l|\rvz_{l-1}, \rvx)q(\rvz_{l-1}|\rvx)}{q(\rvz_l|\rvx)}\\
 &= \frac{q(\rvz_l|\rvz_{l-1})q(\rvz_{l-1}|\rvx)}{q(\rvz_l|\rvx)} \\
 & = \mathcal{N}(\rvz_{l-1} | \mu^q(\rvz_l, \rvx), \tilde{\sigma}^2_l\text{I}).\label{eq:intro_diff_q_form}
 \end{align}
-\marginnote[-5\baselineskip]{Note that this is analogous to computing the posterior in the linear Gaussian model with the likelihood $q(\rvz_l|\rvz_{l-1})$ and a prior $q(\rvz_{l-1}|\rvx)$ and can be computed in a closed form~\citep{bishop2006pattern}.}\newline
 Here, $\mu^q$ is a function that computes the mean value and $\tilde{\sigma}^2_l$ is the variance of the corresponding distribution. Both components can be computed in closed form for a given diffusion process, Eq.~\ref{eq:intro_forward_diff_def}. Therefore, the total variational posterior distribution can be expressed in the following form:
 \begin{align}
     q(\rvz|\rvx) &= q(\rvz_1|\rvx)\prod_{l=2}^L q(\rvz_l|\rvz_{l-1}) \\
@@ -1182,7 +1167,7 @@ We consider latent variable generative model as a prior and solve the optimizati
 The task gets additional complexity once we add rotation ambiguity. 
 That is, we assume that the object could have been measured in an unknown orientation. 
 In this case, we can benefit even more from learning the latent representations that are \textit{equivariant} to rotation. 
-\begin{marginfigure}
+\begin{marginfigure}[-15\baselineskip]
 \begin{tikzpicture}
 \node[draw, thick, minimum size=1cm] (x) at (0,0) {
     \tikz \node[star, star points=5, star point ratio=2.5, fill=RoyalBlue!60, inner sep=1pt] {};
@@ -1204,7 +1189,8 @@ In this case, we can benefit even more from learning the latent representations 
 \draw[->, thick] (fx) -- (rot_fx) node[midway, left] {\normalsize$T$};
 \draw[->, thick] (rot_x) -- (rot_fx) node[midway, above] {\normalsize$f$};
 \end{tikzpicture}
-\caption{Example of a function $f$ equivariant to transformation $T$. The application of a transformation and then a function yields the same result as first applying the function and then the transformation.}\label{fig:intro_equiv}
+\caption{Example of a function $f$ equivariant to a transformation $T$. The application of the transformation and then the function yields the same result as first applying the function and then the transformation.}
+\label{fig:intro_equiv}
 \end{marginfigure}
 
 We provide a toy example to illustrate a rotation equivariant function in Figure \ref{fig:intro_equiv}. Consider an object depicted on the top left of the figure, a function $f$ and a rotation operator $T$.
